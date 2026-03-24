@@ -1,0 +1,22 @@
+# Build artifacts
+dist/
+build/
+*.spec
+
+# Virtual env
+.venv/
+venv/
+
+# Cache
+__pycache__/
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+
+# SQLite databases
+*.db
+
+# OS
+Thumbs.db

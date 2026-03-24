@@ -1,0 +1,66 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "winboost"
+version = "0.1.0"
+description = "Windows AI System Assistant — Le premier assistant Windows qui ne te ment pas."
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.12"
+authors = [
+    {name = "Genlead", email = "contact@genlead.fr"},
+]
+keywords = ["windows", "optimizer", "system", "assistant", "ai"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Win32 (MS Windows)",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: System :: Systems Administration",
+    "Topic :: Utilities",
+]
+
+dependencies = [
+    "click>=8.1",
+    "psutil>=5.9",
+    "customtkinter>=5.2",
+    "pyyaml>=6.0",
+    "rich>=13.0",
+]
+
+[project.optional-dependencies]
+ai = [
+    "anthropic>=0.40",
+    "openai>=1.50",
+]
+dev = [
+    "pytest>=8.0",
+    "pytest-mock>=3.12",
+    "pytest-cov>=4.1",
+    "ruff>=0.5",
+    "pyinstaller>=6.0",
+]
+
+[project.scripts]
+winboost = "winboost.cli.main:cli"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["winboost*"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "SIM"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-v --tb=short"

@@ -1,0 +1,341 @@
+# =============================================================================
+# WinBoost — Status de suivi
+# Mis a jour automatiquement par Claude Code
+# =============================================================================
+
+project: winboost
+type: desktop-utility
+repo: Antoine6958585/winboost
+created: 2026-03-25
+last_updated: 2026-03-25
+
+progress: 0
+current_phase: 1
+current_milestone: v1.0
+
+assignees:
+  lead: claude-code
+  reviewers: [antoine, silvio]
+  owner: enzo
+
+# =============================================================================
+# MILESTONE v1.0 — Modules + CLI + GUI
+# =============================================================================
+
+phases:
+  - phase: 1
+    name: "Foundation — Core + 2 modules"
+    milestone: v1.0
+    status: not_started  # not_started | in_progress | done | blocked
+    tasks:
+      - id: T001
+        name: "Creer pyproject.toml + structure projet"
+        status: done
+        assignee: claude-code
+      - id: T002
+        name: "Implementer core/base_module.py (ABC)"
+        status: not_started
+        assignee: claude-code
+      - id: T003
+        name: "Implementer core/engine.py (scan -> report -> apply)"
+        status: not_started
+        assignee: claude-code
+      - id: T004
+        name: "Implementer core/config.py (JSON settings)"
+        status: not_started
+        assignee: claude-code
+      - id: T005
+        name: "Implementer modules/temp_cleaner.py"
+        status: not_started
+        assignee: claude-code
+      - id: T006
+        name: "Implementer modules/system_info.py"
+        status: not_started
+        assignee: claude-code
+      - id: T007
+        name: "Implementer cli/main.py (Click)"
+        status: not_started
+        assignee: claude-code
+      - id: T008
+        name: "Tests unitaires core + 2 modules"
+        status: not_started
+        assignee: claude-code
+
+  - phase: 2
+    name: "Modules critiques"
+    milestone: v1.0
+    status: not_started
+    tasks:
+      - id: T009
+        name: "Implementer modules/startup_manager.py"
+        status: not_started
+        assignee: claude-code
+      - id: T010
+        name: "Implementer modules/ram_optimizer.py"
+        status: not_started
+        assignee: claude-code
+      - id: T011
+        name: "Implementer modules/disk_analyzer.py"
+        status: not_started
+        assignee: claude-code
+      - id: T012
+        name: "Tests unitaires 3 modules"
+        status: not_started
+        assignee: claude-code
+      - id: T013
+        name: "CLI — commandes scan/fix par module"
+        status: not_started
+        assignee: claude-code
+
+  - phase: 3
+    name: "GUI"
+    milestone: v1.0
+    status: not_started
+    tasks:
+      - id: T014
+        name: "Implementer gui/app.py (fenetre principale)"
+        status: not_started
+        assignee: claude-code
+      - id: T015
+        name: "Implementer gui/dashboard.py (cards modules)"
+        status: not_started
+        assignee: claude-code
+      - id: T016
+        name: "Scan + resultats dans la GUI"
+        status: not_started
+        assignee: claude-code
+      - id: T017
+        name: "Dark theme + branding WinBoost"
+        status: not_started
+        assignee: claude-code
+      - id: T018
+        name: "Chat placeholder (UI prete, pas connectee)"
+        status: not_started
+        assignee: claude-code
+
+  - phase: 4
+    name: "Modules avances + Backup"
+    milestone: v1.0
+    status: not_started
+    tasks:
+      - id: T019
+        name: "Implementer modules/privacy_cleaner.py"
+        status: not_started
+        assignee: claude-code
+      - id: T020
+        name: "Implementer modules/dev_cache_cleaner.py"
+        status: not_started
+        assignee: claude-code
+      - id: T021
+        name: "Implementer modules/service_optimizer.py"
+        status: not_started
+        assignee: claude-code
+      - id: T022
+        name: "Implementer core/backup.py (backup + rollback)"
+        status: not_started
+        assignee: claude-code
+      - id: T023
+        name: "Implementer core/history.py (SQLite logs)"
+        status: not_started
+        assignee: claude-code
+      - id: T024
+        name: "Tests unitaires modules avances + backup"
+        status: not_started
+        assignee: claude-code
+
+  - phase: 5
+    name: "Release v1.0"
+    milestone: v1.0
+    status: not_started
+    tasks:
+      - id: T025
+        name: "Build PyInstaller -> .exe standalone"
+        status: not_started
+        assignee: claude-code
+      - id: T026
+        name: "Icone + splash screen"
+        status: not_started
+        assignee: claude-code
+      - id: T027
+        name: "README.md complet"
+        status: not_started
+        assignee: claude-code
+      - id: T028
+        name: "Tests E2E (CLI + GUI)"
+        status: not_started
+        assignee: claude-code
+      - id: T029
+        name: "GitHub Release v1.0.0"
+        status: not_started
+        assignee: antoine
+      - id: T030
+        name: "Passer repo en public"
+        status: not_started
+        assignee: antoine
+
+  # ===========================================================================
+  # MILESTONE v2.0 — Action Registry + AI Engine + Chat
+  # ===========================================================================
+
+  - phase: 6
+    name: "Action Registry"
+    milestone: v2.0
+    status: not_started
+    tasks:
+      - id: T031
+        name: "Format YAML des actions + schema validation"
+        status: not_started
+        assignee: claude-code
+      - id: T032
+        name: "Loader dynamique d'actions"
+        status: not_started
+        assignee: claude-code
+      - id: T033
+        name: "30 actions privacy"
+        status: not_started
+        assignee: claude-code
+      - id: T034
+        name: "30 actions performance"
+        status: not_started
+        assignee: claude-code
+      - id: T035
+        name: "20 actions cleanup"
+        status: not_started
+        assignee: claude-code
+      - id: T036
+        name: "20 actions dev_tools"
+        status: not_started
+        assignee: claude-code
+      - id: T037
+        name: "20 actions network + security"
+        status: not_started
+        assignee: claude-code
+      - id: T038
+        name: "30 actions appearance + gaming + system"
+        status: not_started
+        assignee: claude-code
+      - id: T039
+        name: "Tests + dry-run pour chaque action"
+        status: not_started
+        assignee: claude-code
+
+  - phase: 7
+    name: "AI Engine"
+    milestone: v2.0
+    status: not_started
+    tasks:
+      - id: T040
+        name: "Implementer ai/nl_parser.py (LLM -> intent)"
+        status: not_started
+        assignee: claude-code
+      - id: T041
+        name: "Implementer ai/action_router.py (intent -> actions)"
+        status: not_started
+        assignee: claude-code
+      - id: T042
+        name: "Implementer ai/safety_engine.py (risk filter)"
+        status: not_started
+        assignee: claude-code
+      - id: T043
+        name: "Implementer ai/cache.py (keyword matching)"
+        status: not_started
+        assignee: claude-code
+      - id: T044
+        name: "Implementer ai/providers/ (Anthropic + OpenAI + Ollama)"
+        status: not_started
+        assignee: claude-code
+      - id: T045
+        name: "CLI chat : winboost chat 'nettoie mes temp'"
+        status: not_started
+        assignee: claude-code
+      - id: T046
+        name: "Tests AI engine (mocked LLM calls)"
+        status: not_started
+        assignee: claude-code
+
+  - phase: 8
+    name: "Chat GUI"
+    milestone: v2.0
+    status: not_started
+    tasks:
+      - id: T047
+        name: "Implementer gui/chat.py (widget conversationnel)"
+        status: not_started
+        assignee: claude-code
+      - id: T048
+        name: "Bulles de message + indicateurs de risque"
+        status: not_started
+        assignee: claude-code
+      - id: T049
+        name: "Boutons d'action inline (Appliquer/Annuler)"
+        status: not_started
+        assignee: claude-code
+      - id: T050
+        name: "Preview panel (before/after)"
+        status: not_started
+        assignee: claude-code
+      - id: T051
+        name: "Integration chat -> engine -> modules"
+        status: not_started
+        assignee: claude-code
+      - id: T052
+        name: "Tests GUI chat"
+        status: not_started
+        assignee: claude-code
+
+  - phase: 9
+    name: "Profils + Onboarding + Polish"
+    milestone: v2.0
+    status: not_started
+    tasks:
+      - id: T053
+        name: "Systeme de profils (Safe/Power/Expert)"
+        status: not_started
+        assignee: claude-code
+      - id: T054
+        name: "Onboarding first-launch (choix profil + config API)"
+        status: not_started
+        assignee: claude-code
+      - id: T055
+        name: "History viewer (timeline des actions passees)"
+        status: not_started
+        assignee: claude-code
+      - id: T056
+        name: "Undo manager avance (multi-action rollback)"
+        status: not_started
+        assignee: claude-code
+      - id: T057
+        name: "Settings UI (API key, langue, profil)"
+        status: not_started
+        assignee: claude-code
+
+  - phase: 10
+    name: "Release v2.0"
+    milestone: v2.0
+    status: not_started
+    tasks:
+      - id: T058
+        name: "Build PyInstaller v2 (.exe)"
+        status: not_started
+        assignee: claude-code
+      - id: T059
+        name: "Update README + screenshots + GIFs"
+        status: not_started
+        assignee: claude-code
+      - id: T060
+        name: "Tests E2E complets (CLI + GUI + Chat)"
+        status: not_started
+        assignee: claude-code
+      - id: T061
+        name: "GitHub Release v2.0.0"
+        status: not_started
+        assignee: antoine
+      - id: T062
+        name: "Product Hunt draft"
+        status: not_started
+        assignee: enzo
+
+logs:
+  - date: 2026-03-25
+    action: "Projet cree — scaffold complet, repo GitHub initialise"
+    by: claude-code

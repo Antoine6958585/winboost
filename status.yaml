@@ -9,7 +9,7 @@ repo: Antoine6958585/winboost
 created: 2026-03-25
 last_updated: 2026-03-25
 
-progress: 39
+progress: 48
 current_phase: 5
 current_milestone: v1.0
 
@@ -146,23 +146,23 @@ phases:
   - phase: 5
     name: "Release v1.0"
     milestone: v1.0
-    status: not_started
+    status: in_progress
     tasks:
       - id: T025
         name: "Build PyInstaller -> .exe standalone"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T026
         name: "Icone + splash screen"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T027
         name: "README.md complet"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T028
         name: "Tests E2E (CLI + GUI)"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T029
         name: "GitHub Release v1.0.0"
@@ -336,6 +336,9 @@ phases:
         assignee: enzo
 
 logs:
+  - date: 2026-03-25
+    action: "Phase 5 (claude-code) terminee — build .exe + splash + README + 172 tests E2E. Reste: T029+T030 pour antoine"
+    by: claude-code
   - date: 2026-03-25
     action: "Phase 4 terminee — privacy/dev_cache/service + backup + history + 149 tests (81% cov)"
     by: claude-code

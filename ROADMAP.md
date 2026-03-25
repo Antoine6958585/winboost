@@ -34,9 +34,13 @@ v1 = 8 modules d'optimisation. v2 = Chat IA conversationnel.
 - [x] Tests (149 total, 81% couverture hors GUI)
 - **Livrable** : 8 modules + backup
 
-### Phase 5 : Release v1.0 (2-3h agent)
-- [ ] Build PyInstaller .exe
-- [ ] README, branding, tests E2E
+### Phase 5 : Release v1.0 (2-3h agent) ✅
+- [x] Build PyInstaller .exe (spec + build.py)
+- [x] Icone + splash screen
+- [x] README.md complet
+- [x] Tests E2E (172 tests total)
+- [ ] GitHub Release v1.0.0 (antoine)
+- [ ] Passer repo en public (antoine)
 - **Livrable** : v1.0.0 sur GitHub
 
 ---

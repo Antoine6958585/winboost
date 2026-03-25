@@ -174,7 +174,69 @@ class WinBoostApp(ctk.CTk):
         return frame
 
 
+class SplashScreen(ctk.CTkToplevel):
+    """Splash screen affiche au lancement."""
+
+    def __init__(self, parent: ctk.CTk) -> None:
+        super().__init__(parent)
+        self.overrideredirect(True)
+
+        width, height = 400, 250
+        x = (self.winfo_screenwidth() - width) // 2
+        y = (self.winfo_screenheight() - height) // 2
+        self.geometry(f"{width}x{height}+{x}+{y}")
+        self.configure(fg_color=COLORS["bg_sidebar"])
+
+        ctk.CTkLabel(
+            self, text="WinBoost", font=("Segoe UI", 36, "bold"),
+            text_color=COLORS["accent"],
+        ).pack(pady=(50, 5))
+
+        ctk.CTkLabel(
+            self, text="Windows AI System Assistant",
+            font=FONTS["body"], text_color=COLORS["text_secondary"],
+        ).pack(pady=(0, 20))
+
+        self.status = ctk.CTkLabel(
+            self, text="Chargement des modules...",
+            font=FONTS["small"], text_color=COLORS["text_muted"],
+        )
+        self.status.pack()
+
+        self.progress = ctk.CTkProgressBar(
+            self, fg_color=COLORS["border"], progress_color=COLORS["accent"],
+            width=300, height=4,
+        )
+        self.progress.pack(pady=(15, 0))
+        self.progress.set(0)
+
+        ctk.CTkLabel(
+            self, text="v0.1.0", font=FONTS["small"],
+            text_color=COLORS["text_muted"],
+        ).pack(side="bottom", pady=10)
+
+    def update_progress(self, value: float, text: str = "") -> None:
+        self.progress.set(value)
+        if text:
+            self.status.configure(text=text)
+        self.update()
+
+
 def launch_gui() -> None:
-    """Point d'entree pour lancer la GUI."""
+    """Point d'entree pour lancer la GUI avec splash screen."""
     app = WinBoostApp()
+
+    # Splash screen
+    splash = SplashScreen(app)
+    app.withdraw()
+
+    splash.update_progress(0.3, "Initialisation...")
+    app.after(200, lambda: splash.update_progress(0.6, "Modules charges."))
+    app.after(500, lambda: splash.update_progress(1.0, "Pret !"))
+
+    def _close_splash() -> None:
+        splash.destroy()
+        app.deiconify()
+
+    app.after(900, _close_splash)
     app.mainloop()

@@ -28,9 +28,10 @@ v1 = 8 modules d'optimisation. v2 = Chat IA conversationnel.
 - [x] Chat placeholder (UI prete, v2)
 - **Livrable** : App GUI fonctionnelle (`winboost gui`)
 
-### Phase 4 : Modules avances + Backup (4-5h agent)
-- [ ] privacy_cleaner, dev_cache_cleaner, service_optimizer
-- [ ] Systeme backup/undo + SQLite history
+### Phase 4 : Modules avances + Backup (4-5h agent) ✅
+- [x] privacy_cleaner, dev_cache_cleaner, service_optimizer
+- [x] Systeme backup/undo + SQLite history
+- [x] Tests (149 total, 81% couverture hors GUI)
 - **Livrable** : 8 modules + backup
 
 ### Phase 5 : Release v1.0 (2-3h agent)

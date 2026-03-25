@@ -9,8 +9,8 @@ repo: Antoine6958585/winboost
 created: 2026-03-25
 last_updated: 2026-03-25
 
-progress: 29
-current_phase: 4
+progress: 39
+current_phase: 5
 current_milestone: v1.0
 
 assignees:
@@ -116,31 +116,31 @@ phases:
   - phase: 4
     name: "Modules avances + Backup"
     milestone: v1.0
-    status: not_started
+    status: done
     tasks:
       - id: T019
         name: "Implementer modules/privacy_cleaner.py"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T020
         name: "Implementer modules/dev_cache_cleaner.py"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T021
         name: "Implementer modules/service_optimizer.py"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T022
         name: "Implementer core/backup.py (backup + rollback)"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T023
         name: "Implementer core/history.py (SQLite logs)"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T024
         name: "Tests unitaires modules avances + backup"
-        status: not_started
+        status: done
         assignee: claude-code
 
   - phase: 5
@@ -336,6 +336,9 @@ phases:
         assignee: enzo
 
 logs:
+  - date: 2026-03-25
+    action: "Phase 4 terminee — privacy/dev_cache/service + backup + history + 149 tests (81% cov)"
+    by: claude-code
   - date: 2026-03-25
     action: "Phase 3 terminee — GUI CustomTkinter (dashboard, modules, chat placeholder)"
     by: claude-code

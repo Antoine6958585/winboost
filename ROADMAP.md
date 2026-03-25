@@ -15,11 +15,11 @@ v1 = 8 modules d'optimisation. v2 = Chat IA conversationnel.
 - [x] Tests unitaires (60 tests, 84% couverture)
 - **Livrable** : `winboost scan --module temp`
 
-### Phase 2 : Modules critiques (4-6h agent)
-- [ ] startup_manager
-- [ ] ram_optimizer
-- [ ] disk_analyzer
-- [ ] Tests par module
+### Phase 2 : Modules critiques (4-6h agent) ✅
+- [x] startup_manager
+- [x] ram_optimizer
+- [x] disk_analyzer
+- [x] Tests par module (102 tests, 80% couverture)
 - **Livrable** : 5 modules CLI
 
 ### Phase 3 : GUI (4-5h agent)

@@ -9,8 +9,8 @@ repo: Antoine6958585/winboost
 created: 2026-03-25
 last_updated: 2026-03-25
 
-progress: 13
-current_phase: 2
+progress: 21
+current_phase: 3
 current_milestone: v1.0
 
 assignees:
@@ -64,27 +64,27 @@ phases:
   - phase: 2
     name: "Modules critiques"
     milestone: v1.0
-    status: not_started
+    status: done
     tasks:
       - id: T009
         name: "Implementer modules/startup_manager.py"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T010
         name: "Implementer modules/ram_optimizer.py"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T011
         name: "Implementer modules/disk_analyzer.py"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T012
         name: "Tests unitaires 3 modules"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T013
         name: "CLI — commandes scan/fix par module"
-        status: not_started
+        status: done
         assignee: claude-code
 
   - phase: 3
@@ -336,6 +336,12 @@ phases:
         assignee: enzo
 
 logs:
+  - date: 2026-03-25
+    action: "Phase 2 terminee — startup_manager, ram_optimizer, disk_analyzer + 102 tests (80% cov)"
+    by: claude-code
+  - date: 2026-03-25
+    action: "Phase 1 terminee — core + temp_cleaner + system_info + CLI + 60 tests (84% cov)"
+    by: claude-code
   - date: 2026-03-25
     action: "Projet cree — scaffold complet, repo GitHub initialise"
     by: claude-code

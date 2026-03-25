@@ -162,13 +162,13 @@ def list_modules() -> None:
 def _display_scan_result(result: "ScanResult") -> None:
     """Affiche un ScanResult de maniere formatee."""
     if not result.has_issues:
-        console.print(f"  [green]✓ {result.module_name}[/green] — Aucun probleme")
+        console.print(f"  [green][OK][/green] {result.module_name} — Aucun probleme")
         return
 
     console.print(f"\n  [bold]{result.module_name}[/bold] — {result.summary}")
     for issue in result.issues:
         color = RISK_COLORS.get(issue.risk_level, "white")
-        marker = "●" if issue.auto_fixable else "○"
+        marker = "[*]" if issue.auto_fixable else "[ ]"
         console.print(f"    [{color}]{marker}[/{color}] {issue.description}")
 
 

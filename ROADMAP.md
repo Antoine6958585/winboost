@@ -70,10 +70,13 @@ v1 = 8 modules d'optimisation. v2 = Chat IA conversationnel.
 - [x] Tests GUI chat (30 tests, 261 total)
 - **Livrable** : Chat IA dans la GUI
 
-### Phase 9 : Profils + Onboarding (3-4h agent)
-- [ ] Profils Safe/Power/Expert
-- [ ] Onboarding first-launch
-- [ ] History viewer + undo manager
+### Phase 9 : Profils + Onboarding (3-4h agent) ✅
+- [x] Profils Safe/Power/Expert (ProfileCard + switch + persistence)
+- [x] Onboarding first-launch (3 etapes: bienvenue + profil + API)
+- [x] History viewer (HistoryPage + filtres + timeline + details)
+- [x] Undo manager avance (backup/restore + logging)
+- [x] Settings UI (profil, API keys, langue, modules)
+- [x] Tests (32 tests, 293 total)
 - **Livrable** : Experience complete
 
 ### Phase 10 : Release v2.0 (2-3h agent)

@@ -73,6 +73,8 @@ class WinBoostApp(ctk.CTk):
             ("Dashboard", "dashboard"),
             ("Modules", "modules"),
             ("Chat IA", "chat"),
+            ("Historique", "history"),
+            ("Parametres", "settings"),
         ]
 
         self._nav_buttons: dict[str, ctk.CTkButton] = {}
@@ -97,17 +99,18 @@ class WinBoostApp(ctk.CTk):
         spacer.pack(fill="both", expand=True)
 
         # Profil en bas
-        profile_frame = ctk.CTkFrame(
+        self._profile_frame = ctk.CTkFrame(
             self.sidebar, fg_color=COLORS["bg_card"], corner_radius=8
         )
-        profile_frame.pack(fill="x", padx=15, pady=15)
+        self._profile_frame.pack(fill="x", padx=15, pady=15)
 
-        ctk.CTkLabel(
-            profile_frame,
+        self._profile_label = ctk.CTkLabel(
+            self._profile_frame,
             text=f"Profil : {self.config.profile.upper()}",
             font=FONTS["small"],
             text_color=COLORS["text_secondary"],
-        ).pack(pady=8)
+        )
+        self._profile_label.pack(pady=8)
 
         # Version
         ctk.CTkLabel(
@@ -165,6 +168,18 @@ class WinBoostApp(ctk.CTk):
             from winboost.gui.chat import ChatPage
             return ChatPage(self.content, config=self.config)
 
+        if page_id == "history":
+            from winboost.gui.history_page import HistoryPage
+            return HistoryPage(self.content, config=self.config)
+
+        if page_id == "settings":
+            from winboost.gui.settings_page import SettingsPage
+            return SettingsPage(
+                self.content,
+                config=self.config,
+                on_profile_change=self._on_profile_change,
+            )
+
         # Page par defaut
         frame = ctk.CTkFrame(self.content, fg_color=COLORS["bg_dark"])
         ctk.CTkLabel(
@@ -172,6 +187,14 @@ class WinBoostApp(ctk.CTk):
             font=FONTS["heading"], text_color=COLORS["text_secondary"],
         ).pack(expand=True)
         return frame
+
+    def _on_profile_change(self, profile: str) -> None:
+        """Callback quand le profil change depuis les settings."""
+        self._profile_label.configure(text=f"Profil : {profile.upper()}")
+        # Invalide la page chat pour reconstruire avec le nouveau profil
+        if "chat" in self._pages:
+            self._pages["chat"].destroy()
+            del self._pages["chat"]
 
 
 class SplashScreen(ctk.CTkToplevel):
@@ -223,7 +246,7 @@ class SplashScreen(ctk.CTkToplevel):
 
 
 def launch_gui() -> None:
-    """Point d'entree pour lancer la GUI avec splash screen."""
+    """Point d'entree pour lancer la GUI avec splash screen et onboarding."""
     app = WinBoostApp()
 
     # Splash screen
@@ -237,6 +260,15 @@ def launch_gui() -> None:
     def _close_splash() -> None:
         splash.destroy()
         app.deiconify()
+
+        # Onboarding si premier lancement
+        from winboost.gui.onboarding import OnboardingWizard, should_show_onboarding
+        if should_show_onboarding(app.config):
+            OnboardingWizard(
+                app,
+                config=app.config,
+                on_complete=app._on_profile_change,
+            )
 
     app.after(900, _close_splash)
     app.mainloop()

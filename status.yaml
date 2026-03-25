@@ -9,8 +9,8 @@ repo: Antoine6958585/winboost
 created: 2026-03-25
 last_updated: 2026-03-25
 
-progress: 82
-current_phase: 9
+progress: 90
+current_phase: 10
 current_milestone: v2.0
 
 assignees:
@@ -286,27 +286,27 @@ phases:
   - phase: 9
     name: "Profils + Onboarding + Polish"
     milestone: v2.0
-    status: not_started
+    status: done
     tasks:
       - id: T053
         name: "Systeme de profils (Safe/Power/Expert)"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T054
         name: "Onboarding first-launch (choix profil + config API)"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T055
         name: "History viewer (timeline des actions passees)"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T056
         name: "Undo manager avance (multi-action rollback)"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T057
         name: "Settings UI (API key, langue, profil)"
-        status: not_started
+        status: done
         assignee: claude-code
 
   - phase: 10
@@ -336,6 +336,9 @@ phases:
         assignee: enzo
 
 logs:
+  - date: 2026-03-25
+    action: "Phase 9 terminee — Profils (Safe/Power/Expert) + Onboarding wizard + History viewer + Undo manager + Settings UI + 293 tests"
+    by: claude-code
   - date: 2026-03-25
     action: "Phase 8 terminee — Chat GUI (ChatPage + ActionCard + PreviewPanel + ConfirmDialog + TypingIndicator + integration router/history) + 261 tests"
     by: claude-code

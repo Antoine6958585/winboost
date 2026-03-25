@@ -1,0 +1,336 @@
+# Actions de nettoyage des outils de developpement Windows
+# Categorie : dev_tools | 20 actions | Risque : low
+
+# --- JavaScript / Node.js ---
+
+- id: "dev_001"
+  name: "Clear npm cache"
+  description: "Supprime le cache npm local pour liberer de l'espace disque"
+  category: "dev_tools"
+  risk_level: "low"
+  requires_admin: false
+  reversible: false
+  execute:
+    method: "cmd"
+    params:
+      command: "npm cache clean --force"
+  rollback: {}
+  keywords:
+    fr: ["npm", "cache", "node", "javascript", "nettoyage"]
+    en: ["npm", "cache", "node", "javascript", "cleanup"]
+
+- id: "dev_002"
+  name: "Clear Yarn cache"
+  description: "Supprime le cache global Yarn pour recuperer de l'espace"
+  category: "dev_tools"
+  risk_level: "low"
+  requires_admin: false
+  reversible: false
+  execute:
+    method: "cmd"
+    params:
+      command: "yarn cache clean --all"
+  rollback: {}
+  keywords:
+    fr: ["yarn", "cache", "javascript", "nettoyage", "node"]
+    en: ["yarn", "cache", "javascript", "cleanup", "node"]
+
+- id: "dev_003"
+  name: "Clear pnpm store"
+  description: "Nettoie le store global pnpm et les paquets orphelins"
+  category: "dev_tools"
+  risk_level: "low"
+  requires_admin: false
+  reversible: false
+  execute:
+    method: "cmd"
+    params:
+      command: "pnpm store prune"
+  rollback: {}
+  keywords:
+    fr: ["pnpm", "store", "cache", "javascript", "nettoyage"]
+    en: ["pnpm", "store", "cache", "javascript", "cleanup"]
+
+- id: "dev_004"
+  name: "Clear Bun cache"
+  description: "Supprime le cache global de Bun dans AppData"
+  category: "dev_tools"
+  risk_level: "low"
+  requires_admin: false
+  reversible: false
+  execute:
+    method: "clear_directory"
+    params:
+      path: "%USERPROFILE%\\.bun\\install\\cache"
+  rollback: {}
+  keywords:
+    fr: ["bun", "cache", "javascript", "nettoyage", "runtime"]
+    en: ["bun", "cache", "javascript", "cleanup", "runtime"]
+
+# --- Python ---
+
+- id: "dev_005"
+  name: "Clear pip cache"
+  description: "Purge le cache pip local contenant les paquets telecharges"
+  category: "dev_tools"
+  risk_level: "low"
+  requires_admin: false
+  reversible: false
+  execute:
+    method: "cmd"
+    params:
+      command: "pip cache purge"
+  rollback: {}
+  keywords:
+    fr: ["pip", "cache", "python", "paquets", "nettoyage"]
+    en: ["pip", "cache", "python", "packages", "cleanup"]
+
+- id: "dev_006"
+  name: "Clear Conda cache"
+  description: "Supprime les paquets et tarballs en cache de Conda"
+  category: "dev_tools"
+  risk_level: "low"
+  requires_admin: false
+  reversible: false
+  execute:
+    method: "cmd"
+    params:
+      command: "conda clean --all --yes"
+  rollback: {}
+  keywords:
+    fr: ["conda", "cache", "python", "anaconda", "nettoyage"]
+    en: ["conda", "cache", "python", "anaconda", "cleanup"]
+
+- id: "dev_007"
+  name: "Clean __pycache__ directories"
+  description: "Supprime tous les dossiers __pycache__ du profil utilisateur"
+  category: "dev_tools"
+  risk_level: "low"
+  requires_admin: false
+  reversible: false
+  execute:
+    method: "powershell"
+    params:
+      command: "Get-ChildItem -Path $env:USERPROFILE -Recurse -Directory -Filter '__pycache__' -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue"
+  rollback: {}
+  keywords:
+    fr: ["pycache", "python", "bytecode", "nettoyage", "dossiers"]
+    en: ["pycache", "python", "bytecode", "cleanup", "directories"]
+
+- id: "dev_008"
+  name: "Clean .pyc files"
+  description: "Supprime les fichiers bytecode Python (.pyc) du profil utilisateur"
+  category: "dev_tools"
+  risk_level: "low"
+  requires_admin: false
+  reversible: false
+  execute:
+    method: "powershell"
+    params:
+      command: "Get-ChildItem -Path $env:USERPROFILE -Recurse -Filter '*.pyc' -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue"
+  rollback: {}
+  keywords:
+    fr: ["pyc", "python", "bytecode", "fichiers", "nettoyage"]
+    en: ["pyc", "python", "bytecode", "files", "cleanup"]
+
+# --- Java / JVM ---
+
+- id: "dev_009"
+  name: "Clear Gradle caches"
+  description: "Supprime les caches Gradle (artefacts, wrappers, daemons)"
+  category: "dev_tools"
+  risk_level: "low"
+  requires_admin: false
+  reversible: false
+  execute:
+    method: "clear_directory"
+    params:
+      path: "%USERPROFILE%\\.gradle\\caches"
+  rollback: {}
+  keywords:
+    fr: ["gradle", "cache", "java", "build", "nettoyage"]
+    en: ["gradle", "cache", "java", "build", "cleanup"]
+
+- id: "dev_010"
+  name: "Clear Maven .m2 repository"
+  description: "Supprime le depot local Maven pour liberer de l'espace"
+  category: "dev_tools"
+  risk_level: "low"
+  requires_admin: false
+  reversible: false
+  execute:
+    method: "clear_directory"
+    params:
+      path: "%USERPROFILE%\\.m2\\repository"
+  rollback: {}
+  keywords:
+    fr: ["maven", "m2", "repository", "java", "nettoyage", "depot"]
+    en: ["maven", "m2", "repository", "java", "cleanup"]
+
+# --- Rust / Go ---
+
+- id: "dev_011"
+  name: "Clear Cargo registry cache"
+  description: "Supprime le cache du registre Cargo (crates telecharges)"
+  category: "dev_tools"
+  risk_level: "low"
+  requires_admin: false
+  reversible: false
+  execute:
+    method: "clear_directory"
+    params:
+      path: "%USERPROFILE%\\.cargo\\registry\\cache"
+  rollback: {}
+  keywords:
+    fr: ["cargo", "rust", "cache", "registre", "crates", "nettoyage"]
+    en: ["cargo", "rust", "cache", "registry", "crates", "cleanup"]
+
+- id: "dev_012"
+  name: "Clear Go module cache"
+  description: "Nettoie le cache des modules Go telecharges"
+  category: "dev_tools"
+  risk_level: "low"
+  requires_admin: false
+  reversible: false
+  execute:
+    method: "cmd"
+    params:
+      command: "go clean -modcache"
+  rollback: {}
+  keywords:
+    fr: ["go", "golang", "modules", "cache", "nettoyage"]
+    en: ["go", "golang", "modules", "cache", "cleanup"]
+
+# --- Docker ---
+
+- id: "dev_013"
+  name: "Docker prune images"
+  description: "Supprime les images Docker non utilisees (dangling)"
+  category: "dev_tools"
+  risk_level: "low"
+  requires_admin: false
+  reversible: false
+  execute:
+    method: "cmd"
+    params:
+      command: "docker image prune --force"
+  rollback: {}
+  keywords:
+    fr: ["docker", "images", "prune", "nettoyage", "conteneurs"]
+    en: ["docker", "images", "prune", "cleanup", "containers"]
+
+- id: "dev_014"
+  name: "Docker prune containers"
+  description: "Supprime tous les conteneurs Docker arretes"
+  category: "dev_tools"
+  risk_level: "low"
+  requires_admin: false
+  reversible: false
+  execute:
+    method: "cmd"
+    params:
+      command: "docker container prune --force"
+  rollback: {}
+  keywords:
+    fr: ["docker", "conteneurs", "prune", "arretes", "nettoyage"]
+    en: ["docker", "containers", "prune", "stopped", "cleanup"]
+
+- id: "dev_015"
+  name: "Docker prune volumes"
+  description: "Supprime les volumes Docker orphelins non utilises"
+  category: "dev_tools"
+  risk_level: "low"
+  requires_admin: false
+  reversible: false
+  execute:
+    method: "cmd"
+    params:
+      command: "docker volume prune --force"
+  rollback: {}
+  keywords:
+    fr: ["docker", "volumes", "prune", "orphelins", "nettoyage"]
+    en: ["docker", "volumes", "prune", "orphan", "cleanup"]
+
+- id: "dev_016"
+  name: "Docker system prune"
+  description: "Nettoyage complet Docker : images, conteneurs, reseaux, cache build"
+  category: "dev_tools"
+  risk_level: "low"
+  requires_admin: false
+  reversible: false
+  execute:
+    method: "cmd"
+    params:
+      command: "docker system prune --force"
+  rollback: {}
+  keywords:
+    fr: ["docker", "systeme", "prune", "complet", "nettoyage", "build"]
+    en: ["docker", "system", "prune", "full", "cleanup", "build"]
+
+# --- IDEs / Editeurs ---
+
+- id: "dev_017"
+  name: "Clear VS Code cache"
+  description: "Supprime les fichiers de cache de Visual Studio Code"
+  category: "dev_tools"
+  risk_level: "low"
+  requires_admin: false
+  reversible: false
+  execute:
+    method: "clear_directory"
+    params:
+      path: "%APPDATA%\\Code\\Cache"
+  rollback: {}
+  keywords:
+    fr: ["vscode", "visual studio code", "cache", "editeur", "nettoyage"]
+    en: ["vscode", "visual studio code", "cache", "editor", "cleanup"]
+
+- id: "dev_018"
+  name: "Clear JetBrains IDE caches"
+  description: "Supprime les caches locaux des IDEs JetBrains (IntelliJ, PyCharm, WebStorm, etc.)"
+  category: "dev_tools"
+  risk_level: "low"
+  requires_admin: false
+  reversible: false
+  execute:
+    method: "powershell"
+    params:
+      command: "Get-ChildItem -Path \"$env:LOCALAPPDATA\\JetBrains\" -Directory -ErrorAction SilentlyContinue | ForEach-Object { $cachePath = Join-Path $_.FullName 'cache'; if (Test-Path $cachePath) { Remove-Item -Path \"$cachePath\\*\" -Recurse -Force -ErrorAction SilentlyContinue } }"
+  rollback: {}
+  keywords:
+    fr: ["jetbrains", "intellij", "pycharm", "webstorm", "cache", "ide", "nettoyage"]
+    en: ["jetbrains", "intellij", "pycharm", "webstorm", "cache", "ide", "cleanup"]
+
+# --- .NET / C# ---
+
+- id: "dev_019"
+  name: "Clear NuGet cache"
+  description: "Supprime tous les caches NuGet locaux (http-cache, packages, plugins)"
+  category: "dev_tools"
+  risk_level: "low"
+  requires_admin: false
+  reversible: false
+  execute:
+    method: "cmd"
+    params:
+      command: "dotnet nuget locals all --clear"
+  rollback: {}
+  keywords:
+    fr: ["nuget", "dotnet", "cache", "csharp", "paquets", "nettoyage"]
+    en: ["nuget", "dotnet", "cache", "csharp", "packages", "cleanup"]
+
+- id: "dev_020"
+  name: "Clean .vs directories"
+  description: "Supprime les dossiers .vs de Visual Studio du profil utilisateur (caches, settings temporaires)"
+  category: "dev_tools"
+  risk_level: "low"
+  requires_admin: false
+  reversible: false
+  execute:
+    method: "powershell"
+    params:
+      command: "Get-ChildItem -Path $env:USERPROFILE -Recurse -Directory -Filter '.vs' -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue"
+  rollback: {}
+  keywords:
+    fr: ["visual studio", "vs", "dossiers", "cache", "nettoyage", "temporaire"]
+    en: ["visual studio", "vs", "directories", "cache", "cleanup", "temporary"]

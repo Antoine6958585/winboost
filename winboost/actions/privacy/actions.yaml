@@ -1,0 +1,725 @@
+# WinBoost — Privacy Actions (30 definitions)
+# Categorie : confidentialite et vie privee Windows
+# Risque majoritaire : low/medium, quelques high
+
+# === 1-5 : Telemetrie Windows ===
+
+- id: "privacy_001"
+  name: "Disable DiagTrack Service"
+  description: "Desactive le service Connected User Experiences and Telemetry (DiagTrack) qui collecte et envoie des donnees de diagnostic a Microsoft."
+  category: "privacy"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "service_disable"
+    params:
+      service_name: "DiagTrack"
+  rollback:
+    method: "service_set_manual"
+    params:
+      service_name: "DiagTrack"
+  keywords:
+    fr: ["telemetrie", "diagnostic", "collecte donnees", "diagtrack", "espionnage"]
+    en: ["telemetry", "diagnostics", "data collection", "diagtrack", "tracking"]
+
+- id: "privacy_002"
+  name: "Disable Customer Experience Improvement Program"
+  description: "Desactive le programme CEIP qui envoie des rapports d'utilisation a Microsoft pour ameliorer Windows."
+  category: "privacy"
+  risk_level: "low"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Microsoft\\SQMClient\\Windows"
+      name: "CEIPEnable"
+      type: "REG_DWORD"
+      value: 0
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Microsoft\\SQMClient\\Windows"
+      name: "CEIPEnable"
+      type: "REG_DWORD"
+      value: 1
+  keywords:
+    fr: ["ceip", "amelioration experience", "rapport utilisation", "telemetrie"]
+    en: ["ceip", "customer experience", "usage reporting", "telemetry"]
+
+- id: "privacy_003"
+  name: "Disable Feedback Notifications"
+  description: "Desactive les notifications de retour d'experience et empeche Windows de demander des commentaires."
+  category: "privacy"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Siuf\\Rules"
+      name: "NumberOfSIUFInPeriod"
+      type: "REG_DWORD"
+      value: 0
+  rollback:
+    method: "registry_delete"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Siuf\\Rules"
+      name: "NumberOfSIUFInPeriod"
+  keywords:
+    fr: ["feedback", "retour experience", "commentaires", "notification"]
+    en: ["feedback", "notifications", "surveys", "prompts"]
+
+- id: "privacy_004"
+  name: "Disable Activity History"
+  description: "Desactive la collecte de l'historique d'activite qui enregistre les applications et fichiers utilises."
+  category: "privacy"
+  risk_level: "low"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\System"
+      name: "EnableActivityFeed"
+      type: "REG_DWORD"
+      value: 0
+  rollback:
+    method: "registry_delete"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\System"
+      name: "EnableActivityFeed"
+  keywords:
+    fr: ["historique activite", "timeline", "activites recentes", "chronologie"]
+    en: ["activity history", "timeline", "recent activities", "activity feed"]
+
+- id: "privacy_005"
+  name: "Disable Advertising ID"
+  description: "Desactive l'identifiant publicitaire unique attribue a chaque utilisateur pour le ciblage publicitaire."
+  category: "privacy"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\AdvertisingInfo"
+      name: "Enabled"
+      type: "REG_DWORD"
+      value: 0
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\AdvertisingInfo"
+      name: "Enabled"
+      type: "REG_DWORD"
+      value: 1
+  keywords:
+    fr: ["publicite", "identifiant publicitaire", "ciblage", "ads", "tracking"]
+    en: ["advertising", "ad id", "targeting", "ads", "tracking"]
+
+# === 6-10 : Permissions (localisation, camera, micro, apps) ===
+
+- id: "privacy_006"
+  name: "Disable Location Tracking"
+  description: "Desactive le service de localisation Windows qui partage votre position avec les applications et Microsoft."
+  category: "privacy"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\LocationAndSensors"
+      name: "DisableLocation"
+      type: "REG_DWORD"
+      value: 1
+  rollback:
+    method: "registry_delete"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\LocationAndSensors"
+      name: "DisableLocation"
+  keywords:
+    fr: ["localisation", "position", "gps", "geolocalisation", "lieu"]
+    en: ["location", "gps", "geolocation", "position", "tracking"]
+
+- id: "privacy_007"
+  name: "Disable Camera Access for Apps"
+  description: "Empeche les applications du Microsoft Store d'acceder a la camera sans autorisation explicite."
+  category: "privacy"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\AppPrivacy"
+      name: "LetAppsAccessCamera"
+      type: "REG_DWORD"
+      value: 2
+  rollback:
+    method: "registry_delete"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\AppPrivacy"
+      name: "LetAppsAccessCamera"
+  keywords:
+    fr: ["camera", "webcam", "video", "permission camera", "acces camera"]
+    en: ["camera", "webcam", "video", "camera permission", "camera access"]
+
+- id: "privacy_008"
+  name: "Disable Microphone Access for Apps"
+  description: "Empeche les applications du Microsoft Store d'acceder au microphone sans autorisation explicite."
+  category: "privacy"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\AppPrivacy"
+      name: "LetAppsAccessMicrophone"
+      type: "REG_DWORD"
+      value: 2
+  rollback:
+    method: "registry_delete"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\AppPrivacy"
+      name: "LetAppsAccessMicrophone"
+  keywords:
+    fr: ["microphone", "micro", "audio", "permission micro", "ecoute"]
+    en: ["microphone", "mic", "audio", "mic permission", "listening"]
+
+- id: "privacy_009"
+  name: "Disable App Launch Tracking"
+  description: "Desactive le suivi des lancements d'applications utilise pour personnaliser le menu Demarrer."
+  category: "privacy"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+      name: "Start_TrackProgs"
+      type: "REG_DWORD"
+      value: 0
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+      name: "Start_TrackProgs"
+      type: "REG_DWORD"
+      value: 1
+  keywords:
+    fr: ["suivi applications", "lancement apps", "menu demarrer", "tracking"]
+    en: ["app tracking", "app launch", "start menu", "tracking"]
+
+- id: "privacy_010"
+  name: "Disable Background Apps"
+  description: "Empeche les applications universelles de s'executer en arriere-plan, ameliorant la vie privee et les performances."
+  category: "privacy"
+  risk_level: "medium"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\BackgroundAccessApplications"
+      name: "GlobalUserDisabled"
+      type: "REG_DWORD"
+      value: 1
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\BackgroundAccessApplications"
+      name: "GlobalUserDisabled"
+      type: "REG_DWORD"
+      value: 0
+  keywords:
+    fr: ["arriere-plan", "background", "apps fond", "applications fond"]
+    en: ["background apps", "background processes", "uwp apps"]
+
+# === 11-15 : Cortana, recherche, timeline, presse-papiers ===
+
+- id: "privacy_011"
+  name: "Disable Cortana"
+  description: "Desactive completement Cortana, l'assistant vocal Microsoft qui collecte des donnees vocales et de recherche."
+  category: "privacy"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search"
+      name: "AllowCortana"
+      type: "REG_DWORD"
+      value: 0
+  rollback:
+    method: "registry_delete"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search"
+      name: "AllowCortana"
+  keywords:
+    fr: ["cortana", "assistant vocal", "assistant microsoft", "voix"]
+    en: ["cortana", "voice assistant", "microsoft assistant", "voice"]
+
+- id: "privacy_012"
+  name: "Disable Search Highlights"
+  description: "Desactive les suggestions et contenus mis en avant dans la barre de recherche Windows."
+  category: "privacy"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\SearchSettings"
+      name: "IsDynamicSearchBoxEnabled"
+      type: "REG_DWORD"
+      value: 0
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\SearchSettings"
+      name: "IsDynamicSearchBoxEnabled"
+      type: "REG_DWORD"
+      value: 1
+  keywords:
+    fr: ["recherche", "suggestions", "highlights", "barre recherche"]
+    en: ["search highlights", "search suggestions", "search bar"]
+
+- id: "privacy_013"
+  name: "Disable Web Search in Start Menu"
+  description: "Empeche la barre de recherche Windows d'envoyer les requetes a Bing, limitant la recherche aux fichiers locaux."
+  category: "privacy"
+  risk_level: "low"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search"
+      name: "DisableWebSearch"
+      type: "REG_DWORD"
+      value: 1
+  rollback:
+    method: "registry_delete"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search"
+      name: "DisableWebSearch"
+  keywords:
+    fr: ["recherche web", "bing", "recherche internet", "recherche en ligne"]
+    en: ["web search", "bing", "online search", "internet search"]
+
+- id: "privacy_014"
+  name: "Disable Timeline and Activity Publishing"
+  description: "Desactive la publication d'activites vers le cloud Microsoft utilisee par la fonctionnalite Timeline."
+  category: "privacy"
+  risk_level: "low"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\System"
+      name: "PublishUserActivities"
+      type: "REG_DWORD"
+      value: 0
+  rollback:
+    method: "registry_delete"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\System"
+      name: "PublishUserActivities"
+  keywords:
+    fr: ["timeline", "chronologie", "activites cloud", "publication activites"]
+    en: ["timeline", "activity publishing", "cloud activities", "task view"]
+
+- id: "privacy_015"
+  name: "Disable Clipboard Sync Across Devices"
+  description: "Desactive la synchronisation du presse-papiers entre les appareils lies au meme compte Microsoft."
+  category: "privacy"
+  risk_level: "low"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\System"
+      name: "AllowCrossDeviceClipboard"
+      type: "REG_DWORD"
+      value: 0
+  rollback:
+    method: "registry_delete"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\System"
+      name: "AllowCrossDeviceClipboard"
+  keywords:
+    fr: ["presse-papiers", "clipboard", "synchronisation", "copier coller", "cloud"]
+    en: ["clipboard", "sync", "cross-device", "copy paste", "cloud"]
+
+# === 16-20 : Navigateur (Edge telemetrie, SmartScreen, suggestions) ===
+
+- id: "privacy_016"
+  name: "Disable Edge Telemetry"
+  description: "Desactive la collecte de donnees de diagnostic et d'utilisation par Microsoft Edge."
+  category: "privacy"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Edge"
+      name: "DiagnosticData"
+      type: "REG_DWORD"
+      value: 0
+  rollback:
+    method: "registry_delete"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Edge"
+      name: "DiagnosticData"
+  keywords:
+    fr: ["edge", "telemetrie edge", "navigateur", "diagnostic edge"]
+    en: ["edge", "edge telemetry", "browser", "edge diagnostics"]
+
+- id: "privacy_017"
+  name: "Disable SmartScreen Reporting"
+  description: "Desactive l'envoi de rapports SmartScreen a Microsoft. Attention : reduit la protection contre les sites malveillants."
+  category: "privacy"
+  risk_level: "high"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\System"
+      name: "EnableSmartScreen"
+      type: "REG_DWORD"
+      value: 0
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\System"
+      name: "EnableSmartScreen"
+      type: "REG_DWORD"
+      value: 1
+  keywords:
+    fr: ["smartscreen", "filtre web", "protection navigation", "securite web"]
+    en: ["smartscreen", "web filter", "browsing protection", "web security"]
+
+- id: "privacy_018"
+  name: "Disable Edge Suggested Content"
+  description: "Desactive les contenus suggeres et les recommandations dans les pages de nouvel onglet Edge."
+  category: "privacy"
+  risk_level: "low"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Edge"
+      name: "SpotlightExperiencesAndRecommendationsEnabled"
+      type: "REG_DWORD"
+      value: 0
+  rollback:
+    method: "registry_delete"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Edge"
+      name: "SpotlightExperiencesAndRecommendationsEnabled"
+  keywords:
+    fr: ["suggestions edge", "contenu suggere", "recommandations", "nouvel onglet"]
+    en: ["edge suggestions", "suggested content", "recommendations", "new tab"]
+
+- id: "privacy_019"
+  name: "Disable Edge New Tab Page Content"
+  description: "Configure la page de nouvel onglet Edge pour etre vide, sans actualites ni contenus Microsoft."
+  category: "privacy"
+  risk_level: "low"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Edge"
+      name: "NewTabPageContentEnabled"
+      type: "REG_DWORD"
+      value: 0
+  rollback:
+    method: "registry_delete"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Edge"
+      name: "NewTabPageContentEnabled"
+  keywords:
+    fr: ["nouvel onglet", "page accueil edge", "actualites edge", "contenu onglet"]
+    en: ["new tab", "edge homepage", "edge news", "tab content"]
+
+- id: "privacy_020"
+  name: "Disable Edge Autofill Data Collection"
+  description: "Desactive la collecte de donnees de remplissage automatique par Edge pour empecher le stockage cloud des infos personnelles."
+  category: "privacy"
+  risk_level: "low"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Edge"
+      name: "AutofillAddressEnabled"
+      type: "REG_DWORD"
+      value: 0
+  rollback:
+    method: "registry_delete"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Edge"
+      name: "AutofillAddressEnabled"
+  keywords:
+    fr: ["autofill", "remplissage auto", "formulaires", "donnees personnelles edge"]
+    en: ["autofill", "auto-complete", "forms", "personal data edge"]
+
+# === 21-25 : Windows Update telemetrie, rapports erreur, donnees saisie ===
+
+- id: "privacy_021"
+  name: "Set Telemetry to Security Only"
+  description: "Reduit la telemetrie Windows au minimum requis (niveau Security/0) pour limiter les donnees envoyees a Microsoft."
+  category: "privacy"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection"
+      name: "AllowTelemetry"
+      type: "REG_DWORD"
+      value: 0
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection"
+      name: "AllowTelemetry"
+      type: "REG_DWORD"
+      value: 3
+  keywords:
+    fr: ["telemetrie minimale", "niveau telemetrie", "donnees diagnostic", "collecte"]
+    en: ["minimal telemetry", "telemetry level", "diagnostic data", "collection"]
+
+- id: "privacy_022"
+  name: "Disable Delivery Optimization P2P"
+  description: "Desactive le partage de mises a jour Windows en pair-a-pair avec d'autres PC sur Internet."
+  category: "privacy"
+  risk_level: "low"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\DeliveryOptimization"
+      name: "DODownloadMode"
+      type: "REG_DWORD"
+      value: 0
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\DeliveryOptimization"
+      name: "DODownloadMode"
+      type: "REG_DWORD"
+      value: 3
+  keywords:
+    fr: ["delivery optimization", "p2p", "partage mises a jour", "pair a pair", "bande passante"]
+    en: ["delivery optimization", "p2p", "update sharing", "peer to peer", "bandwidth"]
+
+- id: "privacy_023"
+  name: "Disable Windows Error Reporting"
+  description: "Desactive l'envoi automatique de rapports d'erreur a Microsoft lors de plantages d'applications."
+  category: "privacy"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Error Reporting"
+      name: "Disabled"
+      type: "REG_DWORD"
+      value: 1
+  rollback:
+    method: "registry_delete"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Error Reporting"
+      name: "Disabled"
+  keywords:
+    fr: ["rapport erreur", "plantage", "crash", "wer", "envoi erreurs"]
+    en: ["error reporting", "crash", "wer", "error logs", "crash reports"]
+
+- id: "privacy_024"
+  name: "Disable Handwriting Data Sharing"
+  description: "Empeche Windows d'envoyer les donnees de reconnaissance d'ecriture manuscrite a Microsoft."
+  category: "privacy"
+  risk_level: "low"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\TabletPC"
+      name: "PreventHandwritingDataSharing"
+      type: "REG_DWORD"
+      value: 1
+  rollback:
+    method: "registry_delete"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\TabletPC"
+      name: "PreventHandwritingDataSharing"
+  keywords:
+    fr: ["ecriture manuscrite", "handwriting", "stylet", "reconnaissance ecriture"]
+    en: ["handwriting", "inking", "stylus", "handwriting recognition"]
+
+- id: "privacy_025"
+  name: "Disable Typing Data Collection"
+  description: "Desactive l'envoi de donnees de frappe clavier a Microsoft pour ameliorer les suggestions de saisie."
+  category: "privacy"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Input\\TIPC"
+      name: "Enabled"
+      type: "REG_DWORD"
+      value: 0
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Input\\TIPC"
+      name: "Enabled"
+      type: "REG_DWORD"
+      value: 1
+  keywords:
+    fr: ["frappe clavier", "saisie", "typing", "donnees clavier", "suggestions"]
+    en: ["typing data", "keyboard", "input", "typing suggestions", "keystroke"]
+
+# === 26-30 : WiFi Sense, experiences partagees, experiences adaptees, diagnostic viewer, permissions apps ===
+
+- id: "privacy_026"
+  name: "Disable WiFi Sense"
+  description: "Desactive le partage automatique des identifiants WiFi avec les contacts et la connexion automatique aux hotspots."
+  category: "privacy"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Microsoft\\WcmSvc\\wifinetworkmanager\\config"
+      name: "AutoConnectAllowedOEM"
+      type: "REG_DWORD"
+      value: 0
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Microsoft\\WcmSvc\\wifinetworkmanager\\config"
+      name: "AutoConnectAllowedOEM"
+      type: "REG_DWORD"
+      value: 1
+  keywords:
+    fr: ["wifi sense", "partage wifi", "hotspot", "connexion automatique", "wifi"]
+    en: ["wifi sense", "wifi sharing", "hotspot", "auto connect", "wifi"]
+
+- id: "privacy_027"
+  name: "Disable Shared Experiences"
+  description: "Desactive les experiences partagees (Nearby Sharing, continuer sur un autre appareil) qui communiquent entre appareils."
+  category: "privacy"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CDP"
+      name: "RomeSdkChannelUserAuthzPolicy"
+      type: "REG_DWORD"
+      value: 0
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CDP"
+      name: "RomeSdkChannelUserAuthzPolicy"
+      type: "REG_DWORD"
+      value: 1
+  keywords:
+    fr: ["experiences partagees", "partage proximite", "nearby sharing", "continuer sur appareil"]
+    en: ["shared experiences", "nearby sharing", "continue on device", "cross-device"]
+
+- id: "privacy_028"
+  name: "Disable Tailored Experiences"
+  description: "Desactive les experiences adaptees qui utilisent les donnees de diagnostic pour personnaliser les publicites et suggestions."
+  category: "privacy"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Privacy"
+      name: "TailoredExperiencesWithDiagnosticDataEnabled"
+      type: "REG_DWORD"
+      value: 0
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Privacy"
+      name: "TailoredExperiencesWithDiagnosticDataEnabled"
+      type: "REG_DWORD"
+      value: 1
+  keywords:
+    fr: ["experiences adaptees", "personnalisation", "publicites ciblees", "suggestions"]
+    en: ["tailored experiences", "personalization", "targeted ads", "suggestions"]
+
+- id: "privacy_029"
+  name: "Disable Diagnostic Data Viewer"
+  description: "Desactive le service Diagnostic Data Viewer qui maintient un cache local des donnees de telemetrie envoyees."
+  category: "privacy"
+  risk_level: "low"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection"
+      name: "DisableDiagnosticDataViewer"
+      type: "REG_DWORD"
+      value: 1
+  rollback:
+    method: "registry_delete"
+    params:
+      path: "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection"
+      name: "DisableDiagnosticDataViewer"
+  keywords:
+    fr: ["diagnostic viewer", "visionneuse diagnostic", "donnees telemetrie", "cache diagnostic"]
+    en: ["diagnostic viewer", "telemetry viewer", "diagnostic data", "telemetry cache"]
+
+- id: "privacy_030"
+  name: "Disable App Access to Contacts and Calendar"
+  description: "Empeche les applications du Microsoft Store d'acceder aux contacts et au calendrier sans autorisation explicite."
+  category: "privacy"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      commands:
+        - "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\AppPrivacy' -Name 'LetAppsAccessContacts' -Value 2 -Type DWord -Force"
+        - "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\AppPrivacy' -Name 'LetAppsAccessCalendar' -Value 2 -Type DWord -Force"
+  rollback:
+    method: "powershell"
+    params:
+      commands:
+        - "Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\AppPrivacy' -Name 'LetAppsAccessContacts' -ErrorAction SilentlyContinue"
+        - "Remove-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\AppPrivacy' -Name 'LetAppsAccessCalendar' -ErrorAction SilentlyContinue"
+  keywords:
+    fr: ["contacts", "calendrier", "permissions apps", "acces donnees", "carnet adresses"]
+    en: ["contacts", "calendar", "app permissions", "data access", "address book"]

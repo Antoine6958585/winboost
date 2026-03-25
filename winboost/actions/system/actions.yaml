@@ -1,0 +1,280 @@
+# WinBoost — Actions: System
+# 10 actions de configuration systeme Windows
+
+- id: "sys_001"
+  name: "Show File Extensions"
+  description: "Displays file extensions in Windows Explorer for all known file types"
+  category: "system"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+      values:
+        - name: "HideFileExt"
+          type: "REG_DWORD"
+          data: 0
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+      values:
+        - name: "HideFileExt"
+          type: "REG_DWORD"
+          data: 1
+  keywords:
+    fr: ["extensions fichiers", "afficher extensions", "voir extensions", "type fichier"]
+    en: ["file extensions", "show extensions", "display file types", "unhide extensions"]
+
+- id: "sys_002"
+  name: "Show Hidden Files"
+  description: "Makes hidden files and folders visible in Windows Explorer"
+  category: "system"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+      values:
+        - name: "Hidden"
+          type: "REG_DWORD"
+          data: 1
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+      values:
+        - name: "Hidden"
+          type: "REG_DWORD"
+          data: 2
+  keywords:
+    fr: ["fichiers caches", "afficher fichiers caches", "dossiers masques", "voir fichiers caches"]
+    en: ["hidden files", "show hidden files", "hidden folders", "display hidden"]
+
+- id: "sys_003"
+  name: "Disable Bing Search in Start Menu"
+  description: "Prevents Bing web search results from appearing in the Windows Start menu search"
+  category: "system"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Policies\\Microsoft\\Windows\\Explorer"
+      values:
+        - name: "DisableSearchBoxSuggestions"
+          type: "REG_DWORD"
+          data: 1
+  rollback:
+    method: "registry_delete"
+    params:
+      path: "HKCU\\SOFTWARE\\Policies\\Microsoft\\Windows\\Explorer"
+      values:
+        - name: "DisableSearchBoxSuggestions"
+  keywords:
+    fr: ["bing menu demarrer", "recherche web demarrer", "desactiver bing", "recherche locale"]
+    en: ["bing start menu", "disable bing search", "web search start", "local search only"]
+
+- id: "sys_004"
+  name: "Add End Task to Taskbar Context Menu"
+  description: "Adds an 'End Task' option to the right-click context menu of taskbar app icons"
+  category: "system"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\\TaskbarDeveloperSettings"
+      values:
+        - name: "TaskbarEndTask"
+          type: "REG_DWORD"
+          data: 1
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\\TaskbarDeveloperSettings"
+      values:
+        - name: "TaskbarEndTask"
+          type: "REG_DWORD"
+          data: 0
+  keywords:
+    fr: ["fin de tache", "end task taskbar", "forcer fermeture", "tuer application"]
+    en: ["end task", "taskbar end task", "force close", "kill app taskbar"]
+
+- id: "sys_005"
+  name: "Disable Lock Screen Tips and Ads"
+  description: "Removes tips, tricks and ads from the Windows lock screen"
+  category: "system"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager"
+      values:
+        - name: "RotatingLockScreenOverlayEnabled"
+          type: "REG_DWORD"
+          data: 0
+        - name: "SubscribedContent-338387Enabled"
+          type: "REG_DWORD"
+          data: 0
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager"
+      values:
+        - name: "RotatingLockScreenOverlayEnabled"
+          type: "REG_DWORD"
+          data: 1
+        - name: "SubscribedContent-338387Enabled"
+          type: "REG_DWORD"
+          data: 1
+  keywords:
+    fr: ["pub ecran verrouillage", "astuces ecran verrou", "desactiver pubs lock screen"]
+    en: ["lock screen tips", "lock screen ads", "disable lock screen suggestions"]
+
+- id: "sys_006"
+  name: "Disable Notification Center"
+  description: "Disables the Windows notification center and action center popups"
+  category: "system"
+  risk_level: "medium"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Policies\\Microsoft\\Windows\\Explorer"
+      values:
+        - name: "DisableNotificationCenter"
+          type: "REG_DWORD"
+          data: 1
+  rollback:
+    method: "registry_delete"
+    params:
+      path: "HKCU\\SOFTWARE\\Policies\\Microsoft\\Windows\\Explorer"
+      values:
+        - name: "DisableNotificationCenter"
+  keywords:
+    fr: ["centre notifications", "desactiver notifications", "action center", "panneau notifications"]
+    en: ["notification center", "disable notifications", "action center off", "notification panel"]
+
+- id: "sys_007"
+  name: "Set Dark Mode for File Explorer"
+  description: "Forces File Explorer to use dark theme regardless of system-wide theme setting"
+  category: "system"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"
+      values:
+        - name: "AppsUseLightTheme"
+          type: "REG_DWORD"
+          data: 0
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"
+      values:
+        - name: "AppsUseLightTheme"
+          type: "REG_DWORD"
+          data: 1
+  keywords:
+    fr: ["explorateur sombre", "dark explorer", "theme sombre explorateur", "fichiers dark"]
+    en: ["dark file explorer", "dark explorer", "explorer dark theme", "dark mode explorer"]
+
+- id: "sys_008"
+  name: "Restore Classic Windows 10 Start Menu"
+  description: "Reverts the Windows 11 Start menu to the classic Windows 10 style layout"
+  category: "system"
+  risk_level: "medium"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+      values:
+        - name: "Start_ShowClassicMode"
+          type: "REG_DWORD"
+          data: 1
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+      values:
+        - name: "Start_ShowClassicMode"
+          type: "REG_DWORD"
+          data: 0
+  keywords:
+    fr: ["menu demarrer classique", "start windows 10", "ancien menu demarrer", "restaurer start"]
+    en: ["classic start menu", "windows 10 start", "old start menu", "restore classic start"]
+
+- id: "sys_009"
+  name: "Disable Recent Files in Explorer"
+  description: "Prevents Windows Explorer from showing recently accessed files in Quick Access"
+  category: "system"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer"
+      values:
+        - name: "ShowRecent"
+          type: "REG_DWORD"
+          data: 0
+        - name: "ShowFrequent"
+          type: "REG_DWORD"
+          data: 0
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer"
+      values:
+        - name: "ShowRecent"
+          type: "REG_DWORD"
+          data: 1
+        - name: "ShowFrequent"
+          type: "REG_DWORD"
+          data: 1
+  keywords:
+    fr: ["fichiers recents", "acces rapide", "historique explorateur", "desactiver recents"]
+    en: ["recent files", "quick access", "explorer history", "disable recent files"]
+
+- id: "sys_010"
+  name: "Enable Verbose Boot"
+  description: "Shows detailed status messages during Windows boot instead of the loading animation"
+  category: "system"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System"
+      values:
+        - name: "VerboseStatus"
+          type: "REG_DWORD"
+          data: 1
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System"
+      values:
+        - name: "VerboseStatus"
+          type: "REG_DWORD"
+          data: 0
+  keywords:
+    fr: ["boot verbose", "demarrage detaille", "messages boot", "diagnostic demarrage"]
+    en: ["verbose boot", "detailed boot", "boot messages", "boot diagnostics"]

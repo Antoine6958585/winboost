@@ -1,0 +1,671 @@
+# WinBoost — Actions de performance Windows
+# 30 actions couvrant : effets visuels, plan d'alimentation, services,
+# demarrage, disque, CPU/RAM.
+
+# ============================================================================
+# 1-5 : Effets visuels (animations, transparence, ombres, defilement, miniatures)
+# ============================================================================
+
+- id: "perf_001"
+  name: "Disable window animations"
+  description: "Desactive les animations d'ouverture/fermeture des fenetres pour reduire la charge GPU"
+  category: "performance"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\Control Panel\\Desktop\\WindowMetrics"
+      name: "MinAnimate"
+      type: "REG_SZ"
+      value: "0"
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\Control Panel\\Desktop\\WindowMetrics"
+      name: "MinAnimate"
+      type: "REG_SZ"
+      value: "1"
+  keywords:
+    fr: ["animations", "fenetres", "visuels", "fluidite"]
+    en: ["animations", "windows", "visual", "smooth"]
+
+- id: "perf_002"
+  name: "Disable transparency effects"
+  description: "Desactive la transparence de la barre des taches et du menu Demarrer pour economiser des ressources GPU"
+  category: "performance"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"
+      name: "EnableTransparency"
+      type: "REG_DWORD"
+      value: 0
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"
+      name: "EnableTransparency"
+      type: "REG_DWORD"
+      value: 1
+  keywords:
+    fr: ["transparence", "barre des taches", "effets visuels", "gpu"]
+    en: ["transparency", "taskbar", "visual effects", "gpu"]
+
+- id: "perf_003"
+  name: "Disable drop shadows on windows"
+  description: "Supprime les ombres portees sous les fenetres pour reduire le rendu graphique"
+  category: "performance"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+      name: "ListviewShadow"
+      type: "REG_DWORD"
+      value: 0
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+      name: "ListviewShadow"
+      type: "REG_DWORD"
+      value: 1
+  keywords:
+    fr: ["ombres", "fenetres", "effets visuels", "rendu"]
+    en: ["shadows", "windows", "visual effects", "rendering"]
+
+- id: "perf_004"
+  name: "Disable smooth scrolling"
+  description: "Desactive le defilement fluide dans l'Explorateur et les applications pour accelerer la navigation"
+  category: "performance"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\Control Panel\\Desktop"
+      name: "SmoothScroll"
+      type: "REG_DWORD"
+      value: 0
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\Control Panel\\Desktop"
+      name: "SmoothScroll"
+      type: "REG_DWORD"
+      value: 1
+  keywords:
+    fr: ["defilement", "fluide", "scroll", "navigation"]
+    en: ["smooth scrolling", "scroll", "navigation", "explorer"]
+
+- id: "perf_005"
+  name: "Disable thumbnail previews in Explorer"
+  description: "Desactive la generation de miniatures dans l'Explorateur pour accelerer l'affichage des dossiers"
+  category: "performance"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+      name: "IconsOnly"
+      type: "REG_DWORD"
+      value: 1
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+      name: "IconsOnly"
+      type: "REG_DWORD"
+      value: 0
+  keywords:
+    fr: ["miniatures", "apercu", "explorateur", "dossiers", "icones"]
+    en: ["thumbnails", "preview", "explorer", "folders", "icons"]
+
+# ============================================================================
+# 6-10 : Plan d'alimentation (haute performance, veille, USB suspend, hibernation, demarrage rapide)
+# ============================================================================
+
+- id: "perf_006"
+  name: "Set high performance power plan"
+  description: "Active le plan d'alimentation Haute Performance pour maximiser les frequences CPU et GPU"
+  category: "performance"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      command: "powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c"
+  rollback:
+    method: "powershell"
+    params:
+      command: "powercfg /setactive 381b4222-f694-41f0-9685-ff5bb260df2e"
+  keywords:
+    fr: ["alimentation", "haute performance", "energie", "puissance", "cpu"]
+    en: ["power plan", "high performance", "energy", "cpu", "boost"]
+
+- id: "perf_007"
+  name: "Disable sleep on AC power"
+  description: "Empeche la mise en veille automatique lorsque le PC est branche sur secteur"
+  category: "performance"
+  risk_level: "low"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      command: "powercfg /change standby-timeout-ac 0"
+  rollback:
+    method: "powershell"
+    params:
+      command: "powercfg /change standby-timeout-ac 30"
+  keywords:
+    fr: ["veille", "secteur", "mise en veille", "sommeil"]
+    en: ["sleep", "standby", "ac power", "idle"]
+
+- id: "perf_008"
+  name: "Disable USB selective suspend"
+  description: "Empeche Windows de couper l'alimentation des ports USB pour eviter les deconnexions de peripheriques"
+  category: "performance"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SYSTEM\\CurrentControlSet\\Services\\USB\\DisableSelectiveSuspend"
+      name: "DisableSelectiveSuspend"
+      type: "REG_DWORD"
+      value: 1
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SYSTEM\\CurrentControlSet\\Services\\USB\\DisableSelectiveSuspend"
+      name: "DisableSelectiveSuspend"
+      type: "REG_DWORD"
+      value: 0
+  keywords:
+    fr: ["usb", "suspend", "peripheriques", "deconnexion", "alimentation"]
+    en: ["usb", "suspend", "devices", "disconnect", "power"]
+
+- id: "perf_009"
+  name: "Disable hibernation"
+  description: "Desactive l'hibernation pour liberer l'espace disque occupe par hiberfil.sys (plusieurs Go)"
+  category: "performance"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      command: "powercfg /hibernate off"
+  rollback:
+    method: "powershell"
+    params:
+      command: "powercfg /hibernate on"
+  keywords:
+    fr: ["hibernation", "hiberfil", "espace disque", "veille prolongee"]
+    en: ["hibernation", "hiberfil", "disk space", "hibernate"]
+
+- id: "perf_010"
+  name: "Enable fast startup"
+  description: "Active le demarrage rapide de Windows en combinant arret et hibernation du noyau"
+  category: "performance"
+  risk_level: "low"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Power"
+      name: "HiberbootEnabled"
+      type: "REG_DWORD"
+      value: 1
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Power"
+      name: "HiberbootEnabled"
+      type: "REG_DWORD"
+      value: 0
+  keywords:
+    fr: ["demarrage rapide", "fast startup", "boot", "allumage"]
+    en: ["fast startup", "quick boot", "hiberboot", "boot speed"]
+
+# ============================================================================
+# 11-15 : Services (SysMain, Windows Search, Print Spooler, Fax, Connected Devices)
+# ============================================================================
+
+- id: "perf_011"
+  name: "Disable SysMain (Superfetch)"
+  description: "Desactive le service SysMain qui precache les applications en memoire, reduisant l'activite disque sur les SSD"
+  category: "performance"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "service_disable"
+    params:
+      service_name: "SysMain"
+  rollback:
+    method: "powershell"
+    params:
+      command: "Set-Service -Name SysMain -StartupType Automatic; Start-Service SysMain"
+  keywords:
+    fr: ["sysmain", "superfetch", "precache", "memoire", "disque"]
+    en: ["sysmain", "superfetch", "prefetch", "memory", "disk"]
+
+- id: "perf_012"
+  name: "Disable Windows Search indexing"
+  description: "Desactive le service d'indexation Windows Search qui consomme CPU et disque en arriere-plan"
+  category: "performance"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "service_disable"
+    params:
+      service_name: "WSearch"
+  rollback:
+    method: "powershell"
+    params:
+      command: "Set-Service -Name WSearch -StartupType Automatic; Start-Service WSearch"
+  keywords:
+    fr: ["indexation", "recherche", "windows search", "disque", "cpu"]
+    en: ["indexing", "search", "windows search", "disk", "cpu"]
+
+- id: "perf_013"
+  name: "Set Print Spooler to manual"
+  description: "Passe le service Print Spooler en demarrage manuel si aucune imprimante n'est utilisee"
+  category: "performance"
+  risk_level: "low"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "service_set_manual"
+    params:
+      service_name: "Spooler"
+  rollback:
+    method: "powershell"
+    params:
+      command: "Set-Service -Name Spooler -StartupType Automatic; Start-Service Spooler"
+  keywords:
+    fr: ["imprimante", "spooler", "impression", "service"]
+    en: ["printer", "spooler", "print", "service"]
+
+- id: "perf_014"
+  name: "Disable Fax service"
+  description: "Desactive le service Windows Fax inutile sur la plupart des machines modernes"
+  category: "performance"
+  risk_level: "low"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "service_disable"
+    params:
+      service_name: "Fax"
+  rollback:
+    method: "powershell"
+    params:
+      command: "Set-Service -Name Fax -StartupType Manual"
+  keywords:
+    fr: ["fax", "telecopie", "service", "inutile"]
+    en: ["fax", "service", "unused", "disable"]
+
+- id: "perf_015"
+  name: "Disable Connected Devices Platform service"
+  description: "Desactive le service de plateforme peripheriques connectes qui tourne en arriere-plan inutilement"
+  category: "performance"
+  risk_level: "low"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "service_disable"
+    params:
+      service_name: "CDPSvc"
+  rollback:
+    method: "powershell"
+    params:
+      command: "Set-Service -Name CDPSvc -StartupType Automatic; Start-Service CDPSvc"
+  keywords:
+    fr: ["peripheriques connectes", "cdpsvc", "service", "arriere-plan"]
+    en: ["connected devices", "cdpsvc", "service", "background"]
+
+# ============================================================================
+# 16-20 : Optimisation demarrage (boot timeout, prefetch, boot tracing, startup delay, splash screen)
+# ============================================================================
+
+- id: "perf_016"
+  name: "Reduce boot menu timeout"
+  description: "Reduit le delai d'affichage du menu de demarrage a 3 secondes pour un boot plus rapide"
+  category: "performance"
+  risk_level: "low"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "cmd"
+    params:
+      command: "bcdedit /timeout 3"
+  rollback:
+    method: "cmd"
+    params:
+      command: "bcdedit /timeout 30"
+  keywords:
+    fr: ["demarrage", "timeout", "boot", "menu", "delai"]
+    en: ["boot", "timeout", "menu", "delay", "startup"]
+
+- id: "perf_017"
+  name: "Optimize prefetch parameters"
+  description: "Configure le prefetcher pour optimiser le chargement des applications et du boot"
+  category: "performance"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management\\PrefetchParameters"
+      name: "EnablePrefetcher"
+      type: "REG_DWORD"
+      value: 3
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management\\PrefetchParameters"
+      name: "EnablePrefetcher"
+      type: "REG_DWORD"
+      value: 3
+  keywords:
+    fr: ["prefetch", "precharge", "demarrage", "applications"]
+    en: ["prefetch", "preload", "boot", "applications"]
+
+- id: "perf_018"
+  name: "Disable boot tracing (DiagTrack)"
+  description: "Desactive le service de diagnostic et tracage au demarrage qui ralentit le boot"
+  category: "performance"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "service_disable"
+    params:
+      service_name: "DiagTrack"
+  rollback:
+    method: "powershell"
+    params:
+      command: "Set-Service -Name DiagTrack -StartupType Automatic; Start-Service DiagTrack"
+  keywords:
+    fr: ["diagnostic", "tracage", "demarrage", "boot", "diagtrack"]
+    en: ["diagnostic", "tracing", "boot", "startup", "diagtrack"]
+
+- id: "perf_019"
+  name: "Remove startup delay for desktop apps"
+  description: "Supprime le delai de 10 secondes impose par Windows avant de lancer les applications au demarrage"
+  category: "performance"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Serialize"
+      name: "StartupDelayInMSec"
+      type: "REG_DWORD"
+      value: 0
+  rollback:
+    method: "registry_delete"
+    params:
+      path: "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Serialize"
+      name: "StartupDelayInMSec"
+  keywords:
+    fr: ["delai demarrage", "startup delay", "applications", "lancement"]
+    en: ["startup delay", "boot delay", "applications", "launch"]
+
+- id: "perf_020"
+  name: "Disable Windows boot splash screen"
+  description: "Desactive l'ecran de splash Windows au demarrage pour accelerer le boot de quelques secondes"
+  category: "performance"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "cmd"
+    params:
+      command: "bcdedit /set {current} quietboot yes"
+  rollback:
+    method: "cmd"
+    params:
+      command: "bcdedit /set {current} quietboot no"
+  keywords:
+    fr: ["splash", "ecran demarrage", "boot", "logo windows"]
+    en: ["splash screen", "boot screen", "startup", "windows logo"]
+
+# ============================================================================
+# 21-25 : Disque (TRIM SSD, last access time, 8.3 filenames, paging file, write caching)
+# ============================================================================
+
+- id: "perf_021"
+  name: "Enable TRIM for SSD"
+  description: "Active la commande TRIM pour maintenir les performances des SSD en nettoyant les blocs liberes"
+  category: "performance"
+  risk_level: "low"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      command: "fsutil behavior set DisableDeleteNotify 0"
+  rollback:
+    method: "powershell"
+    params:
+      command: "fsutil behavior set DisableDeleteNotify 1"
+  keywords:
+    fr: ["trim", "ssd", "disque", "performance", "nettoyage"]
+    en: ["trim", "ssd", "disk", "performance", "cleanup"]
+
+- id: "perf_022"
+  name: "Disable last access time stamp"
+  description: "Desactive la mise a jour du timestamp d'acces sur les fichiers NTFS pour reduire les ecritures disque"
+  category: "performance"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      command: "fsutil behavior set DisableLastAccess 1"
+  rollback:
+    method: "powershell"
+    params:
+      command: "fsutil behavior set DisableLastAccess 0"
+  keywords:
+    fr: ["last access", "timestamp", "ntfs", "ecriture disque"]
+    en: ["last access", "timestamp", "ntfs", "disk write"]
+
+- id: "perf_023"
+  name: "Disable 8.3 short filename creation"
+  description: "Desactive la generation des noms de fichiers courts (format DOS 8.3) sur NTFS pour accelerer la creation de fichiers"
+  category: "performance"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      command: "fsutil behavior set disable8dot3 1"
+  rollback:
+    method: "powershell"
+    params:
+      command: "fsutil behavior set disable8dot3 0"
+  keywords:
+    fr: ["8.3", "noms courts", "ntfs", "fichiers", "dos"]
+    en: ["8.3", "short names", "ntfs", "files", "dos"]
+
+- id: "perf_024"
+  name: "Optimize paging file to system managed"
+  description: "Configure le fichier d'echange pour etre gere automatiquement par Windows avec une taille optimale"
+  category: "performance"
+  risk_level: "high"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      command: "$cs = Get-WmiObject Win32_ComputerSystem; $cs.AutomaticManagedPagefile = $true; $cs.Put()"
+  rollback:
+    method: "powershell"
+    params:
+      command: "$cs = Get-WmiObject Win32_ComputerSystem; $cs.AutomaticManagedPagefile = $true; $cs.Put()"
+  keywords:
+    fr: ["fichier echange", "paging", "memoire virtuelle", "swap"]
+    en: ["paging file", "swap", "virtual memory", "pagefile"]
+
+- id: "perf_025"
+  name: "Enable disk write caching"
+  description: "Active le cache d'ecriture disque pour ameliorer les performances d'ecriture sur les disques durs et SSD"
+  category: "performance"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      command: "Get-Disk | Set-StorageReliabilityCounter; Get-Disk | ForEach-Object { $_ | Set-Disk -IsCacheEnabled $true } 2>$null; Write-Output 'Write caching policy applied'"
+  rollback:
+    method: "powershell"
+    params:
+      command: "Get-Disk | ForEach-Object { $_ | Set-Disk -IsCacheEnabled $false } 2>$null; Write-Output 'Write caching disabled'"
+  keywords:
+    fr: ["cache ecriture", "disque", "performance", "ecriture"]
+    en: ["write cache", "disk", "performance", "write"]
+
+# ============================================================================
+# 26-30 : CPU/RAM (process priority, background apps, memory compression, timer resolution, Spectre/Meltdown)
+# ============================================================================
+
+- id: "perf_026"
+  name: "Set foreground application priority"
+  description: "Donne la priorite CPU aux applications au premier plan plutot qu'aux services d'arriere-plan"
+  category: "performance"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SYSTEM\\CurrentControlSet\\Control\\PriorityControl"
+      name: "Win32PrioritySeparation"
+      type: "REG_DWORD"
+      value: 38
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SYSTEM\\CurrentControlSet\\Control\\PriorityControl"
+      name: "Win32PrioritySeparation"
+      type: "REG_DWORD"
+      value: 2
+  keywords:
+    fr: ["priorite", "cpu", "premier plan", "foreground", "applications"]
+    en: ["priority", "cpu", "foreground", "applications", "scheduling"]
+
+- id: "perf_027"
+  name: "Limit background apps"
+  description: "Empeche les applications UWP de tourner en arriere-plan pour economiser CPU et RAM"
+  category: "performance"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\BackgroundAccessApplications"
+      name: "GlobalUserDisabled"
+      type: "REG_DWORD"
+      value: 1
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\BackgroundAccessApplications"
+      name: "GlobalUserDisabled"
+      type: "REG_DWORD"
+      value: 0
+  keywords:
+    fr: ["arriere-plan", "applications", "uwp", "ram", "cpu"]
+    en: ["background apps", "uwp", "ram", "cpu", "limit"]
+
+- id: "perf_028"
+  name: "Disable memory compression"
+  description: "Desactive la compression memoire de Windows pour reduire l'utilisation CPU au prix de plus de RAM utilisee"
+  category: "performance"
+  risk_level: "high"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      command: "Disable-MMAgent -MemoryCompression"
+  rollback:
+    method: "powershell"
+    params:
+      command: "Enable-MMAgent -MemoryCompression"
+  keywords:
+    fr: ["compression memoire", "ram", "cpu", "memoire"]
+    en: ["memory compression", "ram", "cpu", "memory"]
+
+- id: "perf_029"
+  name: "Set global timer resolution to 1ms"
+  description: "Force la resolution du timer systeme a 1ms pour ameliorer la reactivite des applications temps reel et jeux"
+  category: "performance"
+  risk_level: "high"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\kernel"
+      name: "GlobalTimerResolutionRequests"
+      type: "REG_DWORD"
+      value: 1
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\kernel"
+      name: "GlobalTimerResolutionRequests"
+      type: "REG_DWORD"
+      value: 0
+  keywords:
+    fr: ["timer", "resolution", "latence", "temps reel", "jeux"]
+    en: ["timer", "resolution", "latency", "real-time", "gaming"]
+
+- id: "perf_030"
+  name: "Disable Spectre and Meltdown mitigations"
+  description: "Desactive les mitigations CPU Spectre/Meltdown pour recuperer 5-30% de performance. DANGER : expose le systeme a des vulnerabilites materiel. Reserve au gaming hors-ligne"
+  category: "performance"
+  risk_level: "critical"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management"
+      name: "FeatureSettingsOverride"
+      type: "REG_DWORD"
+      value: 3
+  rollback:
+    method: "registry_delete"
+    params:
+      path: "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management"
+      name: "FeatureSettingsOverride"
+  keywords:
+    fr: ["spectre", "meltdown", "mitigations", "cpu", "vulnerabilite", "gaming"]
+    en: ["spectre", "meltdown", "mitigations", "cpu", "vulnerability", "gaming"]

@@ -1,0 +1,272 @@
+# WinBoost — Actions: Appearance
+# 10 actions de personnalisation visuelle Windows
+
+- id: "app_001"
+  name: "Enable Dark Mode"
+  description: "Switches Windows system theme to dark mode for apps and system UI"
+  category: "appearance"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"
+      values:
+        - name: "AppsUseLightTheme"
+          type: "REG_DWORD"
+          data: 0
+        - name: "SystemUsesLightTheme"
+          type: "REG_DWORD"
+          data: 0
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"
+      values:
+        - name: "AppsUseLightTheme"
+          type: "REG_DWORD"
+          data: 1
+        - name: "SystemUsesLightTheme"
+          type: "REG_DWORD"
+          data: 1
+  keywords:
+    fr: ["mode sombre", "theme noir", "dark mode", "apparence sombre"]
+    en: ["dark mode", "dark theme", "night mode", "black theme"]
+
+- id: "app_002"
+  name: "Enable Accent Color on Title Bars"
+  description: "Shows the Windows accent color on window title bars and borders"
+  category: "appearance"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\DWM"
+      values:
+        - name: "ColorPrevalence"
+          type: "REG_DWORD"
+          data: 1
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\DWM"
+      values:
+        - name: "ColorPrevalence"
+          type: "REG_DWORD"
+          data: 0
+  keywords:
+    fr: ["couleur accent", "barre de titre coloree", "couleur fenetre"]
+    en: ["accent color", "title bar color", "colored title bars", "window borders"]
+
+- id: "app_003"
+  name: "Remove Show More Options (Win11 Classic Context Menu)"
+  description: "Removes the 'Show more options' entry in Windows 11 context menu by restoring the classic full context menu"
+  category: "appearance"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Classes\\CLSID\\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\\InprocServer32"
+      values:
+        - name: "(Default)"
+          type: "REG_SZ"
+          data: ""
+  rollback:
+    method: "registry_delete"
+    params:
+      path: "HKCU\\SOFTWARE\\Classes\\CLSID\\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}"
+      recursive: true
+  keywords:
+    fr: ["menu contextuel classique", "afficher plus options", "clic droit complet", "ancien menu"]
+    en: ["show more options", "classic context menu", "full right click", "old context menu"]
+
+- id: "app_004"
+  name: "Enable Classic Context Menu"
+  description: "Forces Windows 11 to always show the full classic context menu on right-click"
+  category: "appearance"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Classes\\CLSID\\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\\InprocServer32"
+      values:
+        - name: "(Default)"
+          type: "REG_SZ"
+          data: ""
+  rollback:
+    method: "registry_delete"
+    params:
+      path: "HKCU\\SOFTWARE\\Classes\\CLSID\\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}"
+      recursive: true
+  keywords:
+    fr: ["menu classique", "ancien menu clic droit", "menu contextuel windows 10"]
+    en: ["classic context menu", "old right click menu", "windows 10 context menu"]
+
+- id: "app_005"
+  name: "Set Taskbar Alignment to Left"
+  description: "Moves the Windows 11 taskbar icons to the left instead of centered"
+  category: "appearance"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+      values:
+        - name: "TaskbarAl"
+          type: "REG_DWORD"
+          data: 0
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+      values:
+        - name: "TaskbarAl"
+          type: "REG_DWORD"
+          data: 1
+  keywords:
+    fr: ["barre des taches gauche", "icones a gauche", "taskbar gauche", "alignement gauche"]
+    en: ["taskbar left", "left aligned taskbar", "taskbar alignment left", "move taskbar icons left"]
+
+- id: "app_006"
+  name: "Hide Search Box from Taskbar"
+  description: "Removes the search box or icon from the Windows taskbar"
+  category: "appearance"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Search"
+      values:
+        - name: "SearchboxTaskbarMode"
+          type: "REG_DWORD"
+          data: 0
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Search"
+      values:
+        - name: "SearchboxTaskbarMode"
+          type: "REG_DWORD"
+          data: 1
+  keywords:
+    fr: ["masquer recherche", "cacher barre recherche", "supprimer recherche taskbar"]
+    en: ["hide search", "remove search box", "disable search bar", "hide search taskbar"]
+
+- id: "app_007"
+  name: "Hide Task View Button"
+  description: "Removes the Task View button from the Windows taskbar"
+  category: "appearance"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+      values:
+        - name: "ShowTaskViewButton"
+          type: "REG_DWORD"
+          data: 0
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+      values:
+        - name: "ShowTaskViewButton"
+          type: "REG_DWORD"
+          data: 1
+  keywords:
+    fr: ["masquer vue taches", "cacher task view", "supprimer bureaux virtuels"]
+    en: ["hide task view", "remove task view", "disable task view button"]
+
+- id: "app_008"
+  name: "Hide Widgets from Taskbar"
+  description: "Removes the Widgets panel button from the Windows 11 taskbar"
+  category: "appearance"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+      values:
+        - name: "TaskbarDa"
+          type: "REG_DWORD"
+          data: 0
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+      values:
+        - name: "TaskbarDa"
+          type: "REG_DWORD"
+          data: 1
+  keywords:
+    fr: ["masquer widgets", "cacher widgets", "supprimer widgets taskbar", "desactiver widgets"]
+    en: ["hide widgets", "remove widgets", "disable widgets", "widgets off"]
+
+- id: "app_009"
+  name: "Enable Small Taskbar Icons"
+  description: "Reduces the size of taskbar icons and the taskbar height for a compact look"
+  category: "appearance"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+      values:
+        - name: "TaskbarSi"
+          type: "REG_DWORD"
+          data: 0
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+      values:
+        - name: "TaskbarSi"
+          type: "REG_DWORD"
+          data: 1
+  keywords:
+    fr: ["petites icones", "icones compactes", "taskbar petite", "barre taches compacte"]
+    en: ["small taskbar", "small icons", "compact taskbar", "reduce taskbar size"]
+
+- id: "app_010"
+  name: "Enable Transparent Taskbar"
+  description: "Enables transparency effect on the Windows taskbar for a glass-like appearance"
+  category: "appearance"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"
+      values:
+        - name: "EnableTransparency"
+          type: "REG_DWORD"
+          data: 1
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"
+      values:
+        - name: "EnableTransparency"
+          type: "REG_DWORD"
+          data: 0
+  keywords:
+    fr: ["taskbar transparente", "transparence barre taches", "effet verre", "barre transparente"]
+    en: ["transparent taskbar", "taskbar transparency", "glass taskbar", "see through taskbar"]

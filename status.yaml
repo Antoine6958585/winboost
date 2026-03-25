@@ -9,8 +9,8 @@ repo: Antoine6958585/winboost
 created: 2026-03-25
 last_updated: 2026-03-25
 
-progress: 48
-current_phase: 5
+progress: 63
+current_phase: 7
 current_milestone: v1.0
 
 assignees:
@@ -169,9 +169,9 @@ phases:
         status: not_started
         assignee: antoine
       - id: T030
-        name: "Passer repo en public"
-        status: not_started
-        assignee: antoine
+        name: "Repo reste prive (decision enzo)"
+        status: done
+        assignee: enzo
 
   # ===========================================================================
   # MILESTONE v2.0 — Action Registry + AI Engine + Chat
@@ -180,43 +180,43 @@ phases:
   - phase: 6
     name: "Action Registry"
     milestone: v2.0
-    status: not_started
+    status: done
     tasks:
       - id: T031
         name: "Format YAML des actions + schema validation"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T032
         name: "Loader dynamique d'actions"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T033
         name: "30 actions privacy"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T034
         name: "30 actions performance"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T035
         name: "20 actions cleanup"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T036
         name: "20 actions dev_tools"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T037
         name: "20 actions network + security"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T038
         name: "30 actions appearance + gaming + system"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T039
         name: "Tests + dry-run pour chaque action"
-        status: not_started
+        status: done
         assignee: claude-code
 
   - phase: 7
@@ -336,6 +336,9 @@ phases:
         assignee: enzo
 
 logs:
+  - date: 2026-03-25
+    action: "Phase 6 terminee — 150 actions YAML (9 categories) + schema + loader + 204 tests"
+    by: claude-code
   - date: 2026-03-25
     action: "Phase 5 (claude-code) terminee — build .exe + splash + README + 172 tests E2E. Reste: T029+T030 pour antoine"
     by: claude-code

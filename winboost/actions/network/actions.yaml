@@ -1,0 +1,221 @@
+# Actions reseau WinBoost — 10 actions d'optimisation et configuration reseau
+
+- id: "net_001"
+  name: "Flush DNS Cache"
+  description: "Vide le cache DNS local pour forcer la resolution de noms frais"
+  category: "network"
+  risk_level: "low"
+  requires_admin: true
+  reversible: false
+  execute:
+    method: "cmd"
+    params:
+      command: "ipconfig /flushdns"
+  rollback:
+    method: "cmd"
+    params:
+      command: "echo Le cache DNS se reconstruit automatiquement"
+  keywords:
+    fr: ["dns", "cache", "vider", "flush", "resolution"]
+    en: ["dns", "cache", "flush", "resolve", "clear"]
+
+- id: "net_002"
+  name: "Reset Winsock Catalog"
+  description: "Reinitialise le catalogue Winsock pour corriger les problemes de connectivite reseau"
+  category: "network"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: false
+  execute:
+    method: "cmd"
+    params:
+      command: "netsh winsock reset"
+  rollback:
+    method: "cmd"
+    params:
+      command: "echo Redemarrage necessaire. Winsock sera reinitialise au prochain boot."
+  keywords:
+    fr: ["winsock", "reset", "reinitialiser", "connectivite", "socket"]
+    en: ["winsock", "reset", "connectivity", "socket", "catalog"]
+
+- id: "net_003"
+  name: "Reset TCP/IP Stack"
+  description: "Reinitialise la pile TCP/IP pour corriger les erreurs de configuration reseau"
+  category: "network"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: false
+  execute:
+    method: "cmd"
+    params:
+      command: "netsh int ip reset"
+  rollback:
+    method: "cmd"
+    params:
+      command: "echo Redemarrage necessaire. La pile TCP/IP sera reconstruite."
+  keywords:
+    fr: ["tcp", "ip", "reset", "pile", "reinitialiser", "reseau"]
+    en: ["tcp", "ip", "reset", "stack", "network"]
+
+- id: "net_004"
+  name: "Disable IPv6"
+  description: "Desactive le protocole IPv6 via le registre pour forcer l'utilisation d'IPv4"
+  category: "network"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SYSTEM\\CurrentControlSet\\Services\\Tcpip6\\Parameters"
+      name: "DisabledComponents"
+      value: 255
+      type: "REG_DWORD"
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SYSTEM\\CurrentControlSet\\Services\\Tcpip6\\Parameters"
+      name: "DisabledComponents"
+      value: 0
+      type: "REG_DWORD"
+  keywords:
+    fr: ["ipv6", "desactiver", "protocole", "ipv4"]
+    en: ["ipv6", "disable", "protocol", "ipv4"]
+
+- id: "net_005"
+  name: "Set DNS to Google/Cloudflare"
+  description: "Configure les serveurs DNS sur Google (8.8.8.8) et Cloudflare (1.1.1.1) pour une resolution plus rapide"
+  category: "network"
+  risk_level: "low"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      command: >
+        $adapter = Get-NetAdapter | Where-Object {$_.Status -eq 'Up'} | Select-Object -First 1;
+        Set-DnsClientServerAddress -InterfaceIndex $adapter.ifIndex -ServerAddresses ('8.8.8.8','1.1.1.1','8.8.4.4','1.0.0.1')
+  rollback:
+    method: "powershell"
+    params:
+      command: >
+        $adapter = Get-NetAdapter | Where-Object {$_.Status -eq 'Up'} | Select-Object -First 1;
+        Set-DnsClientServerAddress -InterfaceIndex $adapter.ifIndex -ResetServerAddresses
+  keywords:
+    fr: ["dns", "google", "cloudflare", "serveur", "rapide", "resolution"]
+    en: ["dns", "google", "cloudflare", "server", "fast", "resolve"]
+
+- id: "net_006"
+  name: "Disable NetBIOS over TCP/IP"
+  description: "Desactive NetBIOS sur TCP/IP pour reduire la surface d'attaque reseau"
+  category: "network"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      command: >
+        Get-ChildItem 'HKLM:\SYSTEM\CurrentControlSet\Services\NetBT\Parameters\Interfaces' |
+        ForEach-Object { Set-ItemProperty -Path $_.PSPath -Name 'NetbiosOptions' -Value 2 }
+  rollback:
+    method: "powershell"
+    params:
+      command: >
+        Get-ChildItem 'HKLM:\SYSTEM\CurrentControlSet\Services\NetBT\Parameters\Interfaces' |
+        ForEach-Object { Set-ItemProperty -Path $_.PSPath -Name 'NetbiosOptions' -Value 0 }
+  keywords:
+    fr: ["netbios", "desactiver", "tcp", "securite", "surface"]
+    en: ["netbios", "disable", "tcp", "security", "attack surface"]
+
+- id: "net_007"
+  name: "Disable LMHOSTS Lookup"
+  description: "Desactive la recherche LMHOSTS pour accelerer la resolution de noms et reduire les risques"
+  category: "network"
+  risk_level: "low"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SYSTEM\\CurrentControlSet\\Services\\NetBT\\Parameters"
+      name: "EnableLMHOSTS"
+      value: 0
+      type: "REG_DWORD"
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SYSTEM\\CurrentControlSet\\Services\\NetBT\\Parameters"
+      name: "EnableLMHOSTS"
+      value: 1
+      type: "REG_DWORD"
+  keywords:
+    fr: ["lmhosts", "desactiver", "recherche", "resolution", "noms"]
+    en: ["lmhosts", "disable", "lookup", "name resolution"]
+
+- id: "net_008"
+  name: "Optimize TCP Window Auto-Tuning"
+  description: "Configure le niveau d'auto-tuning de la fenetre TCP sur 'normal' pour optimiser le debit"
+  category: "network"
+  risk_level: "low"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "cmd"
+    params:
+      command: "netsh int tcp set global autotuninglevel=normal"
+  rollback:
+    method: "cmd"
+    params:
+      command: "netsh int tcp set global autotuninglevel=default"
+  keywords:
+    fr: ["tcp", "fenetre", "optimiser", "debit", "auto-tuning", "bande passante"]
+    en: ["tcp", "window", "optimize", "throughput", "auto-tuning", "bandwidth"]
+
+- id: "net_009"
+  name: "Disable WiFi Sense Sharing"
+  description: "Desactive le partage WiFi Sense pour empecher le partage automatique des mots de passe WiFi"
+  category: "network"
+  risk_level: "low"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Microsoft\\WcmSvc\\wifinetworkmanager\\config"
+      name: "AutoConnectAllowedOEM"
+      value: 0
+      type: "REG_DWORD"
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Microsoft\\WcmSvc\\wifinetworkmanager\\config"
+      name: "AutoConnectAllowedOEM"
+      value: 1
+      type: "REG_DWORD"
+  keywords:
+    fr: ["wifi", "sense", "partage", "desactiver", "mot de passe", "automatique"]
+    en: ["wifi", "sense", "sharing", "disable", "password", "automatic"]
+
+- id: "net_010"
+  name: "Disable Network Discovery"
+  description: "Desactive la decouverte reseau pour tous les profils pour empecher la visibilite sur le reseau local"
+  category: "network"
+  risk_level: "low"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      command: >
+        Get-NetFirewallRule -DisplayGroup 'Network Discovery' -ErrorAction SilentlyContinue |
+        Set-NetFirewallRule -Enabled False
+  rollback:
+    method: "powershell"
+    params:
+      command: >
+        Get-NetFirewallRule -DisplayGroup 'Network Discovery' -ErrorAction SilentlyContinue |
+        Set-NetFirewallRule -Enabled True
+  keywords:
+    fr: ["decouverte", "reseau", "desactiver", "visibilite", "local"]
+    en: ["network", "discovery", "disable", "visibility", "local"]

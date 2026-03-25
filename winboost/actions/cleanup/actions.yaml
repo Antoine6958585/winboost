@@ -1,0 +1,367 @@
+# WinBoost — Actions de nettoyage Windows (20 actions)
+# Categorie : cleanup
+# Couvre : fichiers temporaires, mises a jour, logs, crash dumps, caches
+
+# ============================================================
+# 1-4 : Fichiers temporaires
+# ============================================================
+
+- id: "clean_001"
+  name: "Clear user temp files"
+  description: "Supprime les fichiers temporaires du dossier %TEMP% de l'utilisateur courant"
+  category: "cleanup"
+  risk_level: "low"
+  requires_admin: false
+  reversible: false
+  execute:
+    method: "clear_directory"
+    params:
+      path: "%TEMP%"
+      pattern: "*"
+      recursive: true
+  rollback: {}
+  keywords:
+    fr: ["temp", "temporaires", "fichiers temporaires", "nettoyage temp"]
+    en: ["temp", "temporary files", "user temp", "clean temp"]
+
+- id: "clean_002"
+  name: "Clear system temp files"
+  description: "Supprime les fichiers temporaires du dossier C:\\Windows\\Temp (necessite les droits admin)"
+  category: "cleanup"
+  risk_level: "low"
+  requires_admin: true
+  reversible: false
+  execute:
+    method: "clear_directory"
+    params:
+      path: "C:\\Windows\\Temp"
+      pattern: "*"
+      recursive: true
+  rollback: {}
+  keywords:
+    fr: ["temp systeme", "windows temp", "temporaires systeme"]
+    en: ["system temp", "windows temp", "system temporary"]
+
+- id: "clean_003"
+  name: "Clear Internet Explorer temp files"
+  description: "Supprime le cache et les fichiers temporaires d'Internet Explorer"
+  category: "cleanup"
+  risk_level: "low"
+  requires_admin: false
+  reversible: false
+  execute:
+    method: "clear_directory"
+    params:
+      path: "%LOCALAPPDATA%\\Microsoft\\Windows\\INetCache"
+      pattern: "*"
+      recursive: true
+  rollback: {}
+  keywords:
+    fr: ["internet explorer", "ie cache", "cache ie", "temp ie"]
+    en: ["internet explorer", "ie cache", "ie temp", "inetcache"]
+
+- id: "clean_004"
+  name: "Clear Microsoft Edge temp files"
+  description: "Supprime le cache et les fichiers temporaires du navigateur Microsoft Edge"
+  category: "cleanup"
+  risk_level: "low"
+  requires_admin: false
+  reversible: false
+  execute:
+    method: "clear_directory"
+    params:
+      path: "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data\\Default\\Cache\\Cache_Data"
+      pattern: "*"
+      recursive: true
+  rollback: {}
+  keywords:
+    fr: ["edge", "cache edge", "temp edge", "navigateur edge"]
+    en: ["edge", "edge cache", "edge temp", "edge browser cache"]
+
+# ============================================================
+# 5-8 : Windows Update et cache systeme
+# ============================================================
+
+- id: "clean_005"
+  name: "Clear Windows Update cache"
+  description: "Supprime le cache de telechargement de Windows Update dans SoftwareDistribution\\Download"
+  category: "cleanup"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: false
+  execute:
+    method: "clear_directory"
+    params:
+      path: "C:\\Windows\\SoftwareDistribution\\Download"
+      pattern: "*"
+      recursive: true
+  rollback: {}
+  keywords:
+    fr: ["windows update", "cache mise a jour", "update cache", "telechargements update"]
+    en: ["windows update", "update cache", "update downloads", "software distribution"]
+
+- id: "clean_006"
+  name: "Clear Windows Installer cache"
+  description: "Supprime les fichiers .msp et .msi orphelins du dossier Windows Installer"
+  category: "cleanup"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: false
+  execute:
+    method: "powershell"
+    params:
+      command: "Get-ChildItem -Path 'C:\\Windows\\Installer' -Include '*.msp','*.msi' -Recurse -ErrorAction SilentlyContinue | Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-90) } | Remove-Item -Force -ErrorAction SilentlyContinue"
+  rollback: {}
+  keywords:
+    fr: ["installer", "cache installer", "msi", "windows installer"]
+    en: ["installer", "installer cache", "msi cache", "windows installer"]
+
+- id: "clean_007"
+  name: "Remove old Windows versions"
+  description: "Supprime les anciennes installations Windows stockees dans Windows.old (libere plusieurs Go)"
+  category: "cleanup"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: false
+  execute:
+    method: "cmd"
+    params:
+      command: "rd /s /q C:\\Windows.old"
+  rollback: {}
+  keywords:
+    fr: ["windows.old", "ancienne version", "ancien windows", "mise a jour windows"]
+    en: ["windows.old", "old windows", "previous installation", "old version"]
+
+- id: "clean_008"
+  name: "Clear Delivery Optimization cache"
+  description: "Supprime le cache de Delivery Optimization utilise pour le partage P2P des mises a jour"
+  category: "cleanup"
+  risk_level: "low"
+  requires_admin: true
+  reversible: false
+  execute:
+    method: "powershell"
+    params:
+      command: "Delete-DeliveryOptimizationCache -Force"
+  rollback: {}
+  keywords:
+    fr: ["delivery optimization", "cache p2p", "optimisation livraison", "cache distribution"]
+    en: ["delivery optimization", "p2p cache", "do cache", "update sharing cache"]
+
+# ============================================================
+# 9-12 : Fichiers de logs
+# ============================================================
+
+- id: "clean_009"
+  name: "Clear CBS log files"
+  description: "Supprime les fichiers logs CBS (Component Based Servicing) dans C:\\Windows\\Logs\\CBS"
+  category: "cleanup"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: false
+  execute:
+    method: "clear_directory"
+    params:
+      path: "C:\\Windows\\Logs\\CBS"
+      pattern: "*.log"
+      recursive: false
+  rollback: {}
+  keywords:
+    fr: ["cbs", "logs cbs", "component servicing", "journaux cbs"]
+    en: ["cbs", "cbs logs", "component based servicing", "cbs log files"]
+
+- id: "clean_010"
+  name: "Clear DISM log files"
+  description: "Supprime les fichiers logs DISM dans C:\\Windows\\Logs\\DISM"
+  category: "cleanup"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: false
+  execute:
+    method: "clear_directory"
+    params:
+      path: "C:\\Windows\\Logs\\DISM"
+      pattern: "*.log"
+      recursive: false
+  rollback: {}
+  keywords:
+    fr: ["dism", "logs dism", "journaux dism", "reparation image"]
+    en: ["dism", "dism logs", "dism log files", "image servicing logs"]
+
+- id: "clean_011"
+  name: "Clear Windows Update log files"
+  description: "Supprime les anciens logs de Windows Update dans C:\\Windows\\Logs\\WindowsUpdate"
+  category: "cleanup"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: false
+  execute:
+    method: "clear_directory"
+    params:
+      path: "C:\\Windows\\Logs\\WindowsUpdate"
+      pattern: "*.etl"
+      recursive: false
+  rollback: {}
+  keywords:
+    fr: ["logs update", "journaux update", "windows update logs", "etl update"]
+    en: ["update logs", "windows update logs", "update log files", "etl logs"]
+
+- id: "clean_012"
+  name: "Clear Windows Event Logs"
+  description: "Purge tous les journaux d'evenements Windows (Application, System, Security, etc.)"
+  category: "cleanup"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: false
+  execute:
+    method: "powershell"
+    params:
+      command: "Get-WinEvent -ListLog * -ErrorAction SilentlyContinue | ForEach-Object { [System.Diagnostics.Eventing.Reader.EventLogSession]::GlobalSession.ClearLog($_.LogName) }"
+  rollback: {}
+  keywords:
+    fr: ["event log", "journaux evenements", "observateur evenements", "vider journaux"]
+    en: ["event log", "event viewer", "clear event logs", "windows logs"]
+
+# ============================================================
+# 13-16 : Crash dumps et rapports d'erreur
+# ============================================================
+
+- id: "clean_013"
+  name: "Clear minidump files"
+  description: "Supprime les fichiers de minidump generes lors des BSOD dans C:\\Windows\\Minidump"
+  category: "cleanup"
+  risk_level: "low"
+  requires_admin: true
+  reversible: false
+  execute:
+    method: "clear_directory"
+    params:
+      path: "C:\\Windows\\Minidump"
+      pattern: "*.dmp"
+      recursive: false
+  rollback: {}
+  keywords:
+    fr: ["minidump", "crash dump", "ecran bleu", "bsod dump"]
+    en: ["minidump", "crash dump", "bsod dump", "blue screen dump"]
+
+- id: "clean_014"
+  name: "Clear full memory dump"
+  description: "Supprime le fichier MEMORY.DMP complet genere lors d'un crash systeme"
+  category: "cleanup"
+  risk_level: "low"
+  requires_admin: true
+  reversible: false
+  execute:
+    method: "delete_path"
+    params:
+      path: "C:\\Windows\\MEMORY.DMP"
+  rollback: {}
+  keywords:
+    fr: ["memory dump", "dump memoire", "crash complet", "dump systeme"]
+    en: ["memory dump", "full dump", "system crash dump", "memory.dmp"]
+
+- id: "clean_015"
+  name: "Clear Windows Error Reporting files"
+  description: "Supprime les rapports d'erreur Windows (WER) stockes localement pour l'utilisateur"
+  category: "cleanup"
+  risk_level: "low"
+  requires_admin: false
+  reversible: false
+  execute:
+    method: "clear_directory"
+    params:
+      path: "%LOCALAPPDATA%\\Microsoft\\Windows\\WER\\ReportQueue"
+      pattern: "*"
+      recursive: true
+  rollback: {}
+  keywords:
+    fr: ["wer", "rapport erreur", "erreur windows", "signalement erreur"]
+    en: ["wer", "error reporting", "windows error reports", "crash reports"]
+
+- id: "clean_016"
+  name: "Clear system crash dump reports"
+  description: "Supprime les rapports de crash systeme WER dans ProgramData"
+  category: "cleanup"
+  risk_level: "low"
+  requires_admin: true
+  reversible: false
+  execute:
+    method: "clear_directory"
+    params:
+      path: "C:\\ProgramData\\Microsoft\\Windows\\WER\\ReportQueue"
+      pattern: "*"
+      recursive: true
+  rollback: {}
+  keywords:
+    fr: ["crash systeme", "rapport crash", "wer systeme", "dump programme"]
+    en: ["system crash reports", "wer system", "program crash dumps", "system error reports"]
+
+# ============================================================
+# 17-20 : Caches divers (corbeille, miniatures, polices, DNS)
+# ============================================================
+
+- id: "clean_017"
+  name: "Empty Recycle Bin"
+  description: "Vide la corbeille Windows de tous les utilisateurs"
+  category: "cleanup"
+  risk_level: "low"
+  requires_admin: false
+  reversible: false
+  execute:
+    method: "powershell"
+    params:
+      command: "Clear-RecycleBin -Force -ErrorAction SilentlyContinue"
+  rollback: {}
+  keywords:
+    fr: ["corbeille", "vider corbeille", "recycle bin", "poubelle"]
+    en: ["recycle bin", "empty recycle bin", "trash", "clear recycle bin"]
+
+- id: "clean_018"
+  name: "Clear thumbnail cache"
+  description: "Supprime le cache de miniatures (thumbcache) pour forcer la regeneration des aperçus"
+  category: "cleanup"
+  risk_level: "low"
+  requires_admin: false
+  reversible: false
+  execute:
+    method: "clear_directory"
+    params:
+      path: "%LOCALAPPDATA%\\Microsoft\\Windows\\Explorer"
+      pattern: "thumbcache_*.db"
+      recursive: false
+  rollback: {}
+  keywords:
+    fr: ["miniatures", "cache miniatures", "thumbcache", "apercu images"]
+    en: ["thumbnail", "thumbnail cache", "thumbcache", "image preview cache"]
+
+- id: "clean_019"
+  name: "Clear font cache"
+  description: "Supprime le cache des polices Windows et redemarre le service FontCache"
+  category: "cleanup"
+  risk_level: "low"
+  requires_admin: true
+  reversible: false
+  execute:
+    method: "powershell"
+    params:
+      command: "Stop-Service -Name FontCache -Force -ErrorAction SilentlyContinue; Remove-Item -Path 'C:\\Windows\\ServiceProfiles\\LocalService\\AppData\\Local\\FontCache\\*' -Force -Recurse -ErrorAction SilentlyContinue; Start-Service -Name FontCache"
+  rollback: {}
+  keywords:
+    fr: ["cache polices", "font cache", "polices", "reinitialiser polices"]
+    en: ["font cache", "clear fonts", "font cache rebuild", "reset font cache"]
+
+- id: "clean_020"
+  name: "Flush DNS cache"
+  description: "Vide le cache DNS local de Windows pour forcer la resolution DNS fraiche"
+  category: "cleanup"
+  risk_level: "low"
+  requires_admin: true
+  reversible: false
+  execute:
+    method: "cmd"
+    params:
+      command: "ipconfig /flushdns"
+  rollback: {}
+  keywords:
+    fr: ["dns", "cache dns", "vider dns", "flush dns", "resolution dns"]
+    en: ["dns", "dns cache", "flush dns", "clear dns", "dns resolver cache"]

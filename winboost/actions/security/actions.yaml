@@ -1,0 +1,236 @@
+# Actions securite WinBoost — 10 actions de renforcement et durcissement systeme
+
+- id: "sec_001"
+  name: "Disable Remote Desktop"
+  description: "Desactive le Bureau a distance (RDP) pour empecher les connexions distantes non autorisees"
+  category: "security"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server"
+      name: "fDenyTSConnections"
+      value: 1
+      type: "REG_DWORD"
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server"
+      name: "fDenyTSConnections"
+      value: 0
+      type: "REG_DWORD"
+  keywords:
+    fr: ["rdp", "bureau", "distant", "desactiver", "remote desktop", "connexion"]
+    en: ["rdp", "remote", "desktop", "disable", "connection"]
+
+- id: "sec_002"
+  name: "Disable SMBv1 Protocol"
+  description: "Desactive le protocole SMBv1 vulnerable aux attaques type WannaCry et EternalBlue"
+  category: "security"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      command: >
+        Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force;
+        Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol -NoRestart -ErrorAction SilentlyContinue
+  rollback:
+    method: "powershell"
+    params:
+      command: >
+        Set-SmbServerConfiguration -EnableSMB1Protocol $true -Force;
+        Enable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol -NoRestart -ErrorAction SilentlyContinue
+  keywords:
+    fr: ["smbv1", "smb", "protocole", "desactiver", "wannacry", "vulnerabilite"]
+    en: ["smbv1", "smb", "protocol", "disable", "wannacry", "vulnerability"]
+
+- id: "sec_003"
+  name: "Enable SMB Signing"
+  description: "Active la signature obligatoire des paquets SMB pour prevenir les attaques man-in-the-middle"
+  category: "security"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SYSTEM\\CurrentControlSet\\Services\\LanmanServer\\Parameters"
+      name: "RequireSecuritySignature"
+      value: 1
+      type: "REG_DWORD"
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SYSTEM\\CurrentControlSet\\Services\\LanmanServer\\Parameters"
+      name: "RequireSecuritySignature"
+      value: 0
+      type: "REG_DWORD"
+  keywords:
+    fr: ["smb", "signature", "activer", "securite", "man-in-the-middle"]
+    en: ["smb", "signing", "enable", "security", "man-in-the-middle"]
+
+- id: "sec_004"
+  name: "Disable Remote Registry Service"
+  description: "Desactive le service Remote Registry pour empecher la modification du registre a distance"
+  category: "security"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "service_disable"
+    params:
+      service_name: "RemoteRegistry"
+  rollback:
+    method: "service_set_manual"
+    params:
+      service_name: "RemoteRegistry"
+  keywords:
+    fr: ["registre", "distant", "desactiver", "service", "remote registry"]
+    en: ["registry", "remote", "disable", "service", "remote registry"]
+
+- id: "sec_005"
+  name: "Disable Administrative Shares"
+  description: "Desactive les partages administratifs par defaut (C$, ADMIN$) pour empecher l'acces reseau non autorise"
+  category: "security"
+  risk_level: "high"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SYSTEM\\CurrentControlSet\\Services\\LanmanServer\\Parameters"
+      name: "AutoShareWks"
+      value: 0
+      type: "REG_DWORD"
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SYSTEM\\CurrentControlSet\\Services\\LanmanServer\\Parameters"
+      name: "AutoShareWks"
+      value: 1
+      type: "REG_DWORD"
+  keywords:
+    fr: ["partages", "administratifs", "desactiver", "admin$", "c$", "reseau"]
+    en: ["admin", "shares", "disable", "admin$", "c$", "network"]
+
+- id: "sec_006"
+  name: "Enable Firewall Logging"
+  description: "Active la journalisation du pare-feu Windows pour tous les profils (domaine, prive, public)"
+  category: "security"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      command: >
+        Set-NetFirewallProfile -Profile Domain,Private,Public
+        -LogAllowed True -LogBlocked True
+        -LogFileName '%SystemRoot%\System32\LogFiles\Firewall\pfirewall.log'
+        -LogMaxSizeKilobytes 32767
+  rollback:
+    method: "powershell"
+    params:
+      command: >
+        Set-NetFirewallProfile -Profile Domain,Private,Public
+        -LogAllowed False -LogBlocked False
+  keywords:
+    fr: ["pare-feu", "firewall", "journalisation", "log", "activer", "securite"]
+    en: ["firewall", "logging", "log", "enable", "security"]
+
+- id: "sec_007"
+  name: "Disable AutoRun/AutoPlay"
+  description: "Desactive AutoRun et AutoPlay pour empecher l'execution automatique de programmes depuis les supports amovibles"
+  category: "security"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer"
+      name: "NoDriveTypeAutoRun"
+      value: 255
+      type: "REG_DWORD"
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer"
+      name: "NoDriveTypeAutoRun"
+      value: 145
+      type: "REG_DWORD"
+  keywords:
+    fr: ["autorun", "autoplay", "desactiver", "usb", "amovible", "execution"]
+    en: ["autorun", "autoplay", "disable", "usb", "removable", "execution"]
+
+- id: "sec_008"
+  name: "Enable UAC Maximum Level"
+  description: "Configure le controle de compte utilisateur (UAC) au niveau maximum avec assombrissement du bureau"
+  category: "security"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      command: >
+        Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -Name 'ConsentPromptBehaviorAdmin' -Value 2;
+        Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -Name 'PromptOnSecureDesktop' -Value 1;
+        Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -Name 'EnableLUA' -Value 1
+  rollback:
+    method: "powershell"
+    params:
+      command: >
+        Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -Name 'ConsentPromptBehaviorAdmin' -Value 5;
+        Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -Name 'PromptOnSecureDesktop' -Value 1;
+        Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -Name 'EnableLUA' -Value 1
+  keywords:
+    fr: ["uac", "controle", "compte", "utilisateur", "maximum", "securite"]
+    en: ["uac", "user", "account", "control", "maximum", "security"]
+
+- id: "sec_009"
+  name: "Enable BitLocker Status Check"
+  description: "Verifie l'etat de BitLocker sur tous les volumes et active la protection si disponible sur le lecteur systeme"
+  category: "security"
+  risk_level: "high"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      command: >
+        $status = Get-BitLockerVolume -MountPoint 'C:' -ErrorAction SilentlyContinue;
+        if ($status.ProtectionStatus -eq 'Off') {
+          Enable-BitLocker -MountPoint 'C:' -EncryptionMethod XtsAes256 -UsedSpaceOnly -TpmProtector -ErrorAction Stop
+        }
+  rollback:
+    method: "powershell"
+    params:
+      command: >
+        Disable-BitLocker -MountPoint 'C:' -ErrorAction SilentlyContinue
+  keywords:
+    fr: ["bitlocker", "chiffrement", "disque", "activer", "protection", "volume"]
+    en: ["bitlocker", "encryption", "disk", "enable", "protection", "volume"]
+
+- id: "sec_010"
+  name: "Disable Guest Account"
+  description: "Desactive le compte Invite Windows pour empecher les acces anonymes au systeme"
+  category: "security"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "cmd"
+    params:
+      command: "net user Guest /active:no"
+  rollback:
+    method: "cmd"
+    params:
+      command: "net user Guest /active:yes"
+  keywords:
+    fr: ["invite", "guest", "compte", "desactiver", "anonyme", "acces"]
+    en: ["guest", "account", "disable", "anonymous", "access"]

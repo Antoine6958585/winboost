@@ -1,0 +1,294 @@
+# WinBoost — Actions: Gaming
+# 10 actions d'optimisation pour le jeu sous Windows
+
+- id: "game_001"
+  name: "Enable Game Mode"
+  description: "Activates Windows Game Mode to prioritize GPU and CPU resources for games"
+  category: "gaming"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\GameBar"
+      values:
+        - name: "AutoGameModeEnabled"
+          type: "REG_DWORD"
+          data: 1
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\GameBar"
+      values:
+        - name: "AutoGameModeEnabled"
+          type: "REG_DWORD"
+          data: 0
+  keywords:
+    fr: ["mode jeu", "game mode", "activer mode jeu", "performances jeu"]
+    en: ["game mode", "enable game mode", "gaming mode", "game performance"]
+
+- id: "game_002"
+  name: "Disable Game DVR"
+  description: "Disables background Game DVR recording to free CPU/GPU resources during gameplay"
+  category: "gaming"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\System\\GameConfigStore"
+      values:
+        - name: "GameDVR_Enabled"
+          type: "REG_DWORD"
+          data: 0
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\System\\GameConfigStore"
+      values:
+        - name: "GameDVR_Enabled"
+          type: "REG_DWORD"
+          data: 1
+  keywords:
+    fr: ["desactiver game dvr", "dvr jeu", "enregistrement jeu", "capture arriere plan"]
+    en: ["disable game dvr", "game dvr off", "background recording off", "stop game recording"]
+
+- id: "game_003"
+  name: "Disable Fullscreen Optimizations"
+  description: "Disables Windows fullscreen optimizations globally to reduce input latency in games"
+  category: "gaming"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\System\\GameConfigStore"
+      values:
+        - name: "GameDVR_FSEBehaviorMode"
+          type: "REG_DWORD"
+          data: 2
+        - name: "GameDVR_FSEBehavior"
+          type: "REG_DWORD"
+          data: 2
+        - name: "GameDVR_HonorUserFSEBehaviorMode"
+          type: "REG_DWORD"
+          data: 1
+        - name: "GameDVR_DXGIHonorFSEWindowsCompatible"
+          type: "REG_DWORD"
+          data: 1
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\System\\GameConfigStore"
+      values:
+        - name: "GameDVR_FSEBehaviorMode"
+          type: "REG_DWORD"
+          data: 0
+        - name: "GameDVR_FSEBehavior"
+          type: "REG_DWORD"
+          data: 0
+        - name: "GameDVR_HonorUserFSEBehaviorMode"
+          type: "REG_DWORD"
+          data: 0
+        - name: "GameDVR_DXGIHonorFSEWindowsCompatible"
+          type: "REG_DWORD"
+          data: 0
+  keywords:
+    fr: ["optimisation plein ecran", "fullscreen", "latence jeu", "plein ecran exclusif"]
+    en: ["fullscreen optimizations", "disable fse", "fullscreen exclusive", "input latency"]
+
+- id: "game_004"
+  name: "Enable Hardware-Accelerated GPU Scheduling"
+  description: "Enables HAGS to let the GPU manage its own VRAM scheduling, reducing latency"
+  category: "gaming"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SYSTEM\\CurrentControlSet\\Control\\GraphicsDrivers"
+      values:
+        - name: "HwSchMode"
+          type: "REG_DWORD"
+          data: 2
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SYSTEM\\CurrentControlSet\\Control\\GraphicsDrivers"
+      values:
+        - name: "HwSchMode"
+          type: "REG_DWORD"
+          data: 1
+  keywords:
+    fr: ["gpu scheduling", "planification gpu", "acceleration materielle gpu", "hags"]
+    en: ["gpu scheduling", "hardware accelerated gpu", "hags", "gpu hardware scheduling"]
+
+- id: "game_005"
+  name: "Disable Mouse Acceleration"
+  description: "Disables mouse pointer acceleration (enhance pointer precision) for consistent aiming"
+  category: "gaming"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\Control Panel\\Mouse"
+      values:
+        - name: "MouseSpeed"
+          type: "REG_SZ"
+          data: "0"
+        - name: "MouseThreshold1"
+          type: "REG_SZ"
+          data: "0"
+        - name: "MouseThreshold2"
+          type: "REG_SZ"
+          data: "0"
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\Control Panel\\Mouse"
+      values:
+        - name: "MouseSpeed"
+          type: "REG_SZ"
+          data: "1"
+        - name: "MouseThreshold1"
+          type: "REG_SZ"
+          data: "6"
+        - name: "MouseThreshold2"
+          type: "REG_SZ"
+          data: "10"
+  keywords:
+    fr: ["acceleration souris", "precision pointeur", "souris brute", "aim souris"]
+    en: ["mouse acceleration", "enhance pointer precision", "raw input", "mouse aim"]
+
+- id: "game_006"
+  name: "Disable Nagle Algorithm"
+  description: "Disables Nagle's algorithm to reduce network latency for online gaming"
+  category: "gaming"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Microsoft\\MSMQ\\Parameters"
+      values:
+        - name: "TCPNoDelay"
+          type: "REG_DWORD"
+          data: 1
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Microsoft\\MSMQ\\Parameters"
+      values:
+        - name: "TCPNoDelay"
+          type: "REG_DWORD"
+          data: 0
+  keywords:
+    fr: ["nagle", "latence reseau", "tcp nodelay", "ping jeu", "optimisation reseau"]
+    en: ["nagle algorithm", "tcp nodelay", "network latency", "reduce ping", "network optimization"]
+
+- id: "game_007"
+  name: "Disable Network Throttling"
+  description: "Removes the default Windows network throttling limit to maximize network throughput for games"
+  category: "gaming"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile"
+      values:
+        - name: "NetworkThrottlingIndex"
+          type: "REG_DWORD"
+          data: 4294967295
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile"
+      values:
+        - name: "NetworkThrottlingIndex"
+          type: "REG_DWORD"
+          data: 10
+  keywords:
+    fr: ["throttling reseau", "limite bande passante", "debit reseau", "bridage reseau"]
+    en: ["network throttling", "bandwidth limit", "network throughput", "disable throttling"]
+
+- id: "game_008"
+  name: "Set High Timer Resolution"
+  description: "Sets the system timer resolution to high precision for smoother frame pacing"
+  category: "gaming"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile"
+      values:
+        - name: "SystemResponsiveness"
+          type: "REG_DWORD"
+          data: 0
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile"
+      values:
+        - name: "SystemResponsiveness"
+          type: "REG_DWORD"
+          data: 20
+  keywords:
+    fr: ["resolution timer", "precision timer", "frame pacing", "timer systeme"]
+    en: ["timer resolution", "high precision timer", "frame pacing", "system timer"]
+
+- id: "game_009"
+  name: "Disable Xbox Game Bar"
+  description: "Completely disables the Xbox Game Bar overlay to prevent performance overhead"
+  category: "gaming"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\GameDVR"
+      values:
+        - name: "AppCaptureEnabled"
+          type: "REG_DWORD"
+          data: 0
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\GameDVR"
+      values:
+        - name: "AppCaptureEnabled"
+          type: "REG_DWORD"
+          data: 1
+  keywords:
+    fr: ["xbox game bar", "barre jeu xbox", "overlay xbox", "desactiver game bar"]
+    en: ["xbox game bar", "game bar off", "disable game bar", "xbox overlay"]
+
+- id: "game_010"
+  name: "Disable HPET (High Precision Event Timer)"
+  description: "Disables the HPET timer via bcdedit to reduce timer-related latency on some systems"
+  category: "gaming"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "cmd"
+    params:
+      command: "bcdedit /deletevalue useplatformclock"
+  rollback:
+    method: "cmd"
+    params:
+      command: "bcdedit /set useplatformclock true"
+  keywords:
+    fr: ["hpet", "timer precision", "horloge plateforme", "latence timer"]
+    en: ["hpet", "high precision event timer", "platform clock", "timer latency"]

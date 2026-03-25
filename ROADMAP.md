@@ -40,16 +40,17 @@ v1 = 8 modules d'optimisation. v2 = Chat IA conversationnel.
 - [x] README.md complet
 - [x] Tests E2E (172 tests total)
 - [ ] GitHub Release v1.0.0 (antoine)
-- [ ] Passer repo en public (antoine)
+- [x] Repo reste prive (decision enzo)
 - **Livrable** : v1.0.0 sur GitHub
 
 ---
 
 ## Milestone v2.0 — AI Engine + Chat
 
-### Phase 6 : Action Registry (5-7h agent)
-- [ ] Format YAML + schema validation
-- [ ] 150 actions (privacy, performance, cleanup, dev_tools, network, security, etc.)
+### Phase 6 : Action Registry (5-7h agent) ✅
+- [x] Format YAML + schema validation + loader dynamique
+- [x] 150 actions (privacy 30, performance 30, cleanup 20, dev_tools 20, network 10, security 10, appearance 10, gaming 10, system 10)
+- [x] Tests (204 total, 0 erreurs validation)
 - **Livrable** : 150 actions testables en dry-run
 
 ### Phase 7 : AI Engine (6-8h agent)

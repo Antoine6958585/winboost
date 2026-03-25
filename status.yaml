@@ -9,9 +9,9 @@ repo: Antoine6958585/winboost
 created: 2026-03-25
 last_updated: 2026-03-25
 
-progress: 74
-current_phase: 8
-current_milestone: v1.0
+progress: 82
+current_phase: 9
+current_milestone: v2.0
 
 assignees:
   lead: claude-code
@@ -256,31 +256,31 @@ phases:
   - phase: 8
     name: "Chat GUI"
     milestone: v2.0
-    status: not_started
+    status: done
     tasks:
       - id: T047
         name: "Implementer gui/chat.py (widget conversationnel)"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T048
         name: "Bulles de message + indicateurs de risque"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T049
         name: "Boutons d'action inline (Appliquer/Annuler)"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T050
         name: "Preview panel (before/after)"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T051
         name: "Integration chat -> engine -> modules"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T052
         name: "Tests GUI chat"
-        status: not_started
+        status: done
         assignee: claude-code
 
   - phase: 9
@@ -336,6 +336,9 @@ phases:
         assignee: enzo
 
 logs:
+  - date: 2026-03-25
+    action: "Phase 8 terminee — Chat GUI (ChatPage + ActionCard + PreviewPanel + ConfirmDialog + TypingIndicator + integration router/history) + 261 tests"
+    by: claude-code
   - date: 2026-03-25
     action: "Phase 7 terminee — AI Engine (NL Parser + Router + Safety + Cache + Providers + CLI chat) + 231 tests"
     by: claude-code

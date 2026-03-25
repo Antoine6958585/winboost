@@ -162,8 +162,8 @@ class WinBoostApp(ctk.CTk):
             return ModulesPage(self.content, self.engine)
 
         if page_id == "chat":
-            from winboost.gui.chat_placeholder import ChatPage
-            return ChatPage(self.content)
+            from winboost.gui.chat import ChatPage
+            return ChatPage(self.content, config=self.config)
 
         # Page par defaut
         frame = ctk.CTkFrame(self.content, fg_color=COLORS["bg_dark"])

@@ -62,10 +62,12 @@ v1 = 8 modules d'optimisation. v2 = Chat IA conversationnel.
 - [x] CLI chat + 27 tests AI (231 total)
 - **Livrable** : `winboost chat "nettoie mes temp"` en CLI
 
-### Phase 8 : Chat GUI (4-5h agent)
-- [ ] Widget conversationnel integre
-- [ ] Indicateurs de risque + boutons inline
-- [ ] Preview before/after
+### Phase 8 : Chat GUI (4-5h agent) ✅
+- [x] Widget conversationnel integre (ChatPage + ChatBubble + TypingIndicator)
+- [x] Indicateurs de risque + boutons inline (ActionCard + badges couleur)
+- [x] Preview before/after (PreviewPanel + ConfirmDialog)
+- [x] Integration chat -> engine -> modules (ActionRouter + History logging)
+- [x] Tests GUI chat (30 tests, 261 total)
 - **Livrable** : Chat IA dans la GUI
 
 ### Phase 9 : Profils + Onboarding (3-4h agent)

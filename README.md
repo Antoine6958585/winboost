@@ -2,17 +2,25 @@
 
 **Le premier assistant Windows qui ne te ment pas.**
 
-WinBoost est un outil Python standalone d'optimisation systeme pour Windows. Il scanne, analyse et corrige les problemes courants — fichiers temporaires, programmes au demarrage, RAM, espace disque, vie privee, caches dev et services Windows.
+WinBoost est un assistant systeme Windows conversationnel. Il scanne, analyse et corrige les problemes courants via 8 modules d'optimisation et un chat IA intelligent avec 150+ actions.
 
 ## Features
 
+### v1.0 — Modules + CLI + GUI
 - **8 modules d'optimisation** independants
 - **CLI complete** avec Rich (couleurs, tableaux)
 - **GUI CustomTkinter** avec dark theme
-- **Systeme de securite** : 5 niveaux de risque, confirmation obligatoire, dry-run
 - **Backup automatique** avant chaque action + rollback
 - **Historique SQLite** de toutes les actions
-- **3 profils utilisateur** : Safe, Power User, Expert
+
+### v2.0 — AI Engine + Chat
+- **Chat IA conversationnel** avec ActionRouter + cache keyword (70% resolu localement)
+- **150+ actions YAML** reparties en 9 categories
+- **3 profils de securite** : Safe, Power User, Expert
+- **Onboarding premier lancement** (choix profil + config API)
+- **History viewer** avec timeline, filtres et undo
+- **Settings complet** (profil, API keys, langue, modules)
+- **Providers LLM** : Anthropic (Claude), OpenAI (GPT), Ollama (local)
 
 ## Modules
 
@@ -58,8 +66,10 @@ winboost fix --module temp_cleaner --yes
 # Informations systeme
 winboost info
 
-# Lister les modules
-winboost modules
+# Chat IA
+winboost chat "desactive la telemetrie"
+winboost chat "nettoie les fichiers temporaires"
+winboost chat "optimise pour les jeux"
 
 # Lancer la GUI
 winboost gui
@@ -71,10 +81,36 @@ winboost gui
 winboost gui
 ```
 
-L'interface graphique propose :
+L'interface graphique propose 5 pages :
 - **Dashboard** : vue d'ensemble avec scan global
 - **Modules** : scan/fix individuel par module avec preview
-- **Chat IA** : placeholder pour v2 (assistant conversationnel)
+- **Chat IA** : assistant conversationnel avec actions intelligentes
+- **Historique** : timeline de toutes les actions passees avec undo
+- **Parametres** : profil, API keys, langue, modules actifs
+
+### Chat IA
+
+Le chat comprend les requetes en francais et anglais :
+
+```
+> desactive la telemetrie
+  3 action(s) proposee(s) (via mots-cles)
+  [MEDIUM] Disable DiagTrack Service
+  [MEDIUM] Disable Telemetry Registry Keys
+  [LOW]    Clear Telemetry Data
+
+> optimise pour les jeux
+  5 action(s) proposee(s) (via categorie)
+  [LOW]    Enable Game Mode
+  [MEDIUM] Disable Game DVR
+  ...
+```
+
+Chaque action affiche :
+- Badge de risque colore (Info/Low/Medium/High/Critical)
+- Score de pertinence
+- Boutons inline : Details, Simuler (dry-run), Appliquer
+- Preview : methode, parametres, reversibilite, rollback
 
 ## Securite
 
@@ -94,7 +130,15 @@ WinBoost est concu pour ne jamais endommager votre systeme :
 - **Low** (vert) : confirmation simple
 - **Medium** (jaune) : preview + explication + confirmation
 - **High** (orange) : warning + dry-run + double confirmation
-- **Critical** (rouge) : bloque par defaut
+- **Critical** (rouge) : bloque par defaut, mode expert requis
+
+### Profils
+
+| Profil | Risque max | Dry-run | Usage |
+|--------|-----------|---------|-------|
+| **Safe** (defaut) | Low | Obligatoire | Debutants |
+| **Power User** | Medium | Non | Utilisateurs avises |
+| **Expert** | High | Non | Administrateurs |
 
 ## Build .exe
 
@@ -127,16 +171,16 @@ winboost/
   core/         -> BaseModule (ABC), Engine, Config, Backup, History
   modules/      -> 8 modules independants
   cli/          -> Click CLI + Rich output
-  gui/          -> CustomTkinter (dashboard, modules, chat)
-  ai/           -> [v2] NL Parser, Action Router, Safety Engine
-  actions/      -> [v2] YAML action definitions
-tests/          -> pytest, 149+ tests
+  gui/          -> CustomTkinter (5 pages: dashboard, modules, chat, history, settings)
+  ai/           -> NL Parser, Action Router, Safety Engine, Cache, Providers
+  actions/      -> 150+ YAML action definitions (9 categories)
+tests/          -> pytest, 293+ tests
 ```
 
 ## Roadmap
 
-- **v1.0** : 8 modules + CLI + GUI + .exe (actuel)
-- **v2.0** : Chat IA conversationnel + 150 actions YAML + providers LLM
+- **v1.0** : 8 modules + CLI + GUI + .exe (Phases 1-5)
+- **v2.0** : Chat IA + 150 actions + profils + onboarding (Phases 6-10) — actuel
 
 ## Licence
 

@@ -79,8 +79,12 @@ v1 = 8 modules d'optimisation. v2 = Chat IA conversationnel.
 - [x] Tests (32 tests, 293 total)
 - **Livrable** : Experience complete
 
-### Phase 10 : Release v2.0 (2-3h agent)
-- [ ] Build .exe v2 + README + tests E2E
+### Phase 10 : Release v2.0 (2-3h agent) ✅
+- [x] Build PyInstaller v2 (hidden imports + YAML data files)
+- [x] README v2 complet (features, profils, chat, architecture)
+- [x] Tests E2E complets (27 tests v2 + 320 total)
+- [ ] GitHub Release v2.0.0 (antoine)
+- [ ] Product Hunt draft (enzo)
 - **Livrable** : v2.0.0 sur GitHub
 
 ---

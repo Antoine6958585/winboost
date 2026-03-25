@@ -8,6 +8,7 @@ from pathlib import Path
 
 # Modules a inclure dans le build
 HIDDEN_IMPORTS = [
+    # Modules systeme
     "winboost.modules.temp_cleaner",
     "winboost.modules.system_info",
     "winboost.modules.startup_manager",
@@ -16,13 +17,32 @@ HIDDEN_IMPORTS = [
     "winboost.modules.privacy_cleaner",
     "winboost.modules.dev_cache_cleaner",
     "winboost.modules.service_optimizer",
+    # GUI
     "winboost.gui.app",
     "winboost.gui.dashboard",
     "winboost.gui.modules_page",
+    "winboost.gui.chat",
     "winboost.gui.chat_placeholder",
+    "winboost.gui.history_page",
+    "winboost.gui.settings_page",
+    "winboost.gui.onboarding",
     "winboost.gui.theme",
+    # Core
     "winboost.core.backup",
     "winboost.core.history",
+    "winboost.core.config",
+    # AI Engine
+    "winboost.ai.nl_parser",
+    "winboost.ai.action_router",
+    "winboost.ai.safety_engine",
+    "winboost.ai.cache",
+    "winboost.ai.providers.base",
+    "winboost.ai.providers.anthropic_provider",
+    "winboost.ai.providers.openai_provider",
+    "winboost.ai.providers.ollama_provider",
+    # Actions
+    "winboost.actions.loader",
+    "winboost.actions.schema",
 ]
 
 
@@ -59,6 +79,14 @@ def build() -> None:
     # Hidden imports
     for mod in HIDDEN_IMPORTS:
         cmd.extend(["--hidden-import", mod])
+
+    # Data files (actions YAML)
+    actions_dir = root / "winboost" / "actions"
+    for category_dir in sorted(actions_dir.iterdir()):
+        if category_dir.is_dir() and not category_dir.name.startswith("_"):
+            for yaml_file in category_dir.glob("*.yaml"):
+                dest = f"winboost/actions/{category_dir.name}"
+                cmd.extend(["--add-data", f"{yaml_file};{dest}"])
 
     # Exclusions
     for exc in ["pytest", "pytest_mock", "pytest_cov", "ruff"]:

@@ -8,11 +8,11 @@ v1 = 8 modules d'optimisation. v2 = Chat IA conversationnel.
 
 ## Milestone v1.0 — Modules + CLI + GUI
 
-### Phase 1 : Foundation (4-6h agent)
-- [ ] Core : base_module (ABC), engine, config
-- [ ] Modules : temp_cleaner, system_info
-- [ ] CLI Click
-- [ ] Tests unitaires
+### Phase 1 : Foundation (4-6h agent) ✅
+- [x] Core : base_module (ABC), engine, config
+- [x] Modules : temp_cleaner, system_info
+- [x] CLI Click
+- [x] Tests unitaires (60 tests, 84% couverture)
 - **Livrable** : `winboost scan --module temp`
 
 ### Phase 2 : Modules critiques (4-6h agent)

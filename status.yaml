@@ -9,8 +9,8 @@ repo: Antoine6958585/winboost
 created: 2026-03-25
 last_updated: 2026-03-25
 
-progress: 0
-current_phase: 1
+progress: 13
+current_phase: 2
 current_milestone: v1.0
 
 assignees:
@@ -26,7 +26,7 @@ phases:
   - phase: 1
     name: "Foundation — Core + 2 modules"
     milestone: v1.0
-    status: not_started  # not_started | in_progress | done | blocked
+    status: done
     tasks:
       - id: T001
         name: "Creer pyproject.toml + structure projet"
@@ -34,31 +34,31 @@ phases:
         assignee: claude-code
       - id: T002
         name: "Implementer core/base_module.py (ABC)"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T003
         name: "Implementer core/engine.py (scan -> report -> apply)"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T004
         name: "Implementer core/config.py (JSON settings)"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T005
         name: "Implementer modules/temp_cleaner.py"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T006
         name: "Implementer modules/system_info.py"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T007
         name: "Implementer cli/main.py (Click)"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T008
         name: "Tests unitaires core + 2 modules"
-        status: not_started
+        status: done
         assignee: claude-code
 
   - phase: 2

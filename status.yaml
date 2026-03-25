@@ -9,8 +9,8 @@ repo: Antoine6958585/winboost
 created: 2026-03-25
 last_updated: 2026-03-25
 
-progress: 63
-current_phase: 7
+progress: 74
+current_phase: 8
 current_milestone: v1.0
 
 assignees:
@@ -222,35 +222,35 @@ phases:
   - phase: 7
     name: "AI Engine"
     milestone: v2.0
-    status: not_started
+    status: done
     tasks:
       - id: T040
         name: "Implementer ai/nl_parser.py (LLM -> intent)"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T041
         name: "Implementer ai/action_router.py (intent -> actions)"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T042
         name: "Implementer ai/safety_engine.py (risk filter)"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T043
         name: "Implementer ai/cache.py (keyword matching)"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T044
         name: "Implementer ai/providers/ (Anthropic + OpenAI + Ollama)"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T045
         name: "CLI chat : winboost chat 'nettoie mes temp'"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T046
         name: "Tests AI engine (mocked LLM calls)"
-        status: not_started
+        status: done
         assignee: claude-code
 
   - phase: 8
@@ -336,6 +336,9 @@ phases:
         assignee: enzo
 
 logs:
+  - date: 2026-03-25
+    action: "Phase 7 terminee — AI Engine (NL Parser + Router + Safety + Cache + Providers + CLI chat) + 231 tests"
+    by: claude-code
   - date: 2026-03-25
     action: "Phase 6 terminee — 150 actions YAML (9 categories) + schema + loader + 204 tests"
     by: claude-code

@@ -160,6 +160,46 @@ def list_modules() -> None:
 
 
 @cli.command()
+@click.argument("query", nargs=-1, required=True)
+def chat(query: tuple[str, ...]) -> None:
+    """Poser une question a l'assistant IA WinBoost."""
+    from winboost.ai.action_router import ActionRouter
+    from pathlib import Path
+
+    query_str = " ".join(query)
+    console.print(f"\n  [bold]Requete :[/bold] {query_str}\n")
+
+    actions_dir = Path(__file__).parent.parent / "actions"
+    config = Config()
+    router = ActionRouter(config=config, actions_dir=actions_dir)
+    result = router.route(query_str)
+
+    if not result.has_actions:
+        console.print(f"  [yellow]{result.message}[/yellow]")
+        return
+
+    console.print(f"  [bold]{result.message}[/bold]  (via {result.resolved_by})\n")
+
+    for routed in result.actions:
+        risk_color = RISK_COLORS.get(
+            routed.action.risk_level, "white"
+        ) if hasattr(routed.action, 'risk_level') else "white"
+        risk_val = routed.action.risk_level
+        confirm = " [dry-run]" if routed.verdict.requires_dry_run else ""
+        confirm += " [confirmation]" if routed.verdict.requires_confirmation else ""
+        console.print(
+            f"    [{risk_color}][{risk_val.upper()}][/{risk_color}] "
+            f"{routed.action.name} — {routed.action.description}"
+            f"[dim]{confirm}[/dim]"
+        )
+
+    if result.blocked:
+        console.print(f"\n  [red]{len(result.blocked)} action(s) bloquee(s) :[/red]")
+        for routed in result.blocked:
+            console.print(f"    [red]x[/red] {routed.action.name} — {routed.verdict.reason}")
+
+
+@cli.command()
 def gui() -> None:
     """Lancer l'interface graphique WinBoost."""
     from winboost.gui.app import launch_gui

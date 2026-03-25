@@ -53,11 +53,13 @@ v1 = 8 modules d'optimisation. v2 = Chat IA conversationnel.
 - [x] Tests (204 total, 0 erreurs validation)
 - **Livrable** : 150 actions testables en dry-run
 
-### Phase 7 : AI Engine (6-8h agent)
-- [ ] NL Parser (LLM -> intent)
-- [ ] Action Router (intent -> actions)
-- [ ] Safety Engine (risk filtering)
-- [ ] Providers (Anthropic, OpenAI, Ollama)
+### Phase 7 : AI Engine (6-8h agent) ✅
+- [x] NL Parser (requete -> intent structure)
+- [x] Action Router (intent -> actions filtrees)
+- [x] Safety Engine (risk filtering par profil)
+- [x] Keyword Cache (resolution locale sans LLM, ~70%)
+- [x] Providers (Anthropic, OpenAI, Ollama)
+- [x] CLI chat + 27 tests AI (231 total)
 - **Livrable** : `winboost chat "nettoie mes temp"` en CLI
 
 ### Phase 8 : Chat GUI (4-5h agent)

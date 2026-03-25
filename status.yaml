@@ -9,8 +9,8 @@ repo: Antoine6958585/winboost
 created: 2026-03-25
 last_updated: 2026-03-25
 
-progress: 21
-current_phase: 3
+progress: 29
+current_phase: 4
 current_milestone: v1.0
 
 assignees:
@@ -90,27 +90,27 @@ phases:
   - phase: 3
     name: "GUI"
     milestone: v1.0
-    status: not_started
+    status: done
     tasks:
       - id: T014
         name: "Implementer gui/app.py (fenetre principale)"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T015
         name: "Implementer gui/dashboard.py (cards modules)"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T016
         name: "Scan + resultats dans la GUI"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T017
         name: "Dark theme + branding WinBoost"
-        status: not_started
+        status: done
         assignee: claude-code
       - id: T018
         name: "Chat placeholder (UI prete, pas connectee)"
-        status: not_started
+        status: done
         assignee: claude-code
 
   - phase: 4
@@ -336,6 +336,9 @@ phases:
         assignee: enzo
 
 logs:
+  - date: 2026-03-25
+    action: "Phase 3 terminee — GUI CustomTkinter (dashboard, modules, chat placeholder)"
+    by: claude-code
   - date: 2026-03-25
     action: "Phase 2 terminee — startup_manager, ram_optimizer, disk_analyzer + 102 tests (80% cov)"
     by: claude-code

@@ -159,6 +159,13 @@ def list_modules() -> None:
     console.print(table)
 
 
+@cli.command()
+def gui() -> None:
+    """Lancer l'interface graphique WinBoost."""
+    from winboost.gui.app import launch_gui
+    launch_gui()
+
+
 def _display_scan_result(result: "ScanResult") -> None:
     """Affiche un ScanResult de maniere formatee."""
     if not result.has_issues:

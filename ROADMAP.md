@@ -22,11 +22,11 @@ v1 = 8 modules d'optimisation. v2 = Chat IA conversationnel.
 - [x] Tests par module (102 tests, 80% couverture)
 - **Livrable** : 5 modules CLI
 
-### Phase 3 : GUI (4-5h agent)
-- [ ] CustomTkinter dashboard + dark theme
-- [ ] Vue par module avec cards
-- [ ] Chat placeholder
-- **Livrable** : App GUI fonctionnelle
+### Phase 3 : GUI (4-5h agent) ✅
+- [x] CustomTkinter dashboard + dark theme
+- [x] Vue par module avec cards (scan/fix individuels)
+- [x] Chat placeholder (UI prete, v2)
+- **Livrable** : App GUI fonctionnelle (`winboost gui`)
 
 ### Phase 4 : Modules avances + Backup (4-5h agent)
 - [ ] privacy_cleaner, dev_cache_cleaner, service_optimizer

@@ -32,7 +32,7 @@ def _create_engine() -> Engine:
 
 
 @click.group()
-@click.version_option(version="0.1.0", prog_name="WinBoost")
+@click.version_option(version="2.0.0", prog_name="WinBoost")
 def cli() -> None:
     """WinBoost — Le premier assistant Windows qui ne te ment pas."""
 
@@ -95,10 +95,9 @@ def fix(module: str, yes: bool) -> None:
     console.print(Panel(preview, title=f"Preview — {module}", border_style="yellow"))
 
     # Confirmation
-    if not yes:
-        if not click.confirm("Appliquer ces corrections ?"):
-            console.print("[yellow]Annule.[/yellow]")
-            return
+    if not yes and not click.confirm("Appliquer ces corrections ?"):
+        console.print("[yellow]Annule.[/yellow]")
+        return
 
     # Application
     fix_result = engine.fix_module(module, scan_result)
@@ -163,8 +162,9 @@ def list_modules() -> None:
 @click.argument("query", nargs=-1, required=True)
 def chat(query: tuple[str, ...]) -> None:
     """Poser une question a l'assistant IA WinBoost."""
-    from winboost.ai.action_router import ActionRouter
     from pathlib import Path
+
+    from winboost.ai.action_router import ActionRouter
 
     query_str = " ".join(query)
     console.print(f"\n  [bold]Requete :[/bold] {query_str}\n")
@@ -206,7 +206,7 @@ def gui() -> None:
     launch_gui()
 
 
-def _display_scan_result(result: "ScanResult") -> None:
+def _display_scan_result(result: ScanResult) -> None:
     """Affiche un ScanResult de maniere formatee."""
     if not result.has_issues:
         console.print(f"  [green][OK][/green] {result.module_name} — Aucun probleme")

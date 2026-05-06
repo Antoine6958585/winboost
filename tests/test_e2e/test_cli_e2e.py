@@ -4,7 +4,6 @@ from click.testing import CliRunner
 
 from winboost.cli.main import cli
 
-
 runner = CliRunner()
 
 
@@ -88,7 +87,7 @@ class TestCLIE2EVersion:
     def test_version(self):
         result = runner.invoke(cli, ["--version"])
         assert result.exit_code == 0
-        assert "0.1.0" in result.output
+        assert "2.0.0" in result.output
 
 
 class TestCLIE2EFix:

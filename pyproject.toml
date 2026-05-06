@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "winboost"
-version = "0.1.0"
+version = "2.0.0"
 description = "Windows AI System Assistant — Le premier assistant Windows qui ne te ment pas."
 readme = "README.md"
 license = {text = "MIT"}
@@ -60,7 +60,36 @@ line-length = 100
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "N", "UP", "B", "SIM"]
 
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+    "E501",   # patches mockes souvent longs, lisibilite > strict 100 cols
+    "SIM117", # nested with patch(...) standard en pytest mock
+    "F841",   # variables mortes parfois utiles pour debug local
+]
+# Modules avec listes de configs/chemins ou la lisibilite tabulaire est preferable
+"winboost/modules/privacy_cleaner.py" = ["E501"]
+"winboost/modules/dev_cache_cleaner.py" = ["E501"]
+"winboost/modules/disk_analyzer.py" = ["E501"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
 addopts = "-v --tb=short"
+
+[tool.coverage.run]
+source = ["winboost"]
+# La GUI (CustomTkinter) ne se teste pas raisonnablement en CI headless.
+# Validation manuelle via smoke test humain — voir TODO-HUMAN.md.
+omit = [
+    "winboost/gui/*",
+    "winboost/__main__.py",
+    "*/tests/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.:",
+]

@@ -1,7 +1,8 @@
 """Tests pour cli/main.py."""
 
+from unittest.mock import patch
+
 from click.testing import CliRunner
-from unittest.mock import patch, MagicMock
 
 from winboost.cli.main import cli
 from winboost.core.base_module import (
@@ -41,10 +42,11 @@ class FakeCLIModule(BaseModule):
 
 def _mock_engine():
     """Cree un engine mocke avec un module factice."""
-    from winboost.core.config import Config
-    from winboost.core.engine import Engine
     import tempfile
     from pathlib import Path
+
+    from winboost.core.config import Config
+    from winboost.core.engine import Engine
 
     tmp = Path(tempfile.mkdtemp())
     config = Config(config_dir=tmp)
@@ -112,4 +114,4 @@ class TestCLIModules:
     def test_version(self):
         runner = CliRunner()
         result = runner.invoke(cli, ["--version"])
-        assert "0.1.0" in result.output
+        assert "2.0.0" in result.output

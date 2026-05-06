@@ -1,19 +1,15 @@
 """Tests pour modules/disk_analyzer.py."""
 
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
-import pytest
-
-from winboost.core.base_module import RiskLevel, ScanResult, Issue
+from winboost.core.base_module import Issue, RiskLevel, ScanResult
 from winboost.modules.disk_analyzer import (
     DiskAnalyzer,
-    _format_size,
     _dir_size_fast,
     _find_big_files,
-    DISK_WARNING_PERCENT,
+    _format_size,
 )
-
 
 # --- Tests helpers ---
 

@@ -2,14 +2,12 @@
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 from typing import Any
 
 import yaml
 
-from winboost.actions.schema import validate_action, ActionValidationError
-
+from winboost.actions.schema import validate_action
 
 # Repertoire des actions YAML
 ACTIONS_DIR = Path(__file__).parent

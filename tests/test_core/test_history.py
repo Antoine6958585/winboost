@@ -1,8 +1,7 @@
 """Tests pour core/history.py."""
 
-import pytest
 
-from winboost.core.history import HistoryManager, HistoryEntry
+from winboost.core.history import HistoryManager
 
 
 class TestHistoryManager:

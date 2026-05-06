@@ -1,19 +1,13 @@
 """Tests pour modules/startup_manager.py."""
 
-from unittest.mock import patch, MagicMock
-from pathlib import Path
+from unittest.mock import patch
 
-import pytest
-
-from winboost.core.base_module import RiskLevel, ScanResult, Issue
+from winboost.core.base_module import Issue, RiskLevel, ScanResult
 from winboost.modules.startup_manager import (
+    SYSTEM_CRITICAL,
     StartupEntry,
     StartupManager,
-    SYSTEM_CRITICAL,
-    _read_registry_entries,
-    _read_folder_entries,
 )
-
 
 # --- Helpers ---
 

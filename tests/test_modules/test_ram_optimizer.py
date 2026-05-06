@@ -1,18 +1,13 @@
 """Tests pour modules/ram_optimizer.py."""
 
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
-import pytest
-
-from winboost.core.base_module import RiskLevel, ScanResult, Issue
+from winboost.core.base_module import Issue, RiskLevel, ScanResult
 from winboost.modules.ram_optimizer import (
-    RamOptimizer,
     PROTECTED_PROCESSES,
-    HIGH_RAM_PERCENT,
+    RamOptimizer,
     _format_mb,
-    _get_heavy_processes,
 )
-
 
 # --- Tests helpers ---
 

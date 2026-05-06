@@ -1,6 +1,6 @@
 """Tests pour actions/schema.py."""
 
-from winboost.actions.schema import validate_action, VALID_CATEGORIES, VALID_RISK_LEVELS
+from winboost.actions.schema import VALID_CATEGORIES, VALID_RISK_LEVELS, validate_action
 
 
 class TestValidateAction:

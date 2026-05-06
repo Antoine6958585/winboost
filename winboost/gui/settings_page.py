@@ -6,9 +6,8 @@ from typing import Any
 
 import customtkinter as ctk
 
-from winboost.core.config import Config, PROFILE_SETTINGS
+from winboost.core.config import PROFILE_SETTINGS, Config
 from winboost.gui.theme import COLORS, FONTS, RISK_COLORS
-
 
 # Descriptions des profils
 PROFILE_INFO = {

@@ -1,10 +1,9 @@
 """Tests pour modules/dev_cache_cleaner.py."""
 
-from pathlib import Path
 from unittest.mock import patch
 
-from winboost.core.base_module import RiskLevel, ScanResult, Issue
-from winboost.modules.dev_cache_cleaner import DevCacheCleaner, _format_size, _dir_size
+from winboost.core.base_module import Issue, RiskLevel, ScanResult
+from winboost.modules.dev_cache_cleaner import DevCacheCleaner, _dir_size, _format_size
 
 
 class TestHelpers:

@@ -10,7 +10,6 @@ from winboost.core.base_module import (
     ScanResult,
 )
 
-
 # --- Module concret pour les tests ---
 
 class DummyModule(BaseModule):

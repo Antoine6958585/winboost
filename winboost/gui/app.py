@@ -6,7 +6,7 @@ import customtkinter as ctk
 
 from winboost.core.config import Config
 from winboost.core.engine import Engine
-from winboost.gui.theme import COLORS, FONTS, SIDEBAR_WIDTH, WINDOW_MIN_WIDTH, WINDOW_MIN_HEIGHT
+from winboost.gui.theme import COLORS, FONTS, SIDEBAR_WIDTH, WINDOW_MIN_HEIGHT, WINDOW_MIN_WIDTH
 
 
 class WinBoostApp(ctk.CTk):

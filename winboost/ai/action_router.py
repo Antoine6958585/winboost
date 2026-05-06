@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
 
 from winboost.actions.loader import Action, ActionRegistry
 from winboost.ai.cache import KeywordCache
@@ -140,7 +139,6 @@ class ActionRouter:
             else:
                 blocked.append(routed)
 
-        n_total = len(allowed) + len(blocked)
         msg = f"{len(allowed)} action(s) proposee(s)"
         if blocked:
             msg += f", {len(blocked)} bloquee(s) par le profil"

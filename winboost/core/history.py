@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
+import contextlib
 import json
 import sqlite3
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from winboost.core.config import DEFAULT_CONFIG_DIR
-
 
 HISTORY_DB = DEFAULT_CONFIG_DIR / "history.db"
 
@@ -108,7 +108,7 @@ class HistoryManager:
             L'ID de l'entree creee.
         """
         conn = self._get_conn()
-        ts = datetime.now(tz=timezone.utc).isoformat()
+        ts = datetime.now(tz=UTC).isoformat()
         meta_json = json.dumps(metadata or {}, ensure_ascii=False)
 
         cursor = conn.execute(
@@ -189,10 +189,8 @@ class HistoryManager:
         """Convertit une row SQLite en HistoryEntry."""
         meta = {}
         if row["metadata"]:
-            try:
+            with contextlib.suppress(json.JSONDecodeError):
                 meta = json.loads(row["metadata"])
-            except json.JSONDecodeError:
-                pass
 
         return HistoryEntry(
             entry_id=row["id"],

@@ -1,15 +1,14 @@
 """Tests pour modules/temp_cleaner.py."""
 
-from pathlib import Path
 from unittest.mock import patch
 
 from winboost.core.base_module import RiskLevel
-from winboost.modules.temp_cleaner import TempCleaner, _dir_size, _format_size, _get_temp_dirs
+from winboost.modules.temp_cleaner import TempCleaner, _dir_size, _format_size
 
 
 class TestFormatSize:
     def test_bytes(self):
-        assert "0.0 o" == _format_size(0)
+        assert _format_size(0) == "0.0 o"
 
     def test_kilobytes(self):
         result = _format_size(2048)

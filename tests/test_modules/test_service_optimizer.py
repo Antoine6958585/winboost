@@ -1,12 +1,12 @@
 """Tests pour modules/service_optimizer.py."""
 
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
-from winboost.core.base_module import RiskLevel, ScanResult, Issue
+from winboost.core.base_module import Issue, RiskLevel, ScanResult
 from winboost.modules.service_optimizer import (
-    ServiceOptimizer,
     OPTIONAL_SERVICES,
     PROTECTED_SERVICES,
+    ServiceOptimizer,
 )
 
 

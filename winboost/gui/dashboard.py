@@ -9,7 +9,7 @@ import customtkinter as ctk
 
 from winboost.core.base_module import ScanResult
 from winboost.core.engine import Engine
-from winboost.gui.theme import COLORS, FONTS, RISK_COLORS, CARD_PADDING
+from winboost.gui.theme import CARD_PADDING, COLORS, FONTS, RISK_COLORS
 
 
 class ModuleCard(ctk.CTkFrame):

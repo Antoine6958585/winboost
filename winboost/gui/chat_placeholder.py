@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from datetime import datetime
 from typing import Any
 
 import customtkinter as ctk
@@ -18,8 +17,7 @@ class ChatBubble(ctk.CTkFrame):
         bg = COLORS["accent"] if is_user else COLORS["bg_card"]
         super().__init__(parent, fg_color=bg, corner_radius=12, **kwargs)
 
-        # Alignement
-        anchor = "e" if is_user else "w"
+        # Alignement (padding asymetrique selon user/bot)
         self.pack(fill="x", padx=(80 if is_user else 15, 15 if is_user else 80), pady=4)
 
         ctk.CTkLabel(

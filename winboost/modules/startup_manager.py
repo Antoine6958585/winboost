@@ -6,7 +6,6 @@ import os
 import winreg
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
 
 from winboost.core.base_module import (
     BaseModule,

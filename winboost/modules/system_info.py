@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import platform
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import psutil
 
@@ -27,8 +27,8 @@ def _format_size(size_bytes: int) -> str:
 
 def _uptime() -> str:
     """Retourne l'uptime du systeme en format lisible."""
-    boot = datetime.fromtimestamp(psutil.boot_time(), tz=timezone.utc)
-    delta = datetime.now(tz=timezone.utc) - boot
+    boot = datetime.fromtimestamp(psutil.boot_time(), tz=UTC)
+    delta = datetime.now(tz=UTC) - boot
     hours, remainder = divmod(int(delta.total_seconds()), 3600)
     minutes = remainder // 60
     return f"{hours}h {minutes}min"

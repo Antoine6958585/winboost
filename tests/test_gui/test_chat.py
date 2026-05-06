@@ -2,20 +2,15 @@
 
 from __future__ import annotations
 
-import os
-import sys
 from pathlib import Path
-from unittest.mock import MagicMock, patch, PropertyMock
+from unittest.mock import MagicMock
 
-import pytest
+from winboost.actions.loader import Action
 
 # --- Tests unitaires sans GUI (pas besoin de display) ---
-
-from winboost.ai.action_router import ActionRouter, RouteResult, RoutedAction
+from winboost.ai.action_router import ActionRouter, RoutedAction, RouteResult
 from winboost.ai.safety_engine import SafetyVerdict
-from winboost.actions.loader import Action
 from winboost.core.config import Config
-
 
 ACTIONS_DIR = Path(__file__).parent.parent.parent / "winboost" / "actions"
 

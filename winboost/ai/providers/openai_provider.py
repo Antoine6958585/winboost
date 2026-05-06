@@ -27,6 +27,8 @@ class OpenAIProvider(BaseLLMProvider):
         except ImportError:
             return False
 
+    DEFAULT_SYSTEM = "Tu es WinBoost, un assistant Windows. Reponds en francais, concis."
+
     def complete(self, prompt: str, system: str = "") -> LLMResponse:
         import openai
 
@@ -35,7 +37,7 @@ class OpenAIProvider(BaseLLMProvider):
             model=self._model,
             max_tokens=1024,
             messages=[
-                {"role": "system", "content": system or "Tu es WinBoost, un assistant Windows. Reponds en francais, concis."},
+                {"role": "system", "content": system or self.DEFAULT_SYSTEM},
                 {"role": "user", "content": prompt},
             ],
         )

@@ -3,14 +3,12 @@
 from __future__ import annotations
 
 from pathlib import Path
-from unittest.mock import MagicMock
 
 import pytest
 
-from winboost.core.config import Config, PROFILE_SETTINGS
+from winboost.core.backup import BackupManager
+from winboost.core.config import PROFILE_SETTINGS, Config
 from winboost.core.history import HistoryManager
-from winboost.core.backup import BackupManager, BackupEntry
-
 
 # =========================================================================
 # Tests Systeme de profils

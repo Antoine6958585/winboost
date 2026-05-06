@@ -1,6 +1,5 @@
 """Tests E2E — Integration engine + modules + backup + history."""
 
-from pathlib import Path
 
 from winboost.core.backup import BackupManager
 from winboost.core.config import Config
@@ -99,7 +98,7 @@ class TestGUIImports:
     """Verifie que les imports GUI fonctionnent."""
 
     def test_import_app(self):
-        from winboost.gui.app import WinBoostApp, launch_gui
+        from winboost.gui.app import WinBoostApp
         assert WinBoostApp is not None
 
     def test_import_dashboard(self):

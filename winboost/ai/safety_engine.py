@@ -2,12 +2,10 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Any
+from dataclasses import dataclass
 
 from winboost.actions.loader import Action
-from winboost.core.config import Config, PROFILE_SETTINGS
-
+from winboost.core.config import Config
 
 # Mapping risk_level -> ordre numerique
 RISK_ORDER = {"info": 0, "low": 1, "medium": 2, "high": 3, "critical": 4}
@@ -56,7 +54,10 @@ class SafetyEngine:
                 return SafetyVerdict(
                     action_id=action.id,
                     allowed=False,
-                    reason=f"Action critique bloquee — profil '{self._config.profile}' (mode expert requis)",
+                    reason=(
+                        f"Action critique bloquee — profil "
+                        f"'{self._config.profile}' (mode expert requis)"
+                    ),
                     risk_level=action.risk_level,
                 )
             # Expert peut executer les critiques — skip le check de seuil

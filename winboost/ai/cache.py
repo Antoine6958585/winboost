@@ -7,10 +7,8 @@ avant de faire appel a un provider LLM.
 from __future__ import annotations
 
 import re
-from typing import Any
 
 from winboost.actions.loader import Action, ActionRegistry
-
 
 # Mots vides a ignorer dans les requetes
 STOP_WORDS_FR = {

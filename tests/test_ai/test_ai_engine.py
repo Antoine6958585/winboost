@@ -3,15 +3,13 @@
 from pathlib import Path
 
 import yaml
-import pytest
 
-from winboost.ai.nl_parser import NLParser, Intent
-from winboost.ai.cache import KeywordCache, _tokenize
-from winboost.ai.safety_engine import SafetyEngine, SafetyVerdict, RISK_ORDER
-from winboost.ai.action_router import ActionRouter, RouteResult
 from winboost.actions.loader import Action, ActionRegistry
+from winboost.ai.action_router import ActionRouter, RouteResult
+from winboost.ai.cache import KeywordCache, _tokenize
+from winboost.ai.nl_parser import Intent, NLParser
+from winboost.ai.safety_engine import SafetyEngine
 from winboost.core.config import Config
-
 
 ACTIONS_DIR = Path(__file__).parent.parent.parent / "winboost" / "actions"
 
@@ -237,6 +235,7 @@ class TestActionRouter:
 class TestCLIChat:
     def test_chat_command(self):
         from click.testing import CliRunner
+
         from winboost.cli.main import cli
 
         runner = CliRunner()
@@ -246,6 +245,7 @@ class TestCLIChat:
 
     def test_chat_cleanup(self):
         from click.testing import CliRunner
+
         from winboost.cli.main import cli
 
         runner = CliRunner()

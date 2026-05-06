@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import subprocess
-from typing import Any
 
 import psutil
 
@@ -130,7 +129,7 @@ class ServiceOptimizer(BaseModule):
                     capture_output=True, text=True, timeout=30,
                 )
                 # Desactive le demarrage automatique
-                disable_result = subprocess.run(
+                subprocess.run(
                     ["sc", "config", svc_name, "start=", "disabled"],
                     capture_output=True, text=True, timeout=30,
                 )

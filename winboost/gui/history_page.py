@@ -11,7 +11,6 @@ from winboost.core.backup import BackupManager
 from winboost.core.history import HistoryManager
 from winboost.gui.theme import COLORS, FONTS, RISK_COLORS
 
-
 # Couleurs par statut
 STATUS_COLORS = {
     "success": COLORS["success"],

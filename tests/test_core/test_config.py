@@ -4,7 +4,7 @@ import json
 
 import pytest
 
-from winboost.core.config import Config, DEFAULT_CONFIG, PROFILE_SETTINGS
+from winboost.core.config import PROFILE_SETTINGS, Config
 
 
 class TestConfig:

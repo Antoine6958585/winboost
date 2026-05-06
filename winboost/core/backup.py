@@ -4,12 +4,11 @@ from __future__ import annotations
 
 import json
 import shutil
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from winboost.core.config import DEFAULT_CONFIG_DIR
-
 
 BACKUP_DIR = DEFAULT_CONFIG_DIR / "backups"
 
@@ -23,7 +22,7 @@ class BackupEntry:
         self.module_name = module_name
         self.description = description
         self.files = files  # [{"original": path, "backup": path}]
-        self.created_at = created_at or datetime.now(tz=timezone.utc).isoformat()
+        self.created_at = created_at or datetime.now(tz=UTC).isoformat()
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -72,7 +71,7 @@ class BackupManager:
 
     def _generate_id(self) -> str:
         """Genere un identifiant unique pour un backup."""
-        ts = datetime.now(tz=timezone.utc).strftime("%Y%m%d_%H%M%S")
+        ts = datetime.now(tz=UTC).strftime("%Y%m%d_%H%M%S")
         return f"backup_{ts}_{len(self._entries)}"
 
     def create_backup(self, module_name: str, description: str,

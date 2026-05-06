@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import json
-import urllib.request
 import urllib.error
+import urllib.request
 
 from winboost.ai.providers.base import BaseLLMProvider, LLMResponse
 
@@ -29,11 +29,13 @@ class OllamaProvider(BaseLLMProvider):
         except (urllib.error.URLError, OSError):
             return False
 
+    DEFAULT_SYSTEM = "Tu es WinBoost, un assistant Windows. Reponds en francais, concis."
+
     def complete(self, prompt: str, system: str = "") -> LLMResponse:
         payload = {
             "model": self._model,
             "prompt": prompt,
-            "system": system or "Tu es WinBoost, un assistant Windows. Reponds en francais, concis.",
+            "system": system or self.DEFAULT_SYSTEM,
             "stream": False,
         }
 

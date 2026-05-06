@@ -4,15 +4,12 @@ from pathlib import Path
 
 from click.testing import CliRunner
 
-from winboost.ai.action_router import ActionRouter, RouteResult
-from winboost.ai.nl_parser import NLParser, Intent
-from winboost.ai.safety_engine import SafetyEngine
 from winboost.actions.loader import ActionRegistry
-from winboost.core.backup import BackupManager
-from winboost.core.config import Config, PROFILE_SETTINGS
-from winboost.core.history import HistoryManager
+from winboost.ai.action_router import ActionRouter, RouteResult
 from winboost.cli.main import cli
-
+from winboost.core.backup import BackupManager
+from winboost.core.config import Config
+from winboost.core.history import HistoryManager
 
 ACTIONS_DIR = Path(__file__).parent.parent.parent / "winboost" / "actions"
 runner = CliRunner()
@@ -297,15 +294,15 @@ class TestGUIImportsV2:
     """Verifie que tous les modules GUI v2 s'importent."""
 
     def test_import_chat(self):
-        from winboost.gui.chat import ChatPage, ActionCard, PreviewPanel
+        from winboost.gui.chat import ChatPage
         assert ChatPage is not None
 
     def test_import_history(self):
-        from winboost.gui.history_page import HistoryPage, HistoryEntryCard
+        from winboost.gui.history_page import HistoryPage
         assert HistoryPage is not None
 
     def test_import_settings(self):
-        from winboost.gui.settings_page import SettingsPage, ProfileCard
+        from winboost.gui.settings_page import SettingsPage
         assert SettingsPage is not None
 
     def test_import_onboarding(self):

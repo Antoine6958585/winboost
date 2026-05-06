@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from winboost.core.backup import BackupManager, BackupEntry
+from winboost.core.backup import BackupEntry, BackupManager
 
 
 class TestBackupEntry:

@@ -3,7 +3,7 @@
 from pathlib import Path
 
 from winboost.actions.loader import ActionRegistry
-from winboost.actions.schema import VALID_CATEGORIES, VALID_RISK_LEVELS
+from winboost.actions.schema import VALID_CATEGORIES
 
 ACTIONS_DIR = Path(__file__).parent.parent.parent / "winboost" / "actions"
 

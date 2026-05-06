@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json as _json
-from typing import Any
 
 import click
 from rich.console import Console
@@ -13,6 +12,9 @@ from rich.table import Table
 from winboost.core.base_module import RiskLevel, ScanResult
 from winboost.core.config import Config
 from winboost.core.engine import Engine
+from winboost.mcp.serializers import (
+    route_result_to_dict as _route_result_to_dict,
+)
 
 console = Console()
 
@@ -256,42 +258,8 @@ def chat(query: tuple[str, ...], json_output: bool) -> None:
             console.print(f"    [red]x[/red] {routed.action.name} — {routed.verdict.reason}")
 
 
-def _routed_action_to_dict(routed: Any) -> dict[str, Any]:
-    """Serialise un RoutedAction (action + verdict) en dict JSON-compatible.
-
-    Convertit explicitement Action et SafetyVerdict en types primitifs.
-    `verdict.reason` devient `null` si chaine vide pour distinguer "pas de raison"
-    de "raison vide".
-    """
-    action = routed.action
-    verdict = routed.verdict
-    return {
-        "id": action.id,
-        "name": action.name,
-        "description": action.description,
-        "category": action.category,
-        "risk_level": action.risk_level,
-        "requires_admin": bool(action.requires_admin),
-        "reversible": bool(action.reversible),
-        "verdict": {
-            "allowed": bool(verdict.allowed),
-            "requires_dry_run": bool(verdict.requires_dry_run),
-            "requires_confirmation": bool(verdict.requires_confirmation),
-            "reason": verdict.reason if verdict.reason else None,
-        },
-    }
-
-
-def _route_result_to_dict(query: str, result: Any) -> dict[str, Any]:
-    """Serialise un RouteResult en dict JSON-compatible (schema documente sur `chat`)."""
-    return {
-        "query": query,
-        "resolved_by": result.resolved_by,
-        "message": result.message,
-        "has_actions": bool(result.has_actions),
-        "actions": [_routed_action_to_dict(r) for r in result.actions],
-        "blocked": [_routed_action_to_dict(r) for r in result.blocked],
-    }
+# Helpers de serialisation deplaces dans `winboost.mcp.serializers` (T070).
+# L'alias `_route_result_to_dict` est importe en haut du fichier.
 
 
 @cli.command()
@@ -315,6 +283,240 @@ def overlay() -> None:
     """
     from winboost.gui.hotkey_overlay import run_overlay_foreground
     run_overlay_foreground()
+
+
+# ---------------------------------------------------------------------------
+# Groupe `mcp` — serveur Model Context Protocol + outils d'install (T070, T071)
+# ---------------------------------------------------------------------------
+#
+# Structure :
+#   winboost mcp                       -> alias retro-compat de `mcp serve`
+#   winboost mcp serve                 -> lance le serveur stdio (T070)
+#   winboost mcp install-claude-desktop-> patch claude_desktop_config.json (T071)
+#   winboost mcp uninstall-claude-desktop
+#   winboost mcp token                 -> affiche le token actuel
+#   winboost mcp token --reset         -> regenere le token
+
+
+def _run_mcp_serve() -> None:
+    """Implementation reelle de `winboost mcp serve` (factorisee pour rester
+    appelable depuis l'alias retro-compat `winboost mcp`)."""
+    try:
+        from winboost.mcp.server import run_stdio
+    except ImportError as exc:
+        click.echo(f"[winboost mcp] {exc}", err=True)
+        raise click.exceptions.Exit(1) from exc
+
+    try:
+        run_stdio()
+    except ImportError as exc:
+        click.echo(f"[winboost mcp] {exc}", err=True)
+        raise click.exceptions.Exit(1) from exc
+    except KeyboardInterrupt:
+        click.echo("[winboost mcp] arret demande, bye.", err=True)
+
+
+@cli.group(
+    name="mcp",
+    invoke_without_command=True,
+)
+@click.pass_context
+def mcp_group(ctx: click.Context) -> None:
+    """Groupe MCP — serveur stdio + integration Claude Desktop.
+
+    \b
+    Sous-commandes :
+      serve                     Lance le serveur MCP stdio
+      install-claude-desktop    Ajoute WinBoost a claude_desktop_config.json
+      uninstall-claude-desktop  Retire WinBoost de claude_desktop_config.json
+      token                     Affiche le token MCP local (option --reset)
+
+    \b
+    Retro-compat : `winboost mcp` (sans sous-commande) = `winboost mcp serve`.
+    Necessite l'extra `mcp` pour `serve` :
+
+    \b
+        pip install winboost[mcp]
+    """
+    if ctx.invoked_subcommand is None:
+        # Comportement retro-compat : `winboost mcp` -> `winboost mcp serve`.
+        _run_mcp_serve()
+
+
+@mcp_group.command(name="serve")
+def mcp_serve_cmd() -> None:
+    """Lancer le serveur MCP WinBoost (transport stdio).
+
+    Expose 5 tools (chat, scan, apply, list_actions, undo) consommables par
+    Claude Desktop, Cursor, Claude Code et tout client MCP compatible.
+
+    stdout est reserve au protocole JSON-RPC ; les logs partent sur stderr.
+    Ctrl+C pour arreter.
+    """
+    _run_mcp_serve()
+
+
+@mcp_group.command(name="install-claude-desktop")
+@click.option(
+    "--dry-run",
+    is_flag=True,
+    help="N'ecrit rien — affiche le bloc JSON qui serait ajoute.",
+)
+@click.option(
+    "--force",
+    is_flag=True,
+    help="Remplace l'entree winboost si elle existe deja.",
+)
+@click.option(
+    "--json",
+    "json_output",
+    is_flag=True,
+    help="Sortie JSON pour scripting.",
+)
+def mcp_install_claude_desktop_cmd(
+    dry_run: bool, force: bool, json_output: bool
+) -> None:
+    """Patcher `claude_desktop_config.json` pour y ajouter WinBoost.
+
+    \b
+    Le bloc ajoute :
+      "winboost": {
+        "command": "python",
+        "args": ["-m", "winboost", "mcp"],
+        "env": {"WINBOOST_MCP_TOKEN": "<token genere>"}
+      }
+
+    Cree un backup horodate du config existant (claude_desktop_config.json
+    .backup-YYYYMMDD-HHMMSS) avant modification.
+    """
+    from winboost.mcp.install import install_winboost_to_claude_desktop
+
+    try:
+        result = install_winboost_to_claude_desktop(dry_run=dry_run, force=force)
+    except (OSError, RuntimeError) as exc:
+        if json_output:
+            click.echo(_json.dumps({"error": str(exc), "type": exc.__class__.__name__}))
+        else:
+            click.echo(f"[winboost mcp install] {exc}", err=True)
+        raise click.exceptions.Exit(1) from exc
+
+    if json_output:
+        click.echo(_json.dumps(result, ensure_ascii=False, indent=2))
+        return
+
+    action = result.get("action")
+    if action == "dry_run":
+        console.print("[yellow]Dry-run :[/yellow] aucun fichier ecrit.")
+        console.print(f"  Config cible : [bold]{result['config_path']}[/bold]")
+        console.print(f"  Token attendu : [bold]{result['token_path']}[/bold]")
+        console.print("\n[bold]Bloc qui serait ajoute :[/bold]")
+        console.print(_json.dumps(result["would_add"], indent=2, ensure_ascii=False))
+    elif action == "skipped":
+        console.print(
+            f"[yellow]WinBoost deja installe[/yellow] dans {result['config_path']}. "
+            f"Utilise [bold]--force[/bold] pour remplacer."
+        )
+    elif action == "installed":
+        console.print("[green]OK[/green] WinBoost installe dans Claude Desktop.")
+        console.print(f"  Config : [bold]{result['config_path']}[/bold]")
+        console.print(f"  Token : [bold]{result['token_path']}[/bold]")
+        if result.get("backup_path"):
+            console.print(f"  Backup : [dim]{result['backup_path']}[/dim]")
+        if result.get("replaced"):
+            console.print("  [yellow]Entree existante remplacee.[/yellow]")
+    else:
+        click.echo(_json.dumps(result, ensure_ascii=False, indent=2))
+
+
+@mcp_group.command(name="uninstall-claude-desktop")
+@click.option(
+    "--json",
+    "json_output",
+    is_flag=True,
+    help="Sortie JSON pour scripting.",
+)
+def mcp_uninstall_claude_desktop_cmd(json_output: bool) -> None:
+    """Retirer l'entree `winboost` de `claude_desktop_config.json`.
+
+    Les autres serveurs MCP et le reste du config sont preserves.
+    Cree un backup horodate avant modification.
+    """
+    from winboost.mcp.install import uninstall_winboost_from_claude_desktop
+
+    try:
+        result = uninstall_winboost_from_claude_desktop()
+    except (OSError, RuntimeError) as exc:
+        if json_output:
+            click.echo(_json.dumps({"error": str(exc), "type": exc.__class__.__name__}))
+        else:
+            click.echo(f"[winboost mcp uninstall] {exc}", err=True)
+        raise click.exceptions.Exit(1) from exc
+
+    if json_output:
+        click.echo(_json.dumps(result, ensure_ascii=False, indent=2))
+        return
+
+    action = result.get("action")
+    if action == "not_installed":
+        console.print(f"[yellow]WinBoost n'est pas installe.[/yellow] ({result.get('reason')})")
+    elif action == "uninstalled":
+        console.print("[green]OK[/green] WinBoost retire de Claude Desktop.")
+        console.print(f"  Config : [bold]{result['config_path']}[/bold]")
+        console.print(f"  Backup : [dim]{result['backup_path']}[/dim]")
+    else:
+        click.echo(_json.dumps(result, ensure_ascii=False, indent=2))
+
+
+@mcp_group.command(name="token")
+@click.option(
+    "--reset",
+    "reset",
+    is_flag=True,
+    help="Force la regeneration du token (en cas de fuite suspectee).",
+)
+@click.option(
+    "--json",
+    "json_output",
+    is_flag=True,
+    help="Sortie JSON pour scripting.",
+)
+def mcp_token_cmd(reset: bool, json_output: bool) -> None:
+    """Afficher le token MCP local (ou le regenerer avec --reset).
+
+    Le token est stocke dans :
+      - Windows : %APPDATA%/WinBoost/mcp_token.txt
+      - POSIX   : ~/.config/winboost/mcp_token.txt
+    """
+    from winboost.mcp.auth import (
+        get_token_path,
+        load_or_generate_token,
+    )
+    from winboost.mcp.auth import (
+        reset_token as _reset_token,
+    )
+
+    try:
+        token = _reset_token() if reset else load_or_generate_token()
+    except OSError as exc:
+        if json_output:
+            click.echo(_json.dumps({"error": str(exc), "type": exc.__class__.__name__}))
+        else:
+            click.echo(f"[winboost mcp token] {exc}", err=True)
+        raise click.exceptions.Exit(1) from exc
+
+    payload = {
+        "token": token,
+        "token_path": str(get_token_path()),
+        "regenerated": bool(reset),
+    }
+    if json_output:
+        click.echo(_json.dumps(payload, ensure_ascii=False, indent=2))
+        return
+
+    if reset:
+        console.print("[green]Token regenere.[/green]")
+    console.print(f"  Token : [bold]{token}[/bold]")
+    console.print(f"  Fichier : [dim]{payload['token_path']}[/dim]")
 
 
 def _display_scan_result(result: ScanResult) -> None:

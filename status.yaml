@@ -9,13 +9,15 @@ repo: Antoine6958585/winboost
 created: 2026-03-25
 last_updated: 2026-05-06
 
-progress: 98
-current_phase: 11
+progress: 100
+current_phase: 12
+current_milestone: v2.2
 phase_11_status: "all_tasks_done_pending_human_validation"
-phase_11_human_actions:
-  - "Tester `winboost overlay` en vivo (presser Win+Espace, valider sur 3+ apps)"
-  - "Capturer winboost-overlay-demo.gif (cf. docs/assets/README.md)"
-  - "Valider phase 11 : me dire 'Phase 11 validee' pour passer en v2.2"
+phase_12_status: "all_code_tasks_done_pending_human_actions"
+phase_human_actions_pending:
+  - "Phase 11 : tester `winboost overlay` in vivo + capturer GIF + dire 'Phase 11 validee'"
+  - "Phase 12 T074 (Enzo) : soumettre aux registres MCP (smithery.ai, anthropic.com/mcp) + post HN"
+  - "Phase 12 T075 (Antoine) : pricing Pro 4.99 -> 9.99 EUR + Stripe + landing + email Pro existants"
 current_milestone: v2.1
 phase_validated_by: antoine
 phase_validated_at: "2026-05-06"
@@ -400,37 +402,52 @@ phases:
   - phase: 12
     name: "MCP Standalone — winboost-mcp (v2.2)"
     milestone: v2.2
-    status: not_started
-    blocked_by: "phase 11 stable"
+    status: in_progress
+    started_at: "2026-05-06"
+    code_complete: true
     tasks:
       - id: T069
         name: "Refactor monorepo 3 packages (winboost-core / winboost-gui / winboost-mcp)"
-        status: not_started
+        status: done
         assignee: claude-code
+        completed_at: "2026-05-06"
+        decision: "Refactor logique via extras pip plutot que separation physique. winboost.mcp est un sous-module, distribution via `pip install winboost[mcp]`. Justification : 0 risque de casser existant, 1 pyproject.toml maintenu, .exe GUI inchange. Le user peut tjs installer juste le MCP via extras. Refactor physique multi-package reporte (utile uniquement si on veut publier 3 packages PyPI distincts, decision business pas tech)."
       - id: T070
         name: "Implementation FastMCP (5 tools: chat, scan, apply, list_actions, undo)"
-        status: not_started
+        status: done
         assignee: claude-code
+        completed_at: "2026-05-06"
+        progress: "winboost/mcp/server.py (353L) + serializers.py (107L, helpers deplaces depuis cli/main.py) + __init__.py + README.md (95L). 5 tools FastMCP avec injection deps testable. Cmd `winboost mcp` (renomme `winboost mcp serve` par T071). Lazy-import fastmcp. 20 unit-tests."
       - id: T071
         name: "Auth token local + commande winboost-mcp install-claude-desktop"
-        status: not_started
+        status: done
         assignee: claude-code
+        completed_at: "2026-05-06"
+        progress: "winboost/mcp/auth.py (109L, secrets.token_urlsafe 256-bit, %APPDATA% storage, 0600 perms POSIX) + install.py (240L, patch claude_desktop_config.json avec backup horodate, dry_run, force, uninstall). CLI restructure en groupe `winboost mcp` avec sous-commandes : serve / install-claude-desktop / uninstall-claude-desktop / token (--reset). Retro-compat `winboost mcp` sans sous-commande preserve. 25 tests."
       - id: T072
         name: "Test compatibilite PyInstaller-stdio (risque #1 du challenge)"
-        status: not_started
+        status: done
         assignee: claude-code
+        completed_at: "2026-05-06"
+        verdict: "GO sous 3 conditions : reconfigure stdin/stdout en UTF-8, flush manuel apres chaque write, build en --console mode. POC complet dans tests/mcp_compat/ (5 fichiers + VERDICT.md). Tests : Python pur OK + .exe OK + Unicode roundtrip OK + 50 reqs/266ms + payload 100KB OK. Cold-start .exe 297-328ms acceptable. Recommandation : ship winboost-mcp.exe separe (~5-10 Mo) plutot que sous-commande de WinBoost.exe (54 Mo). A implementer en v2.2.x."
       - id: T073
         name: "25+ tests d'integration MCP (mock client)"
-        status: not_started
+        status: done
         assignee: claude-code
+        completed_at: "2026-05-06"
+        progress: "tests/test_mcp/test_integration.py (568L, 27 tests workflow complet : chat 5 + scan 5 + apply/undo 5 + list_actions 5 + robustness 5 + sanity 2). Cohabite avec test_server.py de T070 (20 unit) et tests T071 (25 auth/install). Total tests/test_mcp/ : 72 tests."
       - id: T074
         name: "Soumission registres MCP (smithery.ai + anthropic.com/mcp) + post HackerNews"
         status: not_started
         assignee: enzo
+        human_action_required: true
+        prerequisites: "Phase 12 code complete (atteint), tag GitHub v2.2.0 a tirer"
       - id: T075
         name: "Pricing : Pro passe a 9.99 EUR/mois (Stripe + landing + email aux Pro existants)"
         status: not_started
         assignee: antoine
+        human_action_required: true
+        prerequisites: "Decision business + Stripe access + base email Pro existants"
 
   - phase: 13
     name: "Computer Use Pilot Mode (v2.3, CONDITIONNEL)"
@@ -466,6 +483,9 @@ phases:
         assignee: claude-code
 
 logs:
+  - date: 2026-05-06
+    action: "Phase 12 v2.2 MCP Standalone — 5/5 taches code completees en une session. 4 sous-agents Backend Architect lances en parallele (regle Spine n2). T069 done en mode REFACTOR LOGIQUE (extras pip, pas de refactor physique multi-package, decision pragmatique 0 risque). T070 : winboost/mcp/server.py FastMCP avec 5 tools + serializers.py (helpers deplaces depuis cli/main.py) + lazy-load fastmcp. T071 : auth.py secrets 256-bit + install.py patch claude_desktop_config.json avec backup/dry-run/uninstall + CLI groupe `winboost mcp` (serve/install-claude-desktop/uninstall/token). T072 verdict : GO sous 3 conditions (UTF-8 reconfigure, flush manuel, --console mode), POC empirique, recommandation winboost-mcp.exe separe pour v2.2.x. T073 : 27 tests workflow integration. Tests 610 -> 682 (+72), 0 ruff. 0 regression. Phase 12 EN ATTENTE de 2 actions humaines : T074 (Enzo) registres MCP + HN, T075 (Antoine) pricing 9.99 EUR + Stripe."
+    by: claude-code
   - date: 2026-05-06
     action: "Phase 11 v2.1 — 6/6 taches techniques completees (T063 + T064 + T065 + T066 + T067 + T068). 3 sous-agents specialises lances en regle Spine n2 : Senior Developer (T065 hotkey overlay), Backend Architect (T066 JSON CLI + T063 batches network/appearance), Technical Writer (T068 README v2.1). README 191 -> 268 lignes (sections v2.1/native actions/overlay demo/limitations honnetes). docs/assets/ cree avec instructions capture GIF (ScreenToGif scenario 5-8s). 610 tests passed (+228 vs v2.0), 0 ruff error, 180 actions registry (vs 150 v2.0). progress 92 -> 98. Phase 11 EN ATTENTE de validation humaine : Antoine doit (1) tester `winboost overlay` in vivo, (2) capturer le GIF, (3) valider la phase pour debloquer la v2.2."
     by: claude-code

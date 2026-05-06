@@ -169,7 +169,84 @@ Instructions complètes dans `docs/assets/README.md`.
 - [ ] Me dire **"Phase 11 validée"** → je passe `phase_validated_by: antoine`, `current_phase: 12`, et on enchaîne sur la **v2.2 MCP Standalone** (refactor monorepo 3 packages)
 
 ### Sortie de cette phase
-Une fois validée, on attaque la Phase 12 (T069-T075) : `winboost-core` + `winboost-gui` + `winboost-mcp` (PyPI), FastMCP, install Claude Desktop, soumissions registres MCP.
+Une fois validée, **la Phase 12 v2.2 MCP est aussi prête** (livrée en parallèle session 2026-05-06).
+
+---
+
+## E. Enzo — Soumission registres MCP + post HN (T074, phase 12)
+
+**Statut** : `not_started`
+**Bloque** : visibilité du serveur MCP auprès de la communauté Claude Desktop / Cursor / Code
+**Prérequis** : Tag GitHub `v2.2.0` à tirer (après validation phase 11 + 12 par Antoine)
+
+### Contexte
+WinBoost MCP est techniquement prêt. Le serveur expose 5 tools (chat, scan, apply, list_actions, undo) consommables via `winboost mcp serve` ou via la commande d'install Claude Desktop. Le verdict T072 confirme que PyInstaller-stdio fonctionne (ship binaire séparé recommandé en v2.2.x).
+
+### Checklist (~3-4h prep + jour J)
+
+#### Préparation
+- [ ] Coordination avec Antoine sur le jour J (idéalement après tag v2.2.0)
+- [ ] Préparer 2 visuels : screenshot Claude Desktop avec WinBoost listé dans `mcpServers` + GIF d'un appel `chat` via Claude Desktop
+- [ ] Tagline (≤ 60 chars) : ex. *"Pilot Windows from Claude Desktop via MCP"*
+
+#### Soumission registres
+- [ ] **smithery.ai** : compte créé + soumission via https://smithery.ai/submit (metadata + repo URL + descriptions tools)
+- [ ] **anthropic.com/mcp** : registre officiel Anthropic, suivre le format de soumission documenté
+- [ ] Vérifier que le `pip install winboost[mcp]` est fonctionnel sur Windows 10/11 fresh install
+
+#### Post HackerNews
+- [ ] Titre : *"Show HN: WinBoost MCP — pilot your Windows PC from Claude Desktop"* (à affiner)
+- [ ] Description : 5-7 lignes — quoi/pourquoi/différenciation (premier MCP Windows-system natif), BYO key, open-source MIT
+- [ ] Lien repo : `https://github.com/Antoine6958585/winboost`
+- [ ] Lien Release : `https://github.com/Antoine6958585/winboost/releases/tag/v2.2.0`
+- [ ] Timing : mardi/mercredi/jeudi 8-10h ET (best HN traffic)
+- [ ] Préparer 3-5 réponses anticipées aux questions probables (Computer Use ?, sécurité ?, prix ?)
+
+#### Communication coordonnée (jour J)
+- [ ] Tweet Enzo (X) — annonce + GIF
+- [ ] Post LinkedIn Antoine — annonce thought leadership
+- [ ] Post Reddit r/Anthropic ou r/ClaudeAI (à valider avec Antoine)
+
+### Estimation
+~ 3-4 h de prépa + le jour J
+
+---
+
+## F. Antoine — Pricing 9.99 EUR + Stripe + landing + email Pro (T075, phase 12)
+
+**Statut** : `not_started`
+**Bloque** : monétisation v2.2 (financement distribution MCP + future v2.3 Computer Use)
+
+### Contexte (cf. plan `proud-weaving-walrus.md`)
+Pricing Pro passe de 4,99 €/mois à **9,99 €/mois** (alignement Cursor/Claude Pro). Justification : absorber coûts futurs Computer Use (BYOK protège mais infra reste à payer) + financer distribution MCP (push HN, registres). Le BYOK Anthropic en Lab Mode v2.3 protège l'unit economics.
+
+### Checklist (~2-3h)
+
+#### Décision pricing
+- [ ] Confirmer le passage 4,99 → 9,99 EUR/mois (ou ajuster : 7,99 ? 12,99 ?)
+- [ ] Décision sur le plan annuel : 79 EUR/an actuellement ; nouveau prix annuel ?
+- [ ] Décision sur le tier **Lab** (9,99 + BYOK pour v2.3 Computer Use) : créer maintenant ou attendre v2.3 ?
+- [ ] Décision sur les Pro existants : tarif legacy garanti à vie ? Migration forcée après 6 mois ? Email transparent ?
+
+#### Stripe
+- [ ] Créer le nouveau produit/plan Stripe (9,99/mois + variant annuel)
+- [ ] Migrer la landing page pour pointer vers le nouveau plan
+- [ ] Tester le flow checkout end-to-end avec une carte test
+- [ ] Mettre à jour les webhooks Stripe si la structure des plans change
+
+#### Landing page
+- [ ] Mise à jour pricing public (Free / Pro 9,99 / Lab à venir)
+- [ ] Ajouter section MCP : "Pilot from Claude Desktop"
+- [ ] Mention v2.2 dans le hero
+- [ ] Update FAQ : "Pourquoi 9,99 et plus 4,99 ?"
+
+#### Email aux Pro existants
+- [ ] Rédiger l'email transparent : pourquoi le changement, quand il s'applique aux nouveaux, ce que ça change pour eux
+- [ ] Décider le canal : Brevo (compatible avec ton stack actuel) ou Stripe Customer.io
+- [ ] Window de notification : 30 jours avant changement effectif
+
+### Estimation
+~ 2-3 h dev/admin + cycle de validation
 
 ---
 

@@ -11,7 +11,6 @@ import customtkinter as ctk
 
 from winboost.gui.theme import COLORS, FONTS, RISK_COLORS
 
-
 # ---------------------------------------------------------------------------
 # Composants de message
 # ---------------------------------------------------------------------------
@@ -559,7 +558,10 @@ class ChatPage(ctk.CTkFrame):
         ).pack(side="left")
 
         # Indicateur profil + nombre d'actions
-        profile_text = f"Profil: {self._config.profile.upper()} | {self._router.action_count} actions"
+        profile_text = (
+            f"Profil: {self._config.profile.upper()} "
+            f"| {self._router.action_count} actions"
+        )
         ctk.CTkLabel(
             header,
             text=profile_text,
@@ -764,12 +766,37 @@ class ChatPage(ctk.CTkFrame):
         thread.start()
 
     def _execute_worker(self, action_id: str) -> None:
-        """Worker d'execution (thread)."""
+        """Worker d'execution (thread).
+
+        Note v2.0 : les 150 actions YAML constituent un catalogue valide ; leur
+        execution reelle (registre, services, PowerShell) est planifiee en v2.1
+        avec elevation UAC selective. En v2.0, on enregistre l'intention dans
+        l'historique mais aucune modification systeme n'est appliquee.
+        """
+        from winboost.utils.admin import AdminRequiredError, is_admin
+
         routed = self._routed_actions.get(action_id)
         if not routed:
             return
 
         action = routed.action
+
+        # Check UAC : refuser proprement les actions admin si on n'est pas eleve
+        if action.requires_admin and not is_admin():
+            err_msg = (
+                f"L'action '{action.name}' requiert les droits administrateur. "
+                "Relance WinBoost en tant qu'administrateur pour l'appliquer."
+            )
+            self._history.log_action(
+                module_name=f"chat:{action.category}",
+                action_type="execute",
+                description=f"Action: {action.name}",
+                risk_level=action.risk_level,
+                result_status="blocked_admin_required",
+                result_detail=err_msg,
+            )
+            self.after(0, self._on_action_complete, action_id, False, err_msg)
+            return
 
         try:
             # Log l'action dans l'historique
@@ -782,28 +809,40 @@ class ChatPage(ctk.CTkFrame):
                 result_detail=f"Methode: {action.execute.get('method', 'N/A')}",
             )
 
-            # Simulation d'execution (les actions YAML sont un catalogue,
-            # l'execution reelle depend de la methode specifiee)
+            # v2.0 : enregistrement dans le catalogue, pas d'execution reelle.
+            # L'executor (registry_set, service_disable, powershell, etc.) sera
+            # implemente en v2.1 avec branchement UAC selectif.
             method = action.execute.get("method", "")
             params = action.execute.get("params", {})
 
-            # Message de succes avec les details
-            detail = f"Methode '{method}' executee"
+            detail = f"Action enregistree (catalogue v2.0, methode '{method}'"
             if params:
                 param_str = ", ".join(f"{k}={v}" for k, v in params.items())
-                detail += f" ({param_str})"
+                detail += f", parametres : {param_str}"
+            detail += "). Execution reelle systeme prevue en v2.1."
 
-            # Log le succes
+            # Log dans l'historique avec un statut explicite
             self._history.log_action(
                 module_name=f"chat:{action.category}",
                 action_type="execute",
                 description=f"Action: {action.name}",
                 risk_level=action.risk_level,
-                result_status="success",
+                result_status="catalogued",
                 result_detail=detail,
             )
 
             self.after(0, self._on_action_complete, action_id, True, detail)
+
+        except AdminRequiredError as e:
+            self._history.log_action(
+                module_name=f"chat:{action.category}",
+                action_type="execute",
+                description=f"Action: {action.name}",
+                risk_level=action.risk_level,
+                result_status="blocked_admin_required",
+                result_detail=str(e),
+            )
+            self.after(0, self._on_action_complete, action_id, False, str(e))
 
         except Exception as e:
             self._history.log_action(
@@ -826,7 +865,7 @@ class ChatPage(ctk.CTkFrame):
         if success:
             StatusBubble(
                 self.messages_frame,
-                f"Action executee avec succes",
+                "Action executee avec succes",
                 color="success",
             )
         else:

@@ -9,9 +9,11 @@ repo: Antoine6958585/winboost
 created: 2026-03-25
 last_updated: 2026-05-06
 
-progress: 99
-current_phase: 10
-current_milestone: v2.0
+progress: 100
+current_phase: 11
+current_milestone: v2.1
+phase_validated_by: antoine
+phase_validated_at: "2026-05-06"
 
 assignees:
   lead: claude-code
@@ -313,7 +315,9 @@ phases:
   - phase: 10
     name: "Release v2.0"
     milestone: v2.0
-    status: in_progress
+    status: done
+    validated_by: antoine
+    validated_at: "2026-05-06"
     tasks:
       - id: T058
         name: "Build PyInstaller v2 (.exe)"
@@ -336,8 +340,9 @@ phases:
         asset_sha256: "70d94d070902cc7bdf6bba05ed05e0fd9042e7c847994a6d25b6b22888d6b644"
       - id: T062
         name: "Product Hunt draft"
-        status: not_started
+        status: deferred
         assignee: enzo
+        deferred_reason: "Decision Antoine 2026-05-06 : decale hors phase 10 (action marketing/traction, pas livrable Release). Sera repris en phase GTM future, ne bloque pas la progression v2.1."
 
   # ===========================================================================
   # MILESTONE v2.x — "Claude pilote ton PC" (validee 2026-05-06)
@@ -347,8 +352,8 @@ phases:
   - phase: 11
     name: "Native Windows Actions + Hotkey overlay (v2.1)"
     milestone: v2.1
-    status: not_started
-    blocked_by: "ship v2.0 (T029 + T061)"
+    status: in_progress
+    started_at: "2026-05-06"
     tasks:
       - id: T063
         name: "+30 actions YAML Windows-natives (brightness, dark_mode, volume, bluetooth, focus_assist, wifi, hdr, night_mode, sound_device, power_plan)"
@@ -444,6 +449,9 @@ phases:
         assignee: claude-code
 
 logs:
+  - date: 2026-05-06
+    action: "Phase 10 validee par antoine. T062 (Product Hunt) -> deferred (decale hors phase 10, sera repris en GTM future, ne bloque pas v2.1). Phase 11 (v2.1 Native Windows Actions + hotkey overlay) demarree. current_phase 10 -> 11, current_milestone v2.0 -> v2.1, progress 99 -> 100 (phase 10 close)."
+    by: claude-code
   - date: 2026-05-06
     action: "Release v2.0.0 publiee — repo Antoine6958585/winboost passe public + tag v2.0.0 cree sur main (ba8a9a6) + asset WinBoost.exe (54.7 Mo, sha256 70d94d07...) uploade + marque latest release. URL : https://github.com/Antoine6958585/winboost/releases/tag/v2.0.0. T061 -> done. Progress 98 -> 99 (T062 Product Hunt encore non bloquant). Phase 10 prete pour validation humaine."
     by: claude-code

@@ -7,7 +7,7 @@ project: winboost
 type: desktop-utility
 repo: Antoine6958585/winboost
 created: 2026-03-25
-last_updated: 2026-03-25
+last_updated: 2026-05-06
 
 progress: 96
 current_phase: 10
@@ -336,6 +336,9 @@ phases:
         assignee: enzo
 
 logs:
+  - date: 2026-05-06
+    action: "Audit organisation — mise en conformite regle Spine n1 (agent-logs) et n2 (triangle de contexte). Cree .project/06-agent-logs/ + 2 logs (synthese retroactive phases 1-10 + audit du jour). Enrichi MASTER-PLAN.md (etat, decisions, risques, prochaines etapes). Cree TODO-HUMAN.md avec checklists actionnables pour T029/T061/T062. Aucun changement code."
+    by: claude-code
   - date: 2026-03-25
     action: "Phase 10 (claude-code) terminee — build.py v2 + README v2 + 27 tests E2E v2 (320 total). Reste: T061+T062 pour antoine/enzo"
     by: claude-code

@@ -150,7 +150,7 @@ class BluetoothDriverFreshnessCheck(Check):
             "} | ConvertTo-Csv -NoTypeInformation"
         )
         try:
-            result = run_ps_check(cmd, timeout=3.0)
+            result = run_ps_check(cmd, timeout=10.0)
         except WindowsNativeError as exc:
             return CheckResult(
                 name=self.name,
@@ -243,7 +243,7 @@ class BluetoothPairedDevicesCheck(Check):
             "| ConvertTo-Csv -NoTypeInformation"
         )
         try:
-            result = run_ps_check(cmd, timeout=3.0)
+            result = run_ps_check(cmd, timeout=10.0)
         except WindowsNativeError as exc:
             return CheckResult(
                 name=self.name,
@@ -334,7 +334,7 @@ class BluetoothXInputConflictCheck(Check):
             "| ConvertTo-Csv -NoTypeInformation"
         )
         try:
-            result = run_ps_check(cmd, timeout=3.0)
+            result = run_ps_check(cmd, timeout=10.0)
         except WindowsNativeError as exc:
             return CheckResult(
                 name=self.name,

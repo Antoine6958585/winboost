@@ -168,11 +168,12 @@ class Check(ABC):
 # ---------------------------------------------------------------------------
 
 
-def run_ps_check(command: str, timeout: float = 5.0) -> PowerShellResult:
-    """Wrapper autour de `run_powershell` avec timeout court par defaut.
+def run_ps_check(command: str, timeout: float = 10.0) -> PowerShellResult:
+    """Wrapper autour de `run_powershell` avec timeout pour les checks.
 
-    Les checks doivent rester rapides (objectif < 5s total pour le rapport),
-    donc on baisse le timeout par defaut a 5s vs 10s du helper d'origine.
+    Les commandes Get-PnpDevice / Get-NetAdapter peuvent prendre 5-8s sur
+    certains Windows (drivers nombreux, services lents). Default 10s donne
+    de la marge tout en gardant le rapport sous 15s en parallèle (8 workers).
     """
     return run_powershell(command, timeout=timeout)
 

@@ -84,6 +84,8 @@ def run_powershell(command: str, timeout: float = 10.0) -> PowerShellResult:
             ],
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=timeout,
             check=False,
         )
@@ -93,8 +95,8 @@ def run_powershell(command: str, timeout: float = 10.0) -> PowerShellResult:
         raise WindowsNativeError("powershell.exe introuvable dans le PATH") from exc
 
     return PowerShellResult(
-        stdout=proc.stdout.strip(),
-        stderr=proc.stderr.strip(),
+        stdout=(proc.stdout or "").strip(),
+        stderr=(proc.stderr or "").strip(),
         returncode=proc.returncode,
     )
 

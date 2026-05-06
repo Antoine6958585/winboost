@@ -38,7 +38,7 @@ class GamepadDetectionCheck(Check):
             "| ConvertTo-Csv -NoTypeInformation"
         )
         try:
-            result = run_ps_check(cmd, timeout=3.0)
+            result = run_ps_check(cmd, timeout=10.0)
         except WindowsNativeError as exc:
             return CheckResult(
                 name=self.name,
@@ -114,7 +114,7 @@ class XboxControllerDriverCheck(Check):
             "} | ConvertTo-Csv -NoTypeInformation"
         )
         try:
-            result = run_ps_check(cmd, timeout=3.0)
+            result = run_ps_check(cmd, timeout=10.0)
         except WindowsNativeError as exc:
             return CheckResult(
                 name=self.name,
@@ -185,7 +185,7 @@ class SteamInputCheck(Check):
             "Test-Path 'HKCU:\\Software\\Valve\\Steam'"
         )
         try:
-            result = run_ps_check(cmd, timeout=2.0)
+            result = run_ps_check(cmd, timeout=8.0)
         except WindowsNativeError as exc:
             return CheckResult(
                 name=self.name,
@@ -226,7 +226,7 @@ class DualInputConflictCheck(Check):
             "| ConvertTo-Csv -NoTypeInformation"
         )
         try:
-            result = run_ps_check(cmd, timeout=3.0)
+            result = run_ps_check(cmd, timeout=10.0)
         except WindowsNativeError as exc:
             return CheckResult(
                 name=self.name,

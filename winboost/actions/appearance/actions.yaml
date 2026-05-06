@@ -489,3 +489,104 @@
   keywords:
     fr: ["transparence off", "desactiver transparence", "windows opaque", "perf interface", "couper transparence"]
     en: ["disable transparency", "transparency off", "opaque windows", "interface performance", "no transparency"]
+
+# =============================================================================
+# v2.4 — Audio Native Actions (app_021 -> app_025) via pycaw / Core Audio API
+# Strict mute + volume precis. Necessite : pip install winboost[audio].
+# Complementaires aux app_011-015 (SendKeys = fallback si pycaw absent).
+# =============================================================================
+
+- id: "app_021"
+  name: "Mute System Volume (Strict, via pycaw)"
+  description: "Coupe le son strictement (pas un toggle). Necessite pycaw : pip install winboost[audio]."
+  category: "appearance"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      command: "python -c \"from winboost.utils.audio_native import set_mute; set_mute(True)\""
+  rollback:
+    method: "powershell"
+    params:
+      command: "python -c \"from winboost.utils.audio_native import set_mute; set_mute(False)\""
+  keywords:
+    fr: ["mute strict", "couper son strict", "silence absolu", "audio native mute", "mute precis"]
+    en: ["mute strict", "force mute", "audio native mute", "absolute silence", "precise mute"]
+
+- id: "app_022"
+  name: "Unmute System Volume (Strict, via pycaw)"
+  description: "Reactive le son strictement (pas un toggle). Necessite pycaw : pip install winboost[audio]."
+  category: "appearance"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      command: "python -c \"from winboost.utils.audio_native import set_mute; set_mute(False)\""
+  rollback:
+    method: "powershell"
+    params:
+      command: "python -c \"from winboost.utils.audio_native import set_mute; set_mute(True)\""
+  keywords:
+    fr: ["unmute strict", "reactiver son strict", "remettre son precis", "audio native unmute"]
+    en: ["unmute strict", "force unmute", "audio native unmute", "restore sound strict"]
+
+- id: "app_023"
+  name: "Volume Set Low 30% (Audio Native, precis)"
+  description: "Regle le volume systeme exactement a 30% via pycaw (precis, pas une approximation SendKeys)."
+  category: "appearance"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      command: "python -c \"from winboost.utils.audio_native import set_volume; set_volume(30)\""
+  rollback:
+    method: "powershell"
+    params:
+      command: "python -c \"from winboost.utils.audio_native import set_volume; set_volume(50)\""
+  keywords:
+    fr: ["volume 30", "volume bas precis", "volume 30 pourcent", "audio native 30", "volume precis bas"]
+    en: ["volume 30", "low volume precise", "volume 30 percent", "audio native 30", "precise low volume"]
+
+- id: "app_024"
+  name: "Volume Set Medium 60% (Audio Native, precis)"
+  description: "Regle le volume systeme exactement a 60% via pycaw (precis, pas une approximation SendKeys)."
+  category: "appearance"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      command: "python -c \"from winboost.utils.audio_native import set_volume; set_volume(60)\""
+  rollback:
+    method: "powershell"
+    params:
+      command: "python -c \"from winboost.utils.audio_native import set_volume; set_volume(50)\""
+  keywords:
+    fr: ["volume 60", "volume moyen precis", "volume 60 pourcent", "audio native 60", "volume precis moyen"]
+    en: ["volume 60", "medium volume precise", "volume 60 percent", "audio native 60", "precise medium volume"]
+
+- id: "app_025"
+  name: "Volume Set Max 100% (Audio Native, precis)"
+  description: "Regle le volume systeme exactement a 100% via pycaw (precis, pas une approximation SendKeys)."
+  category: "appearance"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      command: "python -c \"from winboost.utils.audio_native import set_volume; set_volume(100)\""
+  rollback:
+    method: "powershell"
+    params:
+      command: "python -c \"from winboost.utils.audio_native import set_volume; set_volume(50)\""
+  keywords:
+    fr: ["volume 100", "volume max precis", "volume 100 pourcent", "audio native 100", "volume precis max"]
+    en: ["volume 100", "max volume precise", "volume 100 percent", "audio native 100", "precise max volume"]

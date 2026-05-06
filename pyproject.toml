@@ -47,6 +47,10 @@ pilot = [
     "Pillow>=10.0",
     "pyautogui>=0.9.54",
 ]
+audio = [
+    "pycaw>=20240210",
+    "comtypes>=1.2",
+]
 dev = [
     "pytest>=8.0",
     "pytest-mock>=3.12",
@@ -79,6 +83,9 @@ select = ["E", "F", "W", "I", "N", "UP", "B", "SIM"]
 "winboost/modules/privacy_cleaner.py" = ["E501"]
 "winboost/modules/dev_cache_cleaner.py" = ["E501"]
 "winboost/modules/disk_analyzer.py" = ["E501"]
+# audio_native importe des classes COM pycaw au nom PascalCase officiel —
+# preserver la nomenclature evite les confusions avec la doc pycaw.
+"winboost/utils/audio_native.py" = ["N806"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

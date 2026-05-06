@@ -75,6 +75,7 @@ class WinBoostApp(ctk.CTk):
             ("Chat IA", "chat"),
             ("Diagnose", "diagnose"),
             ("Pilot", "pilot"),
+            ("Historique Pilot", "pilot_history"),
             ("Historique", "history"),
             ("Parametres", "settings"),
         ]
@@ -181,6 +182,10 @@ class WinBoostApp(ctk.CTk):
                 config=self.config,
                 on_open_settings=lambda: self._show_page("settings"),
             )
+
+        if page_id == "pilot_history":
+            from winboost.gui.pilot_history_page import PilotHistoryPage
+            return PilotHistoryPage(self.content, config=self.config)
 
         if page_id == "history":
             from winboost.gui.history_page import HistoryPage

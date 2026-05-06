@@ -304,3 +304,90 @@ class TestV21Totals:
         assert n_sys + n_net + n_app == 30, (
             f"30 actions v2.1 attendues, trouvees : sys={n_sys}, net={n_net}, app={n_app}"
         )
+
+
+# =============================================================================
+# v2.4 — Audio Native Actions (app_021 -> app_025) via pycaw / Core Audio
+# Strict mute + volume precis. Complementaires aux app_011-015 (SendKeys = fallback).
+# =============================================================================
+
+V2_4_AUDIO_NATIVE_IDS = [f"app_{i:03d}" for i in range(21, 26)]
+
+
+class TestAudioNativeV24:
+    @pytest.mark.parametrize("action_id", V2_4_AUDIO_NATIVE_IDS)
+    def test_each_action_loaded(self, appearance_actions, action_id):
+        assert action_id in appearance_actions, f"Action {action_id} manquante"
+
+    @pytest.mark.parametrize("action_id", V2_4_AUDIO_NATIVE_IDS)
+    def test_each_action_passes_schema(self, appearance_actions, action_id):
+        errors = validate_action(appearance_actions[action_id], filename=action_id)
+        assert errors == [], f"Erreurs schema pour {action_id}: {errors}"
+
+    @pytest.mark.parametrize("action_id", V2_4_AUDIO_NATIVE_IDS)
+    def test_each_action_has_bilingual_keywords(self, appearance_actions, action_id):
+        kw = appearance_actions[action_id].get("keywords", {})
+        assert "fr" in kw and "en" in kw
+        assert len(kw["fr"]) >= 2 and len(kw["en"]) >= 2
+
+    @pytest.mark.parametrize("action_id", V2_4_AUDIO_NATIVE_IDS)
+    def test_each_action_is_low_risk_no_admin(self, appearance_actions, action_id):
+        action = appearance_actions[action_id]
+        assert action["risk_level"] == "low"
+        assert action["requires_admin"] is False
+
+    @pytest.mark.parametrize("action_id", V2_4_AUDIO_NATIVE_IDS)
+    def test_each_action_calls_audio_native_module(self, appearance_actions, action_id):
+        cmd = appearance_actions[action_id]["execute"]["params"]["command"]
+        assert "winboost.utils.audio_native" in cmd, (
+            f"{action_id} doit invoquer winboost.utils.audio_native, recu : {cmd!r}"
+        )
+
+    def test_audio_native_keywords_distinct_from_sendkeys(self, appearance_actions):
+        """Les keywords app_021-025 ne doivent pas etre identiques aux app_011-015.
+
+        Sinon le NL parser cree des doublons de matching cache et ne sait pas
+        choisir entre fallback SendKeys et version precise pycaw.
+        """
+        # On verifie au moins qu'un keyword distinctif "strict" / "precis" / "audio native"
+        # apparait sur chaque action v2.4 — pas sur les v2.1
+        for aid in V2_4_AUDIO_NATIVE_IDS:
+            kws = appearance_actions[aid]["keywords"]["fr"] + appearance_actions[aid]["keywords"]["en"]
+            joined = " ".join(kws).lower()
+            distinctive = any(
+                marker in joined
+                for marker in ("strict", "precis", "precise", "audio native", "30", "60", "100")
+            )
+            assert distinctive, (
+                f"{aid} doit avoir un keyword distinctif (strict/precis/audio native/30/60/100), "
+                f"recu : {kws}"
+            )
+
+    def test_mute_strict_uses_set_mute_true(self, appearance_actions):
+        cmd = appearance_actions["app_021"]["execute"]["params"]["command"]
+        assert "set_mute(True)" in cmd
+
+    def test_unmute_strict_uses_set_mute_false(self, appearance_actions):
+        cmd = appearance_actions["app_022"]["execute"]["params"]["command"]
+        assert "set_mute(False)" in cmd
+
+    def test_volume_actions_use_correct_levels(self, appearance_actions):
+        assert "set_volume(30)" in appearance_actions["app_023"]["execute"]["params"]["command"]
+        assert "set_volume(60)" in appearance_actions["app_024"]["execute"]["params"]["command"]
+        assert "set_volume(100)" in appearance_actions["app_025"]["execute"]["params"]["command"]
+
+    @pytest.mark.parametrize("action_id", V2_4_AUDIO_NATIVE_IDS)
+    def test_each_action_is_reversible_with_rollback(self, appearance_actions, action_id):
+        action = appearance_actions[action_id]
+        assert action["reversible"] is True
+        rollback = action.get("rollback", {})
+        assert rollback != {}, f"{action_id} doit avoir un rollback non-vide"
+        assert "method" in rollback
+
+
+class TestAppearanceTotalCountWithAudioNative:
+    def test_appearance_has_25_actions(self, appearance_actions):
+        # 10 v2.0 + 10 v2.1 native + 5 v2.4 audio native
+        assert len(appearance_actions) == 25, (
+            f"25 actions appearance attendues, trouvees : {len(appearance_actions)}"
+        )

@@ -16,10 +16,10 @@ class TestRegistryE2E:
         r.load_all()
         return r
 
-    def test_load_180_actions(self):
-        """Le registre charge exactement 180 actions (150 v2.0 + 30 v2.1 native)."""
+    def test_load_185_actions(self):
+        """Le registre charge exactement 185 actions (150 v2.0 + 30 v2.1 native + 5 v2.4 audio native)."""
         r = self._registry()
-        assert r.count == 180, f"Attendu 180, obtenu {r.count}"
+        assert r.count == 185, f"Attendu 185, obtenu {r.count}"
 
     def test_zero_errors(self):
         """Aucune erreur de validation."""
@@ -68,6 +68,6 @@ class TestRegistryE2E:
         assert stats["dev_tools"] == 20
         assert stats["network"] == 20  # 10 v2.0 + 10 v2.1 native
         assert stats["security"] == 10
-        assert stats["appearance"] == 20  # 10 v2.0 + 10 v2.1 native
+        assert stats["appearance"] == 25  # 10 v2.0 + 10 v2.1 native + 5 v2.4 audio native
         assert stats["gaming"] == 10
         assert stats["system"] == 20  # 10 v2.0 + 10 v2.1 native

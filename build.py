@@ -27,10 +27,13 @@ HIDDEN_IMPORTS = [
     "winboost.gui.settings_page",
     "winboost.gui.onboarding",
     "winboost.gui.theme",
+    "winboost.gui.diagnose_page",  # v2.3 nouvel onglet Diagnose
+    "winboost.gui.hotkey_overlay",  # v2.1 overlay Ctrl+Alt+Espace
     # Core
     "winboost.core.backup",
     "winboost.core.history",
     "winboost.core.config",
+    "winboost.core.executor",  # v2.3 executor reel des actions YAML
     # AI Engine
     "winboost.ai.nl_parser",
     "winboost.ai.action_router",
@@ -43,6 +46,20 @@ HIDDEN_IMPORTS = [
     # Actions
     "winboost.actions.loader",
     "winboost.actions.schema",
+    # Diagnose v2.3
+    "winboost.diagnose.runner",
+    "winboost.diagnose.checks",
+    "winboost.diagnose.themes.bluetooth",
+    "winboost.diagnose.themes.gaming",
+    "winboost.diagnose.themes.network",
+    "winboost.diagnose.themes.audio",
+    "winboost.diagnose.themes.display",
+    # Utils v2.1
+    "winboost.utils.windows_native",
+    "winboost.utils.admin",
+    # Note : winboost.mcp.* et winboost.pilot.* NON inclus volontairement
+    # (extras optionnels via `pip install winboost[mcp]` / `winboost[pilot]`).
+    # Le .exe GUI principal reste lean pour eviter +10 Mo de deps optionnelles.
 ]
 
 

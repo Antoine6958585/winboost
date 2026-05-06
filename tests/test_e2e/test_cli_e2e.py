@@ -87,7 +87,7 @@ class TestCLIE2EVersion:
     def test_version(self):
         result = runner.invoke(cli, ["--version"])
         assert result.exit_code == 0
-        assert "2.2.0" in result.output
+        assert "2.3.0" in result.output
 
 
 class TestCLIE2EFix:

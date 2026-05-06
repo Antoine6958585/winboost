@@ -357,6 +357,15 @@ phases:
         url: "https://github.com/Antoine6958585/winboost/releases/tag/v2.2.0"
         asset_sha256: "f7b99064c6afff022b75ea5e0bac4198aeb7d29808e9848343eed5c5eaaece60"
         asset_size_mb: 62.4
+      - id: T061c
+        name: "GitHub Release v2.3.0 (Diagnose + Executor reel + Pilot backend + GUI Diagnose)"
+        status: done
+        assignee: claude-code
+        completed_at: "2026-05-06"
+        url: "https://github.com/Antoine6958585/winboost/releases/tag/v2.3.0"
+        asset_sha256: "c4f4fb880ce65a5c5b832fad64c8290fe5478251a09ac2564c8e50489e420b50"
+        asset_size_mb: 62.5
+        testimonial: "1er bug user resolu via WinBoost : DualSense BT + Rocket League sur Epic Games. Diagnostic en 10s, fix en 2 min."
       - id: T062
         name: "Product Hunt draft"
         status: deferred

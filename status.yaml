@@ -9,7 +9,7 @@ repo: Antoine6958585/winboost
 created: 2026-03-25
 last_updated: 2026-05-06
 
-progress: 97
+progress: 98
 current_phase: 10
 current_milestone: v2.0
 
@@ -166,8 +166,9 @@ phases:
         assignee: claude-code
       - id: T029
         name: "GitHub Release v1.0.0"
-        status: not_started
+        status: skipped
         assignee: antoine
+        skip_reason: "Decision Antoine 2026-05-06 : pas de release v1.0.0 publique. Le projet est passe de 0 a v2.0 en un sprint, aucun utilisateur v1, eviter la confusion sur le repo public. Une seule Release sera tiree : v2.0.0 (T061)."
       - id: T030
         name: "Repo reste prive (decision enzo)"
         status: done
@@ -440,6 +441,12 @@ phases:
         assignee: claude-code
 
 logs:
+  - date: 2026-05-06
+    action: "Decision Antoine : skip Release v1.0.0 (T029 -> skipped). Une seule Release sera tiree : v2.0.0. Justification : binaire dit 2.0.0, aucun user v1, eviter la confusion sur repo public, gain de temps pour debloquer la sortie. TODO-HUMAN.md mis a jour avec etapes ordonnees (smoke test -> public -> tag) + template Release v2.0 avec mention honnete catalogue/v2.1. Progress 97 -> 98."
+    by: claude-code
+  - date: 2026-05-06
+    action: "Smoke test Reality Checker RUN2 — verdict GO CLEAN apres fix StatusBubble (commit f9257cf). 3 bloquants RUN1 verifies materiellement comme resolus. 382 tests, coverage 91% hors GUI, 0 ruff error, LICENSE MIT, version 2.0.0 coherente sur 5 sources, UAC operationnel, .exe 23.3 Mo. Antoine peut tirer la Release v2.0.0."
+    by: reality-checker
   - date: 2026-05-06
     action: "Remediation bloquants smoke test — verdict NO-GO -> code pret pour GO. Fixes : LICENSE MIT + version 0.1.0 -> 2.0.0 + UAC helper (utils/admin.py) + integration gui/chat (refus action requires_admin si pas admin) + __main__.py + ruff clean (57 -> 0 erreurs) + tests providers (0% -> 100%). Bonus honnetete produit : refonte du message worker GUI qui mentait sur l'execution (catalogue v2.0, executor reel en v2.1). 320 -> 382 tests passent, coverage 91% hors GUI. 6 commits structures. Re-run smoke test recommande avant release."
     by: claude-code

@@ -1,112 +1,101 @@
 # TODO-HUMAN — WinBoost
 
 > Tâches qui ne peuvent **PAS** être faites par Claude Code et qui bloquent la sortie publique.
-> À jour au **2026-05-06**.
+> À jour au **2026-05-06** (post-remédiation smoke test, verdict GO clean).
 
 ---
 
-## A. Antoine — GitHub Release v1.0.0 (T029)
+## A. ~~GitHub Release v1.0.0 (T029)~~ — SKIPPÉ
+
+**Décision Antoine 2026-05-06** : pas de Release v1.0.0 publique. Le projet est passé de 0 à v2.0 en un sprint en mars 2026, aucun utilisateur v1 à informer. Tirer 2 Releases simultanées sur le repo public crée plus de confusion que de valeur. **Une seule Release sera publiée : v2.0.0** (section B ci-dessous).
+
+L'historique git conserve les commits de phase 1-5 (`dc7357b` → `38e0de4`) — la v1 est techniquement accessible via `git checkout 38e0de4` pour qui voudrait la build.
+
+---
+
+## B. Antoine — GitHub Release v2.0.0 + repo public (T061)
 
 **Statut** : `not_started`
-**Bloque** : visibilité publique de la v1, prérequis avant Product Hunt
+**Bloque** : visibilité publique, prérequis Product Hunt (T062)
 
-### Pré-requis (déjà fait)
-- ✅ Build `.exe` v1 produit (`build.py`)
-- ✅ README v1 complet
-- ✅ Tests E2E v1 (172 tests)
-- ✅ Tag v1.0 mergé sur `main` (commit `38e0de4 feat: phase 5`)
+### Verdict smoke test (Reality Checker RUN2 — 2026-05-06) : **GO CLEAN**
 
-### Checklist
-- [ ] Vérifier que le `.exe` v1 lance correctement sur une machine Windows 11 propre (test smoke ~5 min)
-- [ ] Sur GitHub : Releases → Draft a new release
-- [ ] Tag : `v1.0.0`, target : `main`
-- [ ] Title : `WinBoost v1.0.0 — Modules + CLI + GUI`
-- [ ] Description (template) :
+Tous les bloquants levés, métriques mesurées matériellement :
+- 382 tests passent, 1 skip (Linux)
+- Coverage 91 % hors GUI (cible 80 %)
+- 0 erreur ruff
+- LICENSE MIT présent
+- Version 2.0.0 cohérente sur 5 sources
+- UAC helper opérationnel + intégration GUI
+- `python -m winboost` OK
+- `WinBoost.exe` : **23,3 Mo**, build en 36 s
+
+Rapport complet : `.project/06-agent-logs/2026-05-06-reality-checker-pre-release-smoke-test-RUN2.md`
+
+### Checklist (~45 min total)
+
+#### Étape 1 — Smoke test humain (~15 min)
+- [ ] `cd A:/dev/winboost && python build.py` — produit `dist/WinBoost.exe`
+- [ ] Lancer `dist/WinBoost.exe gui` — vérifier dashboard, dark theme, branding
+- [ ] Tester wizard onboarding (3 étapes : bienvenue → profil → API key)
+- [ ] Tester chat IA avec une vraie clé Anthropic : "nettoie mes temp"
+- [ ] Tester `WinBoost.exe scan` en mode user vs admin sur une action `requires_admin: true` — confirmer le refus propre du SafetyEngine en mode user
+
+#### Étape 2 — Passage repo public (~5 min)
+- [ ] GitHub → Settings → Danger Zone → Change visibility → Public
+- [ ] Confirmer le warning, taper `Antoine6958585/winboost`
+- [ ] Vérifier que `LICENSE` apparaît dans la sidebar GitHub (preuve que MIT est reconnu)
+
+#### Étape 3 — Tirer la Release v2.0.0 (~15 min)
+- [ ] GitHub → Releases → Draft a new release
+- [ ] Tag : **`v2.0.0`**, target : `main` (commit le plus récent)
+- [ ] Title : `WinBoost v2.0.0 — AI Chat + Action Registry`
+- [ ] Description (template prêt) :
   ```
-  Première version stable de WinBoost.
+  Le premier assistant Windows qui ne te ment pas.
+
+  WinBoost combine 8 modules d'optimisation classiques avec un chat IA
+  conversationnel pilotant un Action Registry de 150 actions cataloguées.
 
   ## Inclus
-  - 8 modules d'optimisation (temp, startup, RAM, disk, privacy, dev cache, services, system info)
-  - CLI Click (`winboost scan`, `winboost fix`, `winboost info`)
-  - GUI CustomTkinter dark theme
-  - Backup automatique + undo + history SQLite
-  - 172 tests, 81 % de couverture (hors GUI)
-
-  ## Téléchargement
-  - `winboost-v1.0.0.exe` (Windows 10/11 x64, standalone)
-
-  ## Notes
-  - Repo privé pour l'instant — release accessible via lien direct
-  - Pas de Product Hunt sur cette version, focus v2
-
-  Built with Python 3.12 + PyInstaller.
-  ```
-- [ ] Joindre le `.exe` v1 comme asset (≈ généré par `python build.py`)
-- [ ] Cocher "Set as the latest release" si pas de v2 publiée encore, sinon laisser v2 latest
-- [ ] Publier
-- [ ] Mettre à jour `status.yaml` : T029 → `done`
-
-### Estimation
-~ 30 min (smoke test compris)
-
----
-
-## B. Antoine — GitHub Release v2.0.0 (T061)
-
-**Statut** : `not_started`
-**Bloque** : visibilité publique de la v2, prérequis Product Hunt (T062)
-
-### Pré-requis (déjà fait)
-- ✅ Build `.exe` v2 produit (hidden imports + YAML data files)
-- ✅ README v2 complet (features, profils, chat, architecture)
-- ✅ Tests E2E v2 (27 nouveaux + 320 total)
-- ✅ Tag v2.0 mergé sur `main` (commit `9b6bec1 feat: phase 10`)
-
-### Checklist
-- [ ] Vérifier que le `.exe` v2 lance correctement sur Windows 11 propre
-- [ ] Tester le wizard d'onboarding (3 étapes)
-- [ ] Tester un appel chat avec une vraie clé Anthropic (ex : "nettoie mes temp")
-- [ ] Sur GitHub : Releases → Draft a new release
-- [ ] Tag : `v2.0.0`, target : `main`
-- [ ] Title : `WinBoost v2.0.0 — AI Chat + Action Registry`
-- [ ] Description (template) :
-  ```
-  Nouvelle version majeure : WinBoost devient conversationnel.
-
-  ## Nouveautés
-  - 🤖 Chat IA (Anthropic / OpenAI / Ollama)
+  - 🤖 Chat IA (Anthropic / OpenAI / Ollama, BYOK)
   - 📚 Action Registry de 150 actions YAML (privacy, perf, cleanup, dev tools, network, security, appearance, gaming, system)
-  - 🛡️ 3 profils utilisateur (Safe / Power / Expert)
-  - 🎨 Onboarding wizard (3 étapes)
-  - 📜 History viewer (timeline des actions passées)
-  - ↩️ Undo multi-action avancé
-  - ⚙️ Settings UI complet
-
-  ## Hérité de v1.0
-  - 8 modules d'optimisation
-  - CLI + GUI
-  - Backup + undo
+  - 🛡️ 3 profils utilisateur (Safe / Power / Expert) avec filtrage SafetyEngine
+  - 🧹 8 modules : temp, startup, RAM, disk, privacy, dev cache, services, system info
+  - 🎨 Onboarding wizard, History viewer, Undo multi-action, Settings complet
+  - ↩️ Backup automatique avant chaque action high/critical
+  - 🔒 UAC sélectif (admin requis uniquement quand l'action l'exige)
 
   ## Téléchargement
-  - `winboost-v2.0.0.exe` (Windows 10/11 x64, standalone)
+  - `WinBoost.exe` — Windows 10/11 x64, standalone (23 Mo)
 
-  ## Documentation
-  - README dans le repo
-  - 320 tests automatisés
+  ## Quality
+  - 382 tests automatisés, 91 % de couverture (hors GUI)
+  - 0 secret hardcodé, 0 eval/exec, audit ruff clean
+  - MIT licensed, code source ouvert
 
-  Built with Python 3.12 + PyInstaller.
+  ## Note v2.0
+  Les 150 actions YAML sont actuellement un **catalogue valide** ; leur
+  exécution réelle (registry_set, service_disable, powershell, etc.) avec
+  élévation UAC sélective est planifiée en v2.1. Le worker chat affiche
+  honnêtement "Action enregistree dans le catalogue (execution reelle en
+  v2.1)" — pas de faux succès. Les 8 modules d'optimisation classiques
+  (temp/RAM/disk/etc.) fonctionnent en plein, eux.
+
+  Built with Python 3.12 + CustomTkinter + Click + PyInstaller.
   ```
-- [ ] Joindre le `.exe` v2 comme asset
+- [ ] Joindre `dist/WinBoost.exe` comme asset
 - [ ] Cocher "Set as the latest release"
-- [ ] Publier
-- [ ] Mettre à jour `status.yaml` : T061 → `done`
+- [ ] Publier 🚀
+- [ ] Vérifier que la page Release est bien accessible publiquement (incognito tab)
 
-### Estimation
-~ 45 min (smoke test étendu compris)
+#### Étape 4 — Sync (~5 min)
+- [ ] Me dire "Release v2.0.0 publiée" → je mets à jour `status.yaml` (T061 → done) et on enchaîne sur la Phase 11
 
 ### Risque connu
-Faux positif antivirus possible (Microsoft Defender) sur les `.exe` PyInstaller.
-→ Si détecté : soumettre le binaire à Microsoft via https://www.microsoft.com/wdsi/filesubmission
+Faux positif Microsoft Defender / SmartScreen possible sur les `.exe` PyInstaller non signés.
+- Mitigation immédiate : documenter dans le README + soumettre le binaire à https://www.microsoft.com/wdsi/filesubmission
+- Mitigation long terme (post v2.1) : code signing avec certificat OV (~80 €/an)
 
 ---
 

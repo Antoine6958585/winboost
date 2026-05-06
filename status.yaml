@@ -9,7 +9,7 @@ repo: Antoine6958585/winboost
 created: 2026-03-25
 last_updated: 2026-05-06
 
-progress: 100
+progress: 80
 current_phase: 11
 current_milestone: v2.1
 phase_validated_by: antoine
@@ -357,12 +357,14 @@ phases:
     tasks:
       - id: T063
         name: "+30 actions YAML Windows-natives (brightness, dark_mode, volume, bluetooth, focus_assist, wifi, hdr, night_mode, sound_device, power_plan)"
-        status: not_started
+        status: in_progress
         assignee: claude-code
+        progress: "10/30 (system: dark_mode, light_mode, brightness 30/60/100, focus_assist on/off, night_light, power_plan high_perf/balanced)"
       - id: T064
         name: "Module winboost/utils/windows_native.py (helpers WMI/PowerShell)"
-        status: not_started
+        status: done
         assignee: claude-code
+        completed_at: "2026-05-06"
       - id: T065
         name: "Hotkey global Win+Espace -> overlay texte (package keyboard)"
         status: not_started
@@ -373,8 +375,9 @@ phases:
         assignee: claude-code
       - id: T067
         name: "30+ tests pour les nouvelles actions (unit + dry-run)"
-        status: not_started
+        status: in_progress
         assignee: claude-code
+        progress: "84 tests (50 native_actions + 34 windows_native helpers), tous green, 0 ruff error"
       - id: T068
         name: "README + demo GIF de l'overlay"
         status: not_started
@@ -449,6 +452,9 @@ phases:
         assignee: claude-code
 
 logs:
+  - date: 2026-05-06
+    action: "v2.1 progres : T064 (windows_native.py helpers) done + T063 partial 10/30 actions (sys_011-sys_020 : dark_mode, light_mode, brightness 30/60/100, focus_assist on/off, night_light, power_plan high_perf/balanced) + T067 partial 84 nouveaux tests (466 total, 0 echec, 0 ruff error). Coverage actions+utils OK. Reste : 20 actions (network 10 + appearance 10), T065 hotkey overlay, T066 mode JSON CLI, T068 README+GIF. Tests retro-compat : 4 fichiers maj (150 -> 160 actions, system 10 -> 20)."
+    by: claude-code
   - date: 2026-05-06
     action: "Phase 10 validee par antoine. T062 (Product Hunt) -> deferred (decale hors phase 10, sera repris en GTM future, ne bloque pas v2.1). Phase 11 (v2.1 Native Windows Actions + hotkey overlay) demarree. current_phase 10 -> 11, current_milestone v2.0 -> v2.1, progress 99 -> 100 (phase 10 close)."
     by: claude-code

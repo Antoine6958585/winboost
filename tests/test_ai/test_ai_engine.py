@@ -227,7 +227,7 @@ class TestActionRouter:
     def test_action_count(self, tmp_path):
         config = Config(config_dir=tmp_path)
         router = ActionRouter(config=config, actions_dir=ACTIONS_DIR)
-        assert router.action_count == 150
+        assert router.action_count == 160  # 150 v2.0 + 10 v2.1 native
 
 
 # --- Tests CLI Chat ---

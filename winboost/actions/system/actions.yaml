@@ -278,3 +278,239 @@
   keywords:
     fr: ["boot verbose", "demarrage detaille", "messages boot", "diagnostic demarrage"]
     en: ["verbose boot", "detailed boot", "boot messages", "boot diagnostics"]
+
+# =============================================================================
+# v2.1 — Native Windows Actions (sys_011 -> sys_020)
+# Repond a la demande Antoine : luminosite, dark mode, focus assist, etc.
+# =============================================================================
+
+- id: "sys_011"
+  name: "Enable Dark Mode"
+  description: "Active le theme sombre Windows pour les applications et le systeme"
+  category: "system"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"
+      values:
+        - name: "AppsUseLightTheme"
+          type: "REG_DWORD"
+          data: 0
+        - name: "SystemUsesLightTheme"
+          type: "REG_DWORD"
+          data: 0
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"
+      values:
+        - name: "AppsUseLightTheme"
+          type: "REG_DWORD"
+          data: 1
+        - name: "SystemUsesLightTheme"
+          type: "REG_DWORD"
+          data: 1
+  keywords:
+    fr: ["mode sombre", "dark mode", "theme sombre", "passer en sombre", "thème noir"]
+    en: ["dark mode", "dark theme", "enable dark mode", "switch to dark"]
+
+- id: "sys_012"
+  name: "Enable Light Mode"
+  description: "Active le theme clair Windows pour les applications et le systeme"
+  category: "system"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"
+      values:
+        - name: "AppsUseLightTheme"
+          type: "REG_DWORD"
+          data: 1
+        - name: "SystemUsesLightTheme"
+          type: "REG_DWORD"
+          data: 1
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"
+      values:
+        - name: "AppsUseLightTheme"
+          type: "REG_DWORD"
+          data: 0
+        - name: "SystemUsesLightTheme"
+          type: "REG_DWORD"
+          data: 0
+  keywords:
+    fr: ["mode clair", "light mode", "theme clair", "passer en clair", "thème blanc"]
+    en: ["light mode", "light theme", "enable light mode", "switch to light"]
+
+- id: "sys_013"
+  name: "Set Brightness Low (30%)"
+  description: "Baisse la luminosite de l'ecran principal a 30% via WMI"
+  category: "system"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      command: "(Get-WmiObject -Namespace root/WMI -Class WmiMonitorBrightnessMethods).WmiSetBrightness(1, 30)"
+  rollback:
+    method: "powershell"
+    params:
+      command: "(Get-WmiObject -Namespace root/WMI -Class WmiMonitorBrightnessMethods).WmiSetBrightness(1, 70)"
+  keywords:
+    fr: ["baisse luminosite", "luminosite faible", "ecran sombre", "30 pourcent", "luminosité basse"]
+    en: ["dim brightness", "low brightness", "dim screen", "30 percent brightness"]
+
+- id: "sys_014"
+  name: "Set Brightness Medium (60%)"
+  description: "Reglage luminosite moyenne (60%) via WMI"
+  category: "system"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      command: "(Get-WmiObject -Namespace root/WMI -Class WmiMonitorBrightnessMethods).WmiSetBrightness(1, 60)"
+  rollback:
+    method: "powershell"
+    params:
+      command: "(Get-WmiObject -Namespace root/WMI -Class WmiMonitorBrightnessMethods).WmiSetBrightness(1, 70)"
+  keywords:
+    fr: ["luminosite moyenne", "60 pourcent", "luminosite normale", "luminosité moyenne"]
+    en: ["medium brightness", "60 percent brightness", "normal brightness"]
+
+- id: "sys_015"
+  name: "Set Brightness Max (100%)"
+  description: "Met la luminosite au maximum (100%) via WMI"
+  category: "system"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      command: "(Get-WmiObject -Namespace root/WMI -Class WmiMonitorBrightnessMethods).WmiSetBrightness(1, 100)"
+  rollback:
+    method: "powershell"
+    params:
+      command: "(Get-WmiObject -Namespace root/WMI -Class WmiMonitorBrightnessMethods).WmiSetBrightness(1, 70)"
+  keywords:
+    fr: ["luminosite max", "luminosite maximum", "ecran lumineux", "100 pourcent", "luminosité maximale"]
+    en: ["max brightness", "full brightness", "100 percent brightness", "bright screen"]
+
+- id: "sys_016"
+  name: "Enable Focus Assist (Notifications Off)"
+  description: "Desactive les notifications toast pour eviter les interruptions (mode focus)"
+  category: "system"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\PushNotifications"
+      values:
+        - name: "ToastEnabled"
+          type: "REG_DWORD"
+          data: 0
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\PushNotifications"
+      values:
+        - name: "ToastEnabled"
+          type: "REG_DWORD"
+          data: 1
+  keywords:
+    fr: ["mode focus", "focus assist", "ne pas deranger", "couper notifications", "concentration", "ne plus etre derange"]
+    en: ["focus mode", "focus assist", "do not disturb", "disable notifications", "concentration mode"]
+
+- id: "sys_017"
+  name: "Disable Focus Assist (Notifications On)"
+  description: "Reactive les notifications toast Windows"
+  category: "system"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\PushNotifications"
+      values:
+        - name: "ToastEnabled"
+          type: "REG_DWORD"
+          data: 1
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\PushNotifications"
+      values:
+        - name: "ToastEnabled"
+          type: "REG_DWORD"
+          data: 0
+  keywords:
+    fr: ["activer notifications", "stop focus", "reactiver notifications", "fin focus"]
+    en: ["enable notifications", "stop focus", "turn on notifications", "exit focus"]
+
+- id: "sys_018"
+  name: "Enable Night Light (Reduce Blue Light)"
+  description: "Active le filtre de lumiere bleue (Night Light) pour reduire la fatigue oculaire"
+  category: "system"
+  risk_level: "info"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      command: "Start-Process ms-settings:nightlight"
+  rollback: {}
+  keywords:
+    fr: ["lumiere bleue", "night light", "filtre nuit", "mode nuit", "lumière bleue"]
+    en: ["blue light", "night light", "night mode", "reduce blue light"]
+
+- id: "sys_019"
+  name: "Power Plan: High Performance"
+  description: "Bascule le plan d'alimentation Windows en mode haute performance (deconseille sur batterie)"
+  category: "system"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "cmd"
+    params:
+      command: "powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c"
+  rollback:
+    method: "cmd"
+    params:
+      command: "powercfg /setactive 381b4222-f694-41f0-9685-ff5bb260df2e"
+  keywords:
+    fr: ["haute performance", "mode performance", "plan haute perf", "max perf"]
+    en: ["high performance", "performance mode", "max performance", "power plan high"]
+
+- id: "sys_020"
+  name: "Power Plan: Balanced"
+  description: "Bascule le plan d'alimentation Windows en mode equilibre (defaut)"
+  category: "system"
+  risk_level: "low"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "cmd"
+    params:
+      command: "powercfg /setactive 381b4222-f694-41f0-9685-ff5bb260df2e"
+  rollback:
+    method: "cmd"
+    params:
+      command: "powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c"
+  keywords:
+    fr: ["mode equilibre", "balanced", "plan equilibre", "perf normale"]
+    en: ["balanced power", "balanced mode", "default power plan", "balanced performance"]

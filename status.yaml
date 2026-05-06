@@ -335,7 +335,114 @@ phases:
         status: not_started
         assignee: enzo
 
+  # ===========================================================================
+  # MILESTONE v2.x — "Claude pilote ton PC" (validee 2026-05-06)
+  # Plan : C:/Users/Dezmen/.claude/plans/proud-weaving-walrus.md
+  # ===========================================================================
+
+  - phase: 11
+    name: "Native Windows Actions + Hotkey overlay (v2.1)"
+    milestone: v2.1
+    status: not_started
+    blocked_by: "ship v2.0 (T029 + T061)"
+    tasks:
+      - id: T063
+        name: "+30 actions YAML Windows-natives (brightness, dark_mode, volume, bluetooth, focus_assist, wifi, hdr, night_mode, sound_device, power_plan)"
+        status: not_started
+        assignee: claude-code
+      - id: T064
+        name: "Module winboost/utils/windows_native.py (helpers WMI/PowerShell)"
+        status: not_started
+        assignee: claude-code
+      - id: T065
+        name: "Hotkey global Win+Espace -> overlay texte (package keyboard)"
+        status: not_started
+        assignee: claude-code
+      - id: T066
+        name: "Mode JSON CLI (winboost chat --json)"
+        status: not_started
+        assignee: claude-code
+      - id: T067
+        name: "30+ tests pour les nouvelles actions (unit + dry-run)"
+        status: not_started
+        assignee: claude-code
+      - id: T068
+        name: "README + demo GIF de l'overlay"
+        status: not_started
+        assignee: claude-code
+
+  - phase: 12
+    name: "MCP Standalone — winboost-mcp (v2.2)"
+    milestone: v2.2
+    status: not_started
+    blocked_by: "phase 11 stable"
+    tasks:
+      - id: T069
+        name: "Refactor monorepo 3 packages (winboost-core / winboost-gui / winboost-mcp)"
+        status: not_started
+        assignee: claude-code
+      - id: T070
+        name: "Implementation FastMCP (5 tools: chat, scan, apply, list_actions, undo)"
+        status: not_started
+        assignee: claude-code
+      - id: T071
+        name: "Auth token local + commande winboost-mcp install-claude-desktop"
+        status: not_started
+        assignee: claude-code
+      - id: T072
+        name: "Test compatibilite PyInstaller-stdio (risque #1 du challenge)"
+        status: not_started
+        assignee: claude-code
+      - id: T073
+        name: "25+ tests d'integration MCP (mock client)"
+        status: not_started
+        assignee: claude-code
+      - id: T074
+        name: "Soumission registres MCP (smithery.ai + anthropic.com/mcp) + post HackerNews"
+        status: not_started
+        assignee: enzo
+      - id: T075
+        name: "Pricing : Pro passe a 9.99 EUR/mois (Stripe + landing + email aux Pro existants)"
+        status: not_started
+        assignee: antoine
+
+  - phase: 13
+    name: "Computer Use Pilot Mode (v2.3, CONDITIONNEL)"
+    milestone: v2.3
+    status: not_started
+    conditional: true
+    trigger: ">= 500 stars GitHub + >= 100 Pro signups + demande explicite users"
+    blocked_by: "phase 12 + traction confirmee"
+    tasks:
+      - id: T076
+        name: "Module winboost/pilot/anthropic_pilot.py (Anthropic computer_use tool)"
+        status: not_started
+        assignee: claude-code
+      - id: T077
+        name: "Sandbox + zone d'ecran configurable"
+        status: not_started
+        assignee: claude-code
+      - id: T078
+        name: "Confirmation visuelle obligatoire (preview screenshot annote)"
+        status: not_started
+        assignee: claude-code
+      - id: T079
+        name: "BYOK Anthropic obligatoire + plafond mensuel parametrable"
+        status: not_started
+        assignee: claude-code
+      - id: T080
+        name: "Notice RGPD + opt-in granulaire (CNIL compliant)"
+        status: not_started
+        assignee: antoine
+      - id: T081
+        name: "Tier Lab + integration GUI Settings"
+        status: not_started
+        assignee: claude-code
+
 logs:
+  - date: 2026-05-06
+    action: "Plan validé — Évolution v2.1 -> v2.3 (Claude pilote le PC). Phase 11 = +30 actions Windows-natives + hotkey overlay texte. Phase 12 = MCP standalone (monorepo 3 packages). Phase 13 = Computer Use BYOK conditionnel. Voice coupé (gimmick desktop). Pricing Pro 4.99 -> 9.99 EUR. Plan: ~/.claude/plans/proud-weaving-walrus.md. 19 nouvelles tâches T063->T081 ajoutées. Implementation suspendue jusqu'au ship v2.0."
+    by: claude-code
   - date: 2026-05-06
     action: "Audit organisation — mise en conformite regle Spine n1 (agent-logs) et n2 (triangle de contexte). Cree .project/06-agent-logs/ + 2 logs (synthese retroactive phases 1-10 + audit du jour). Enrichi MASTER-PLAN.md (etat, decisions, risques, prochaines etapes). Cree TODO-HUMAN.md avec checklists actionnables pour T029/T061/T062. Aucun changement code."
     by: claude-code

@@ -108,11 +108,28 @@ Détails actionnables : voir `TODO-HUMAN.md`.
    - L3 : Expansion (SEO, Ads, partenariats) — **conditionnel à la traction L1**
 4. Activer la section `gtm:` dans `status.yaml` à ce moment-là
 
-### Moyen terme (Post-v2.0, déjà prévu en ROADMAP)
-- v2.1 : Plugin marketplace
-- v2.2 : Multi-langue (DE, ES, PT)
-- v2.3 : Scheduled actions
-- v3.0 : Remote monitoring multi-PC, extension navigateur, mobile companion
+### Court terme — Évolution "Claude pilote ton PC" (validée 2026-05-06)
+
+**Plan complet** : `C:/Users/Dezmen/.claude/plans/proud-weaving-walrus.md`
+**Log de validation** : `.project/06-agent-logs/2026-05-06-claude-code-plan-evolution-v2.1-v2.3.md`
+
+| Version | Capacité | Effort | Quand |
+|---------|----------|--------|-------|
+| **v2.1** | +30 actions Windows-natives (luminosité WMI, dark mode, volume, Bluetooth, focus assist…) + hotkey Win+Espace overlay texte + mode JSON CLI | ~12-15 h | Après ship v2.0 |
+| **v2.2** | Refactor monorepo 3 packages (`winboost-core` / `winboost-gui` / `winboost-mcp`) + serveur MCP standalone distribué via registres (smithery.ai, anthropic.com/mcp) | ~10-14 h | Après v2.1 stable |
+| **v2.3** | Computer Use Pilot Mode — **conditionnel** (≥ 500 stars + ≥ 100 Pro + demande explicite). BYOK Anthropic obligatoire, profil Expert, opt-in séparé "Lab Mode" | ~20-26 h | Si traction confirmée |
+
+**Décisions structurantes validées** :
+- Voice (Whisper + TTS) **coupé** — gimmick desktop (5 % usage, +200 Mo binaire)
+- Pricing Pro **passe à 9,99 €/mois** (alignement Cursor/Claude Pro)
+- Computer Use **BYOK obligatoire** — protège unit economics + clarifie RGPD
+- **Ship v2.0 d'abord** — interdiction de coder v2.1 avant les Releases tirées
+
+### Moyen terme (Post-v2.3)
+- Plugin marketplace (actions tierces)
+- Multi-langue UI (DE, ES, PT)
+- Scheduled actions
+- Remote monitoring multi-PC, extension navigateur, mobile companion
 
 ---
 

@@ -219,3 +219,211 @@
   keywords:
     fr: ["decouverte", "reseau", "desactiver", "visibilite", "local"]
     en: ["network", "discovery", "disable", "visibility", "local"]
+
+# =============================================================================
+# v2.1 — Native Network Actions (net_011 -> net_020)
+# Bluetooth/Wi-Fi/DNS/IPv6/winsock — repond a la demande v2.1 Antoine
+# =============================================================================
+
+- id: "net_011"
+  name: "Disable Bluetooth"
+  description: "Stoppe le service Bluetooth pour couper toute connexion Bluetooth en cours"
+  category: "network"
+  risk_level: "low"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "service_stop"
+    params:
+      service: "bthserv"
+  rollback:
+    method: "powershell"
+    params:
+      command: "Set-Service -Name bthserv -StartupType Manual; Start-Service -Name bthserv"
+  keywords:
+    fr: ["bluetooth off", "couper bluetooth", "desactiver bluetooth", "stopper bluetooth", "désactiver bluetooth"]
+    en: ["bluetooth off", "disable bluetooth", "turn off bluetooth", "stop bluetooth"]
+
+- id: "net_012"
+  name: "Enable Bluetooth"
+  description: "Reactive le service Bluetooth (rollback de net_011)"
+  category: "network"
+  risk_level: "low"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      command: "Set-Service -Name bthserv -StartupType Manual; Start-Service -Name bthserv"
+  rollback:
+    method: "service_stop"
+    params:
+      service: "bthserv"
+  keywords:
+    fr: ["bluetooth on", "activer bluetooth", "demarrer bluetooth", "rallumer bluetooth", "réactiver bluetooth"]
+    en: ["bluetooth on", "enable bluetooth", "turn on bluetooth", "start bluetooth"]
+
+- id: "net_013"
+  name: "Disconnect Wi-Fi"
+  description: "Deconnecte la machine du reseau Wi-Fi actuel sans desactiver l'adaptateur"
+  category: "network"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "cmd"
+    params:
+      command: "netsh wlan disconnect"
+  rollback:
+    method: "cmd"
+    params:
+      command: "netsh wlan connect name=\"\""
+  keywords:
+    fr: ["deconnecter wifi", "couper wifi", "deconnexion wifi", "quitter wifi", "déconnecter wi-fi"]
+    en: ["disconnect wifi", "disconnect wi-fi", "drop wifi", "leave wifi network"]
+
+- id: "net_014"
+  name: "Flush DNS Cache (Native)"
+  description: "Vide le cache DNS Windows pour forcer la re-resolution des noms"
+  category: "network"
+  risk_level: "info"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "cmd"
+    params:
+      command: "ipconfig /flushdns"
+  rollback:
+    method: "cmd"
+    params:
+      command: "echo Le cache DNS se reconstruit automatiquement."
+  keywords:
+    fr: ["vider DNS", "flush DNS", "cache DNS", "reseau lent", "purger DNS", "réseau lent"]
+    en: ["flush DNS", "clear DNS cache", "DNS cache", "slow network", "refresh DNS"]
+
+- id: "net_015"
+  name: "Set DNS Cloudflare (1.1.1.1)"
+  description: "Configure le DNS de l'interface Wi-Fi sur Cloudflare (1.1.1.1 / 1.0.0.1) pour vie privee et vitesse"
+  category: "network"
+  risk_level: "low"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      command: "Set-DnsClientServerAddress -InterfaceAlias 'Wi-Fi' -ServerAddresses ('1.1.1.1','1.0.0.1')"
+  rollback:
+    method: "powershell"
+    params:
+      command: "Set-DnsClientServerAddress -InterfaceAlias 'Wi-Fi' -ResetServerAddresses"
+  keywords:
+    fr: ["DNS cloudflare", "DNS 1.1.1.1", "DNS rapide", "DNS prive", "changer DNS", "DNS privé"]
+    en: ["cloudflare DNS", "1.1.1.1 DNS", "fast DNS", "private DNS", "change DNS"]
+
+- id: "net_016"
+  name: "Reset DNS to Auto (DHCP)"
+  description: "Remet la configuration DNS de l'interface Wi-Fi en automatique (DHCP)"
+  category: "network"
+  risk_level: "low"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      command: "Set-DnsClientServerAddress -InterfaceAlias 'Wi-Fi' -ResetServerAddresses"
+  rollback:
+    method: "powershell"
+    params:
+      command: "Set-DnsClientServerAddress -InterfaceAlias 'Wi-Fi' -ServerAddresses ('1.1.1.1','1.0.0.1')"
+  keywords:
+    fr: ["DNS auto", "reset DNS", "DNS DHCP", "DNS par defaut", "remettre DNS auto", "DNS par défaut"]
+    en: ["auto DNS", "reset DNS", "DHCP DNS", "default DNS", "restore DNS"]
+
+- id: "net_017"
+  name: "Reset Winsock (Repair)"
+  description: "Reinitialise la pile Winsock pour corriger les bugs reseau (necessite redemarrage). Action de reparation non reversible."
+  category: "network"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: false
+  execute:
+    method: "cmd"
+    params:
+      command: "netsh winsock reset"
+  rollback: {}
+  keywords:
+    fr: ["reset reseau", "reparer connexion", "winsock", "fix internet", "réparer réseau", "repair winsock"]
+    en: ["reset network", "repair connection", "winsock reset", "fix internet", "fix network"]
+
+- id: "net_018"
+  name: "Disable IPv6 (Registry)"
+  description: "Desactive IPv6 sur toutes les interfaces via le registre (DisabledComponents=0xFF). Peut casser certaines apps locales utilisant IPv6."
+  category: "network"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SYSTEM\\CurrentControlSet\\Services\\Tcpip6\\Parameters"
+      values:
+        - name: "DisabledComponents"
+          type: "REG_DWORD"
+          data: 255
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SYSTEM\\CurrentControlSet\\Services\\Tcpip6\\Parameters"
+      values:
+        - name: "DisabledComponents"
+          type: "REG_DWORD"
+          data: 0
+  keywords:
+    fr: ["desactiver ipv6", "couper ipv6", "ipv6 off", "forcer ipv4", "désactiver ipv6"]
+    en: ["disable ipv6", "ipv6 off", "turn off ipv6", "force ipv4"]
+
+- id: "net_019"
+  name: "Enable IPv6 (Registry)"
+  description: "Reactive IPv6 sur toutes les interfaces via le registre (rollback de net_018)"
+  category: "network"
+  risk_level: "medium"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SYSTEM\\CurrentControlSet\\Services\\Tcpip6\\Parameters"
+      values:
+        - name: "DisabledComponents"
+          type: "REG_DWORD"
+          data: 0
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKLM\\SYSTEM\\CurrentControlSet\\Services\\Tcpip6\\Parameters"
+      values:
+        - name: "DisabledComponents"
+          type: "REG_DWORD"
+          data: 255
+  keywords:
+    fr: ["activer ipv6", "ipv6 on", "rallumer ipv6", "reactiver ipv6", "réactiver ipv6"]
+    en: ["enable ipv6", "ipv6 on", "turn on ipv6", "restore ipv6"]
+
+- id: "net_020"
+  name: "Disable Network Discovery (Firewall)"
+  description: "Desactive la regle pare-feu Network Discovery pour cacher la machine sur le reseau local"
+  category: "network"
+  risk_level: "low"
+  requires_admin: true
+  reversible: true
+  execute:
+    method: "cmd"
+    params:
+      command: "netsh advfirewall firewall set rule group=\"Network Discovery\" new enable=No"
+  rollback:
+    method: "cmd"
+    params:
+      command: "netsh advfirewall firewall set rule group=\"Network Discovery\" new enable=Yes"
+  keywords:
+    fr: ["cacher PC reseau", "decouverte reseau off", "invisible reseau local", "desactiver decouverte", "découverte réseau"]
+    en: ["hide PC on network", "network discovery off", "invisible on LAN", "disable discovery"]

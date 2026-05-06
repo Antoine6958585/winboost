@@ -122,10 +122,10 @@ class TestCLIChatE2E:
 class TestActionsRegistryE2E:
     """Tests E2E du registre d'actions complet."""
 
-    def test_load_160_actions(self):
+    def test_load_180_actions(self):
         registry = ActionRegistry(actions_dir=ACTIONS_DIR)
         count = registry.load_all()
-        assert count == 160  # 150 v2.0 + 10 v2.1 native
+        assert count == 180  # 150 v2.0 + 30 v2.1 native
 
     def test_9_categories(self):
         registry = ActionRegistry(actions_dir=ACTIONS_DIR)

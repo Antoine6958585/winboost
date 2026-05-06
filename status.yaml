@@ -9,7 +9,7 @@ repo: Antoine6958585/winboost
 created: 2026-03-25
 last_updated: 2026-05-06
 
-progress: 80
+progress: 85
 current_phase: 11
 current_milestone: v2.1
 phase_validated_by: antoine
@@ -357,9 +357,10 @@ phases:
     tasks:
       - id: T063
         name: "+30 actions YAML Windows-natives (brightness, dark_mode, volume, bluetooth, focus_assist, wifi, hdr, night_mode, sound_device, power_plan)"
-        status: in_progress
+        status: done
         assignee: claude-code
-        progress: "10/30 (system: dark_mode, light_mode, brightness 30/60/100, focus_assist on/off, night_light, power_plan high_perf/balanced)"
+        completed_at: "2026-05-06"
+        progress: "30/30 — system 10 (sys_011-020) + network 10 (net_011-020) + appearance 10 (app_011-020). Total registry : 180 actions."
       - id: T064
         name: "Module winboost/utils/windows_native.py (helpers WMI/PowerShell)"
         status: done
@@ -375,9 +376,10 @@ phases:
         assignee: claude-code
       - id: T067
         name: "30+ tests pour les nouvelles actions (unit + dry-run)"
-        status: in_progress
+        status: done
         assignee: claude-code
-        progress: "84 tests (50 native_actions + 34 windows_native helpers), tous green, 0 ruff error"
+        completed_at: "2026-05-06"
+        progress: "183 tests v2.1 (TestNewActionsLoaded + TestNetworkV21 + TestAppearanceV21 + TestV21Totals + windows_native helpers). 565 tests total (vs 466), 1 skip Linux, 0 ruff."
       - id: T068
         name: "README + demo GIF de l'overlay"
         status: not_started
@@ -452,6 +454,9 @@ phases:
         assignee: claude-code
 
 logs:
+  - date: 2026-05-06
+    action: "v2.1 batch network+appearance complete (T063 done, T067 done). 2 sous-agents Backend Architect lances en parallele (regle Spine n2, triangle de contexte applique). Resultats : 10 actions network (net_011-020 : bluetooth, wifi disconnect, DNS flush/cloudflare/auto, winsock reset, IPv6 on/off, network discovery off) + 10 actions appearance (app_011-020 : mute, volume 20/50/80, system sounds on/off, animations on/off, transparency off). Total registry : 180 actions (vs 150 v2.0). Tests : 565 passed (+99), 0 ruff error. 4 doublons fonctionnels signales avec net_001/002/004/010 — non-bloquants (keywords distincts), tache T082 future si consolidation souhaitee. progress 80 -> 85. Reste phase 11 : T065 hotkey overlay, T066 JSON CLI, T068 README+GIF."
+    by: claude-code
   - date: 2026-05-06
     action: "v2.1 progres : T064 (windows_native.py helpers) done + T063 partial 10/30 actions (sys_011-sys_020 : dark_mode, light_mode, brightness 30/60/100, focus_assist on/off, night_light, power_plan high_perf/balanced) + T067 partial 84 nouveaux tests (466 total, 0 echec, 0 ruff error). Coverage actions+utils OK. Reste : 20 actions (network 10 + appearance 10), T065 hotkey overlay, T066 mode JSON CLI, T068 README+GIF. Tests retro-compat : 4 fichiers maj (150 -> 160 actions, system 10 -> 20)."
     by: claude-code

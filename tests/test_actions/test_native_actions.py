@@ -19,29 +19,36 @@ import yaml
 
 from winboost.actions.schema import validate_action
 
-SYSTEM_YAML = Path(__file__).resolve().parent.parent.parent / "winboost" / "actions" / "system" / "actions.yaml"
+_ACTIONS_ROOT = Path(__file__).resolve().parent.parent.parent / "winboost" / "actions"
+SYSTEM_YAML = _ACTIONS_ROOT / "system" / "actions.yaml"
+NETWORK_YAML = _ACTIONS_ROOT / "network" / "actions.yaml"
+APPEARANCE_YAML = _ACTIONS_ROOT / "appearance" / "actions.yaml"
 
-# IDs des nouvelles actions v2.1
-V2_1_NATIVE_IDS = [
-    "sys_011",  # Enable Dark Mode
-    "sys_012",  # Enable Light Mode
-    "sys_013",  # Brightness 30%
-    "sys_014",  # Brightness 60%
-    "sys_015",  # Brightness 100%
-    "sys_016",  # Focus Assist on
-    "sys_017",  # Focus Assist off
-    "sys_018",  # Night Light
-    "sys_019",  # Power Plan High Perf
-    "sys_020",  # Power Plan Balanced
-]
+# IDs des nouvelles actions v2.1 par categorie
+V2_1_SYSTEM_IDS = [f"sys_{i:03d}" for i in range(11, 21)]
+V2_1_NETWORK_IDS = [f"net_{i:03d}" for i in range(11, 21)]
+V2_1_APPEARANCE_IDS = [f"app_{i:03d}" for i in range(11, 21)]
+V2_1_NATIVE_IDS = V2_1_SYSTEM_IDS  # alias historique pour les tests system existants
+
+
+def _load(path: Path) -> dict[str, dict]:
+    with path.open(encoding="utf-8") as f:
+        return {a["id"]: a for a in yaml.safe_load(f)}
 
 
 @pytest.fixture(scope="module")
 def system_actions() -> dict[str, dict]:
-    """Charge le YAML system et indexe par id."""
-    with SYSTEM_YAML.open(encoding="utf-8") as f:
-        actions = yaml.safe_load(f)
-    return {a["id"]: a for a in actions}
+    return _load(SYSTEM_YAML)
+
+
+@pytest.fixture(scope="module")
+def network_actions() -> dict[str, dict]:
+    return _load(NETWORK_YAML)
+
+
+@pytest.fixture(scope="module")
+def appearance_actions() -> dict[str, dict]:
+    return _load(APPEARANCE_YAML)
 
 
 # --- Existence et validation schema ---
@@ -185,3 +192,115 @@ class TestBrightnessLevels:
         cmd = system_actions[action_id]["execute"]["params"]["command"]
         assert "WmiMonitorBrightnessMethods" in cmd
         assert "root/WMI" in cmd
+
+
+# =============================================================================
+# v2.1 — Network actions (net_011 -> net_020)
+# =============================================================================
+
+
+class TestNetworkV21:
+    @pytest.mark.parametrize("action_id", V2_1_NETWORK_IDS)
+    def test_each_action_loaded(self, network_actions, action_id):
+        assert action_id in network_actions
+
+    @pytest.mark.parametrize("action_id", V2_1_NETWORK_IDS)
+    def test_each_action_passes_schema(self, network_actions, action_id):
+        errors = validate_action(network_actions[action_id], filename=action_id)
+        assert errors == [], f"Erreurs schema pour {action_id}: {errors}"
+
+    @pytest.mark.parametrize("action_id", V2_1_NETWORK_IDS)
+    def test_each_action_has_bilingual_keywords(self, network_actions, action_id):
+        kw = network_actions[action_id].get("keywords", {})
+        assert "fr" in kw and "en" in kw
+        assert len(kw["fr"]) >= 2 and len(kw["en"]) >= 2
+
+    @pytest.mark.parametrize("action_id", V2_1_NETWORK_IDS)
+    def test_each_action_has_category_network(self, network_actions, action_id):
+        assert network_actions[action_id]["category"] == "network"
+
+    def test_winsock_reset_is_not_reversible(self, network_actions):
+        # Winsock reset = repair, pas de retour arriere meaningful
+        assert network_actions["net_017"]["reversible"] is False
+        assert network_actions["net_017"]["rollback"] == {}
+
+    def test_winsock_reset_requires_admin(self, network_actions):
+        assert network_actions["net_017"]["requires_admin"] is True
+
+    def test_ipv6_disable_uses_disabled_components_ff(self, network_actions):
+        # 0xFF = 255 = desactive tunnels + IPv6 sur toutes interfaces (Microsoft KB)
+        params = network_actions["net_018"]["execute"]["params"]
+        assert "Tcpip6" in params.get("path", "")
+        # tolerance : data peut etre 255 (decimal) ou 0xff (hex string)
+        values_str = str(params)
+        assert "255" in values_str or "0xff" in values_str.lower() or "0xFF" in values_str
+
+    def test_dns_cloudflare_targets_1_1_1_1(self, network_actions):
+        cmd = network_actions["net_015"]["execute"]["params"]["command"]
+        assert "1.1.1.1" in cmd
+
+    def test_flush_dns_uses_ipconfig(self, network_actions):
+        params = network_actions["net_014"]["execute"]["params"]
+        cmd = params.get("command", "")
+        assert "flushdns" in cmd.lower() or "ipconfig" in cmd.lower()
+
+
+# =============================================================================
+# v2.1 — Appearance actions (app_011 -> app_020)
+# =============================================================================
+
+
+class TestAppearanceV21:
+    @pytest.mark.parametrize("action_id", V2_1_APPEARANCE_IDS)
+    def test_each_action_loaded(self, appearance_actions, action_id):
+        assert action_id in appearance_actions
+
+    @pytest.mark.parametrize("action_id", V2_1_APPEARANCE_IDS)
+    def test_each_action_passes_schema(self, appearance_actions, action_id):
+        errors = validate_action(appearance_actions[action_id], filename=action_id)
+        assert errors == [], f"Erreurs schema pour {action_id}: {errors}"
+
+    @pytest.mark.parametrize("action_id", V2_1_APPEARANCE_IDS)
+    def test_each_action_has_bilingual_keywords(self, appearance_actions, action_id):
+        kw = appearance_actions[action_id].get("keywords", {})
+        assert "fr" in kw and "en" in kw
+        assert len(kw["fr"]) >= 2 and len(kw["en"]) >= 2
+
+    @pytest.mark.parametrize("action_id", V2_1_APPEARANCE_IDS)
+    def test_each_action_has_category_appearance(self, appearance_actions, action_id):
+        assert appearance_actions[action_id]["category"] == "appearance"
+
+    @pytest.mark.parametrize("action_id", V2_1_APPEARANCE_IDS)
+    def test_no_appearance_action_requires_admin(self, appearance_actions, action_id):
+        # Toutes les actions appearance v2.1 sont en HKCU ou SendKeys utilisateur
+        assert appearance_actions[action_id]["requires_admin"] is False
+
+    def test_mute_keywords_match_silence(self, appearance_actions):
+        kws = appearance_actions["app_011"]["keywords"]["fr"]
+        joined = " ".join(kws).lower()
+        assert "mute" in joined or "silence" in joined or "couper" in joined
+
+    def test_animations_disable_keywords(self, appearance_actions):
+        kws = appearance_actions["app_018"]["keywords"]["fr"]
+        joined = " ".join(kws).lower()
+        assert "animation" in joined
+
+    def test_transparency_disable_targets_correct_registry(self, appearance_actions):
+        params = appearance_actions["app_020"]["execute"]["params"]
+        path = params.get("path", "")
+        assert "Personalize" in path or "EnableTransparency" in str(params)
+
+
+# =============================================================================
+# v2.1 — Total compte global (toutes categories confondues)
+# =============================================================================
+
+
+class TestV21Totals:
+    def test_thirty_v21_native_actions_total(self, system_actions, network_actions, appearance_actions):
+        n_sys = sum(1 for aid in V2_1_SYSTEM_IDS if aid in system_actions)
+        n_net = sum(1 for aid in V2_1_NETWORK_IDS if aid in network_actions)
+        n_app = sum(1 for aid in V2_1_APPEARANCE_IDS if aid in appearance_actions)
+        assert n_sys + n_net + n_app == 30, (
+            f"30 actions v2.1 attendues, trouvees : sys={n_sys}, net={n_net}, app={n_app}"
+        )

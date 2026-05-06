@@ -270,3 +270,222 @@
   keywords:
     fr: ["taskbar transparente", "transparence barre taches", "effet verre", "barre transparente"]
     en: ["transparent taskbar", "taskbar transparency", "glass taskbar", "see through taskbar"]
+
+# =============================================================================
+# v2.1 — Native Appearance Actions (app_011 -> app_020)
+# Volume / sons système / animations / transparence — gain perf + confort
+# =============================================================================
+
+- id: "app_011"
+  name: "Mute System Volume"
+  description: "Coupe le son du systeme via la touche virtuelle Mute (toggle)"
+  category: "appearance"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      command: "(New-Object -ComObject WScript.Shell).SendKeys([char]173)"
+  rollback:
+    method: "powershell"
+    params:
+      command: "(New-Object -ComObject WScript.Shell).SendKeys([char]173)"
+  keywords:
+    fr: ["mute", "couper son", "silence", "volume zero", "muet", "couper le son"]
+    en: ["mute", "mute volume", "silence", "no sound", "volume zero"]
+
+- id: "app_012"
+  name: "Unmute System Volume"
+  description: "Reactive le son du systeme via la touche virtuelle Mute (toggle idempotent)"
+  category: "appearance"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      command: "(New-Object -ComObject WScript.Shell).SendKeys([char]173)"
+  rollback:
+    method: "powershell"
+    params:
+      command: "(New-Object -ComObject WScript.Shell).SendKeys([char]173)"
+  keywords:
+    fr: ["unmute", "reactiver son", "remettre son", "demuter", "remettre le son"]
+    en: ["unmute", "restore sound", "enable volume", "turn sound on"]
+
+- id: "app_013"
+  name: "Volume Set Low (20%)"
+  description: "Baisse le volume systeme a environ 20% via SendKeys (50 down puis 10 up)"
+  category: "appearance"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      command: "$wshell = New-Object -ComObject WScript.Shell; 1..50 | %{$wshell.SendKeys([char]174)}; 1..10 | %{$wshell.SendKeys([char]175)}"
+  rollback:
+    method: "powershell"
+    params:
+      command: "$wshell = New-Object -ComObject WScript.Shell; 1..50 | %{$wshell.SendKeys([char]174)}; 1..25 | %{$wshell.SendKeys([char]175)}"
+  keywords:
+    fr: ["volume bas", "baisser volume", "volume faible", "20 pourcent", "volume doux"]
+    en: ["low volume", "lower volume", "quiet volume", "20 percent volume", "soft volume"]
+
+- id: "app_014"
+  name: "Volume Set Medium (50%)"
+  description: "Reglage volume moyen a environ 50% via SendKeys (50 down puis 25 up)"
+  category: "appearance"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      command: "$wshell = New-Object -ComObject WScript.Shell; 1..50 | %{$wshell.SendKeys([char]174)}; 1..25 | %{$wshell.SendKeys([char]175)}"
+  rollback:
+    method: "powershell"
+    params:
+      command: "$wshell = New-Object -ComObject WScript.Shell; 1..50 | %{$wshell.SendKeys([char]174)}; 1..25 | %{$wshell.SendKeys([char]175)}"
+  keywords:
+    fr: ["volume moyen", "volume normal", "50 pourcent volume", "volume milieu"]
+    en: ["medium volume", "normal volume", "50 percent volume", "mid volume"]
+
+- id: "app_015"
+  name: "Volume Set High (80%)"
+  description: "Reglage volume eleve a environ 80% via SendKeys (50 down puis 40 up)"
+  category: "appearance"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      command: "$wshell = New-Object -ComObject WScript.Shell; 1..50 | %{$wshell.SendKeys([char]174)}; 1..40 | %{$wshell.SendKeys([char]175)}"
+  rollback:
+    method: "powershell"
+    params:
+      command: "$wshell = New-Object -ComObject WScript.Shell; 1..50 | %{$wshell.SendKeys([char]174)}; 1..25 | %{$wshell.SendKeys([char]175)}"
+  keywords:
+    fr: ["volume fort", "volume eleve", "monter volume", "80 pourcent volume", "volume haut"]
+    en: ["high volume", "loud volume", "raise volume", "80 percent volume", "increase volume"]
+
+- id: "app_016"
+  name: "Disable System Sounds"
+  description: "Desactive les sons systeme Windows en passant le scheme audio sur 'No Sounds'"
+  category: "appearance"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\AppEvents\\Schemes"
+      values:
+        - name: "(Default)"
+          type: "REG_SZ"
+          data: ".None"
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\AppEvents\\Schemes"
+      values:
+        - name: "(Default)"
+          type: "REG_SZ"
+          data: ".Default"
+  keywords:
+    fr: ["sons systeme off", "desactiver sons windows", "couper sons systeme", "pas de sons", "silence windows"]
+    en: ["disable system sounds", "no system sounds", "mute system sounds", "silence windows", "turn off windows sounds"]
+
+- id: "app_017"
+  name: "Enable System Sounds (Default)"
+  description: "Reactive les sons systeme Windows en restaurant le scheme audio par defaut"
+  category: "appearance"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\AppEvents\\Schemes"
+      values:
+        - name: "(Default)"
+          type: "REG_SZ"
+          data: ".Default"
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\AppEvents\\Schemes"
+      values:
+        - name: "(Default)"
+          type: "REG_SZ"
+          data: ".None"
+  keywords:
+    fr: ["activer sons systeme", "remettre sons windows", "restaurer sons", "sons par defaut"]
+    en: ["enable system sounds", "restore system sounds", "default sounds", "turn on windows sounds"]
+
+- id: "app_018"
+  name: "Disable Animations"
+  description: "Desactive les animations Windows (minimiser/maximiser + visual effects) pour gain de perf"
+  category: "appearance"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      command: "Set-ItemProperty -Path 'HKCU:\\Control Panel\\Desktop\\WindowMetrics' -Name 'MinAnimate' -Value '0' -Type String; New-Item -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\VisualEffects' -Force | Out-Null; Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\VisualEffects' -Name 'VisualFXSetting' -Value 2 -Type DWord"
+  rollback:
+    method: "powershell"
+    params:
+      command: "Set-ItemProperty -Path 'HKCU:\\Control Panel\\Desktop\\WindowMetrics' -Name 'MinAnimate' -Value '1' -Type String; Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\VisualEffects' -Name 'VisualFXSetting' -Value 0 -Type DWord"
+  keywords:
+    fr: ["desactiver animations", "stop animations", "perf windows", "windows fluide", "couper animations", "windows rapide"]
+    en: ["disable animations", "stop animations", "performance windows", "fluid windows", "no animations", "faster windows"]
+
+- id: "app_019"
+  name: "Enable Animations"
+  description: "Reactive les animations Windows (minimiser/maximiser + visual effects par defaut)"
+  category: "appearance"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "powershell"
+    params:
+      command: "Set-ItemProperty -Path 'HKCU:\\Control Panel\\Desktop\\WindowMetrics' -Name 'MinAnimate' -Value '1' -Type String; Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\VisualEffects' -Name 'VisualFXSetting' -Value 0 -Type DWord"
+  rollback:
+    method: "powershell"
+    params:
+      command: "Set-ItemProperty -Path 'HKCU:\\Control Panel\\Desktop\\WindowMetrics' -Name 'MinAnimate' -Value '0' -Type String; Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\VisualEffects' -Name 'VisualFXSetting' -Value 2 -Type DWord"
+  keywords:
+    fr: ["activer animations", "remettre animations", "animations windows", "restaurer animations"]
+    en: ["enable animations", "restore animations", "windows animations", "turn on animations"]
+
+- id: "app_020"
+  name: "Disable Transparency Effects"
+  description: "Desactive les effets de transparence Aero pour un leger gain de perf interface"
+  category: "appearance"
+  risk_level: "low"
+  requires_admin: false
+  reversible: true
+  execute:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"
+      values:
+        - name: "EnableTransparency"
+          type: "REG_DWORD"
+          data: 0
+  rollback:
+    method: "registry_set"
+    params:
+      path: "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"
+      values:
+        - name: "EnableTransparency"
+          type: "REG_DWORD"
+          data: 1
+  keywords:
+    fr: ["transparence off", "desactiver transparence", "windows opaque", "perf interface", "couper transparence"]
+    en: ["disable transparency", "transparency off", "opaque windows", "interface performance", "no transparency"]

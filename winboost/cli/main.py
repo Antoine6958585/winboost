@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import json as _json
+from typing import Any
+
 import click
 from rich.console import Console
 from rich.panel import Panel
@@ -160,19 +163,73 @@ def list_modules() -> None:
 
 @cli.command()
 @click.argument("query", nargs=-1, required=True)
-def chat(query: tuple[str, ...]) -> None:
-    """Poser une question a l'assistant IA WinBoost."""
+@click.option(
+    "--json",
+    "json_output",
+    is_flag=True,
+    help="Sortie JSON pour scripting (pas de couleurs Rich, stdout = JSON pur).",
+)
+def chat(query: tuple[str, ...], json_output: bool) -> None:
+    """Poser une question a l'assistant IA WinBoost.
+
+    Mode JSON (`--json`) : la sortie stdout est un seul objet JSON valide
+    parseable par `json.loads()`, conforme au schema suivant :
+
+    \b
+    {
+      "query": str,                # requete utilisateur originale
+      "resolved_by": str,          # "cache" | "llm" | "category_fallback" | "none"
+      "message": str,              # message lisible (resume ou erreur)
+      "has_actions": bool,         # true si au moins une action autorisee
+      "actions": [                 # actions autorisees par le profil
+        {
+          "id": str,
+          "name": str,
+          "description": str,
+          "category": str,
+          "risk_level": str,       # "info" | "low" | "medium" | "high" | "critical"
+          "requires_admin": bool,
+          "reversible": bool,
+          "verdict": {
+            "allowed": bool,
+            "requires_dry_run": bool,
+            "requires_confirmation": bool,
+            "reason": str | null
+          }
+        }
+      ],
+      "blocked": [ ... ]           # meme schema, actions bloquees par le profil
+    }
+
+    \b
+    Exit codes :
+      0 : succes (avec ou sans actions trouvees)
+      1 : erreur (ex: query vide en mode --json)
+    """
     from pathlib import Path
 
     from winboost.ai.action_router import ActionRouter
 
-    query_str = " ".join(query)
-    console.print(f"\n  [bold]Requete :[/bold] {query_str}\n")
+    query_str = " ".join(query).strip()
+
+    # Cas query vide en mode JSON : sortie structuree + exit 1
+    if json_output and not query_str:
+        click.echo(_json.dumps({"error": "query is required"}, ensure_ascii=False))
+        raise click.exceptions.Exit(1)
 
     actions_dir = Path(__file__).parent.parent / "actions"
     config = Config()
     router = ActionRouter(config=config, actions_dir=actions_dir)
     result = router.route(query_str)
+
+    if json_output:
+        # Mode scripting : aucune sortie Rich vers stdout
+        payload = _route_result_to_dict(query_str, result)
+        click.echo(_json.dumps(payload, ensure_ascii=False, indent=2))
+        return
+
+    # Mode interactif Rich (comportement v2.0 inchange)
+    console.print(f"\n  [bold]Requete :[/bold] {query_str}\n")
 
     if not result.has_actions:
         console.print(f"  [yellow]{result.message}[/yellow]")
@@ -199,11 +256,65 @@ def chat(query: tuple[str, ...]) -> None:
             console.print(f"    [red]x[/red] {routed.action.name} — {routed.verdict.reason}")
 
 
+def _routed_action_to_dict(routed: Any) -> dict[str, Any]:
+    """Serialise un RoutedAction (action + verdict) en dict JSON-compatible.
+
+    Convertit explicitement Action et SafetyVerdict en types primitifs.
+    `verdict.reason` devient `null` si chaine vide pour distinguer "pas de raison"
+    de "raison vide".
+    """
+    action = routed.action
+    verdict = routed.verdict
+    return {
+        "id": action.id,
+        "name": action.name,
+        "description": action.description,
+        "category": action.category,
+        "risk_level": action.risk_level,
+        "requires_admin": bool(action.requires_admin),
+        "reversible": bool(action.reversible),
+        "verdict": {
+            "allowed": bool(verdict.allowed),
+            "requires_dry_run": bool(verdict.requires_dry_run),
+            "requires_confirmation": bool(verdict.requires_confirmation),
+            "reason": verdict.reason if verdict.reason else None,
+        },
+    }
+
+
+def _route_result_to_dict(query: str, result: Any) -> dict[str, Any]:
+    """Serialise un RouteResult en dict JSON-compatible (schema documente sur `chat`)."""
+    return {
+        "query": query,
+        "resolved_by": result.resolved_by,
+        "message": result.message,
+        "has_actions": bool(result.has_actions),
+        "actions": [_routed_action_to_dict(r) for r in result.actions],
+        "blocked": [_routed_action_to_dict(r) for r in result.blocked],
+    }
+
+
 @cli.command()
 def gui() -> None:
     """Lancer l'interface graphique WinBoost."""
     from winboost.gui.app import launch_gui
     launch_gui()
+
+
+@cli.command()
+def overlay() -> None:
+    """Lancer l'overlay hotkey global (Win+Espace -> requete texte rapide).
+
+    L'overlay s'enregistre comme listener clavier global et reste en
+    foreground. Presse Win+Espace dans n'importe quelle application pour
+    invoquer la mini-fenetre de requete. Ctrl+C dans la console pour arreter.
+
+    Si le hotkey global ne peut pas s'enregistrer (admin requis ou package
+    `keyboard` absent), un message clair est affiche et on retombe sur le
+    bouton Chat de la GUI principale (`winboost gui`).
+    """
+    from winboost.gui.hotkey_overlay import run_overlay_foreground
+    run_overlay_foreground()
 
 
 def _display_scan_result(result: ScanResult) -> None:

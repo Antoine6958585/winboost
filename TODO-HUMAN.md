@@ -130,7 +130,50 @@ Faux positif Microsoft Defender / SmartScreen possible sur les `.exe` PyInstalle
 
 ---
 
-## Sortie de cette phase
+---
+
+## D. Antoine — Validation Phase 11 v2.1 (2026-05-06)
+
+**Statut** : `pending_human_validation`
+**Bloque** : passage en Phase 12 (v2.2 MCP Standalone)
+
+### Contexte
+Phase 11 techniquement complète : 6 tâches done (T063-T068), 610 tests green, 0 ruff error, 180 actions registry, +30 actions Windows-natives (luminosité, dark mode, focus assist, volume, bluetooth, DNS, IPv6, animations…), hotkey global Win+Espace + overlay, mode JSON CLI.
+
+### Checklist validation (~30 min)
+
+#### 1. Test in vivo de l'overlay (~15 min)
+```powershell
+cd A:/dev/winboost
+pip install -e .
+winboost overlay
+```
+Puis presser **Win+Espace** depuis ≥ 3 apps (Chrome, VS Code, Slack…) :
+- [ ] L'overlay apparaît centré, transparent
+- [ ] Le focus se met automatiquement sur le champ texte
+- [ ] Taper "active le mode focus" + Enter → l'action sys_016 s'affiche
+- [ ] Esc ferme l'overlay
+- [ ] Si rien ne se passe → relancer dans un terminal **admin** (limitation `keyboard` package)
+
+#### 2. Capture du GIF de démo (~10 min)
+Instructions complètes dans `docs/assets/README.md`.
+- [ ] Outil : ScreenToGif (gratuit, https://www.screentogif.com/)
+- [ ] Scénario 5-8s : `winboost overlay` → bascule sur Chrome → Win+Espace → "active le mode focus" → Enter → Esc
+- [ ] Cible : <2 Mo, 800px max width, 12-15 FPS
+- [ ] Path final : `A:/dev/winboost/docs/assets/winboost-overlay-demo.gif`
+
+#### 3. Commit du GIF + validation (~5 min)
+- [ ] `git add docs/assets/winboost-overlay-demo.gif`
+- [ ] `git commit -m "docs: add overlay demo GIF (T068 finalisation)"`
+- [ ] `git push origin main`
+- [ ] Me dire **"Phase 11 validée"** → je passe `phase_validated_by: antoine`, `current_phase: 12`, et on enchaîne sur la **v2.2 MCP Standalone** (refactor monorepo 3 packages)
+
+### Sortie de cette phase
+Une fois validée, on attaque la Phase 12 (T069-T075) : `winboost-core` + `winboost-gui` + `winboost-mcp` (PyPI), FastMCP, install Claude Desktop, soumissions registres MCP.
+
+---
+
+## Sortie de cette phase (legacy v2.0)
 
 Quand T029, T061 et T062 sont `done` :
 1. Mettre à jour `status.yaml` → `progress: 100`

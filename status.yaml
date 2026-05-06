@@ -9,8 +9,13 @@ repo: Antoine6958585/winboost
 created: 2026-03-25
 last_updated: 2026-05-06
 
-progress: 85
+progress: 98
 current_phase: 11
+phase_11_status: "all_tasks_done_pending_human_validation"
+phase_11_human_actions:
+  - "Tester `winboost overlay` en vivo (presser Win+Espace, valider sur 3+ apps)"
+  - "Capturer winboost-overlay-demo.gif (cf. docs/assets/README.md)"
+  - "Valider phase 11 : me dire 'Phase 11 validee' pour passer en v2.2"
 current_milestone: v2.1
 phase_validated_by: antoine
 phase_validated_at: "2026-05-06"
@@ -368,12 +373,16 @@ phases:
         completed_at: "2026-05-06"
       - id: T065
         name: "Hotkey global Win+Espace -> overlay texte (package keyboard)"
-        status: not_started
+        status: done
         assignee: claude-code
+        completed_at: "2026-05-06"
+        progress: "winboost/gui/hotkey_overlay.py (339L) + cmd `winboost overlay` + dep keyboard>=0.13.5 + 22 tests mockes. Validation manuelle Antoine requise (admin parfois necessaire)."
       - id: T066
         name: "Mode JSON CLI (winboost chat --json)"
-        status: not_started
+        status: done
         assignee: claude-code
+        completed_at: "2026-05-06"
+        progress: "Flag --json sur `winboost chat`, helper _route_result_to_dict, 23 tests CLI. Schema documente dans --help."
       - id: T067
         name: "30+ tests pour les nouvelles actions (unit + dry-run)"
         status: done
@@ -382,8 +391,11 @@ phases:
         progress: "183 tests v2.1 (TestNewActionsLoaded + TestNetworkV21 + TestAppearanceV21 + TestV21Totals + windows_native helpers). 565 tests total (vs 466), 1 skip Linux, 0 ruff."
       - id: T068
         name: "README + demo GIF de l'overlay"
-        status: not_started
+        status: done
         assignee: claude-code
+        completed_at: "2026-05-06"
+        progress: "README 191 -> 268 lignes (sections v2.1/Native actions/overlay/JSON CLI/Limitations connues). docs/assets/README.md cree avec instructions capture GIF (ScreenToGif, scenario 5-8s). GIF a capturer manuellement par Antoine."
+        human_action_required: "Capturer winboost-overlay-demo.gif via ScreenToGif et le placer dans docs/assets/. Cf. docs/assets/README.md pour le scenario."
 
   - phase: 12
     name: "MCP Standalone — winboost-mcp (v2.2)"
@@ -454,6 +466,12 @@ phases:
         assignee: claude-code
 
 logs:
+  - date: 2026-05-06
+    action: "Phase 11 v2.1 — 6/6 taches techniques completees (T063 + T064 + T065 + T066 + T067 + T068). 3 sous-agents specialises lances en regle Spine n2 : Senior Developer (T065 hotkey overlay), Backend Architect (T066 JSON CLI + T063 batches network/appearance), Technical Writer (T068 README v2.1). README 191 -> 268 lignes (sections v2.1/native actions/overlay demo/limitations honnetes). docs/assets/ cree avec instructions capture GIF (ScreenToGif scenario 5-8s). 610 tests passed (+228 vs v2.0), 0 ruff error, 180 actions registry (vs 150 v2.0). progress 92 -> 98. Phase 11 EN ATTENTE de validation humaine : Antoine doit (1) tester `winboost overlay` in vivo, (2) capturer le GIF, (3) valider la phase pour debloquer la v2.2."
+    by: claude-code
+  - date: 2026-05-06
+    action: "T065 + T066 done via 2 sous-agents en parallele (regle Spine n2). T065 : Senior Developer, livrable winboost/gui/hotkey_overlay.py (339L Tk pur, fenetre transparente alpha 0.92, Win+Espace listener via package keyboard, fallback ImportError/OSError/ValueError) + cmd `winboost overlay` + 22 tests mockes. T066 : Backend Architect, flag --json sur chat avec helpers _route_result_to_dict / _routed_action_to_dict, 23 tests CLI (validation JSON, absence ANSI, schema, query vide). Tests 565 -> 610 passed (+45), 0 ruff. Validation manuelle Antoine requise pour T065 (admin Windows pour hotkey global). progress 85 -> 92."
+    by: claude-code
   - date: 2026-05-06
     action: "v2.1 batch network+appearance complete (T063 done, T067 done). 2 sous-agents Backend Architect lances en parallele (regle Spine n2, triangle de contexte applique). Resultats : 10 actions network (net_011-020 : bluetooth, wifi disconnect, DNS flush/cloudflare/auto, winsock reset, IPv6 on/off, network discovery off) + 10 actions appearance (app_011-020 : mute, volume 20/50/80, system sounds on/off, animations on/off, transparency off). Total registry : 180 actions (vs 150 v2.0). Tests : 565 passed (+99), 0 ruff error. 4 doublons fonctionnels signales avec net_001/002/004/010 — non-bloquants (keywords distincts), tache T082 future si consolidation souhaitee. progress 80 -> 85. Reste phase 11 : T065 hotkey overlay, T066 JSON CLI, T068 README+GIF."
     by: claude-code

@@ -42,6 +42,11 @@ ai = [
 mcp = [
     "fastmcp>=0.2",
 ]
+pilot = [
+    "anthropic>=0.40",
+    "Pillow>=10.0",
+    "pyautogui>=0.9.54",
+]
 dev = [
     "pytest>=8.0",
     "pytest-mock>=3.12",

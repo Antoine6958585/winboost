@@ -105,3 +105,36 @@ def scan_all_to_dict(results: dict[str, Any]) -> dict[str, Any]:
         "module_count": len(modules),
         "total_issues": total_issues,
     }
+
+
+def apply_result_to_dict(result: Any) -> dict[str, Any]:
+    """Serialise un `ApplyResult` (sortie de `ActionExecutor.apply()`) en dict.
+
+    Format stable du tool MCP `apply` :
+        {
+          "success": bool,
+          "message": str,
+          "action_id": str,
+          "rollback_id": str | None,
+          "error_code": str | None,
+          "stdout": str | None,
+          "stderr": str | None,
+          "duration_ms": int,
+          "method": str | None,
+          "dry_run": bool,
+          "extra": {...}
+        }
+    """
+    return {
+        "success": bool(result.success),
+        "message": result.message,
+        "action_id": result.action_id,
+        "rollback_id": result.rollback_id,
+        "error_code": result.error_code,
+        "stdout": result.stdout,
+        "stderr": result.stderr,
+        "duration_ms": int(result.duration_ms),
+        "method": result.method,
+        "dry_run": bool(result.dry_run),
+        "extra": dict(result.extra) if getattr(result, "extra", None) else {},
+    }

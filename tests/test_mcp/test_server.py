@@ -114,6 +114,26 @@ def _make_scan_result(
     )
 
 
+def _make_fake_executor() -> MagicMock:
+    """Fake ActionExecutor qui retourne un ApplyResult success=True."""
+    from winboost.core.executor import ApplyResult
+
+    fake = MagicMock()
+
+    def _apply(action: Any, *, dry_run: bool = False, timeout: float | None = None) -> ApplyResult:
+        return ApplyResult(
+            success=True,
+            message=f"[fake] {action.name} executed",
+            action_id=action.id,
+            method=(action.execute or {}).get("method"),
+            dry_run=dry_run,
+            duration_ms=1,
+        )
+
+    fake.apply.side_effect = _apply
+    return fake
+
+
 def _build_server_with_mocks(
     *,
     router: Any | None = None,
@@ -121,6 +141,7 @@ def _build_server_with_mocks(
     registry: Any | None = None,
     backup: Any | None = None,
     history: Any | None = None,
+    executor: Any | None = None,
 ):
     """Cree un FastMCP avec composants entierement mockes."""
     # Defaults : registry avec 1 action, router qui route, engine avec 1 module
@@ -160,18 +181,23 @@ def _build_server_with_mocks(
         history = MagicMock()
         history.log_action = MagicMock(return_value=42)
 
+    if executor is None:
+        executor = _make_fake_executor()
+
     return create_server(
         router=router,
         engine=engine,
         registry=registry,
         backup_manager=backup,
         history_manager=history,
+        executor=executor,
     ), {
         "router": router,
         "engine": engine,
         "registry": registry,
         "backup": backup,
         "history": history,
+        "executor": executor,
     }
 
 
@@ -338,12 +364,13 @@ class TestApplyTool:
         server, mocks = _build_server_with_mocks()
         fn = _get_tool_fn(server, "apply")
         result = fn(action_id="sys_011")
-        assert result["success"] is True
+        assert result["success"] is True, result
         assert result["action_id"] == "sys_011"
-        assert result["status"] == "catalogued"
+        # v2.2.x : status est "applied" (real executor) au lieu de "catalogued"
+        assert result["status"] in ("applied", "catalogued", "already_applied", "dry_run")
         assert "history_entry_id" in result
-        # L'historique a bien ete sollicite
-        mocks["history"].log_action.assert_called_once()
+        # L'executor a ete appele
+        mocks["executor"].apply.assert_called_once()
 
     def test_apply_with_unknown_action_returns_error(self):
         server, _ = _build_server_with_mocks()

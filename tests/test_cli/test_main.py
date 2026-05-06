@@ -114,4 +114,4 @@ class TestCLIModules:
     def test_version(self):
         runner = CliRunner()
         result = runner.invoke(cli, ["--version"])
-        assert "2.0.0" in result.output
+        assert "2.2.0" in result.output

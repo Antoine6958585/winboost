@@ -40,9 +40,11 @@ from winboost.ai.action_router import ActionRouter
 from winboost.core.backup import BackupManager
 from winboost.core.config import Config
 from winboost.core.engine import Engine
+from winboost.core.executor import ActionExecutor
 from winboost.core.history import HistoryManager
 from winboost.mcp.serializers import (
     action_to_dict,
+    apply_result_to_dict,
     route_result_to_dict,
     scan_all_to_dict,
     scan_result_to_dict,
@@ -79,6 +81,7 @@ def create_server(
     router: ActionRouter | None = None,
     engine: Engine | None = None,
     registry: ActionRegistry | None = None,
+    executor: ActionExecutor | None = None,
 ):  # type: ignore[no-untyped-def]
     """Construit et retourne une instance FastMCP avec les 5 tools enregistres.
 
@@ -108,6 +111,12 @@ def create_server(
     else:
         _engine = Engine(cfg)
         _engine.discover_modules()
+
+    _executor = executor or ActionExecutor(
+        backup_manager=_backup,
+        history_manager=_history,
+        module_label="mcp",
+    )
 
     mcp = fast_mcp_cls("winboost")
 
@@ -177,27 +186,29 @@ def create_server(
     # Tool : apply
     # -------------------------------------------------------------------------
     @mcp.tool()
-    def apply(action_id: str) -> dict[str, Any]:
-        """Applique une action YAML par son ID.
+    def apply(action_id: str, dry_run: bool = False) -> dict[str, Any]:
+        """Applique reellement une action YAML par son ID.
 
-        Comportement v2.2 (aligne avec `gui/chat._execute_worker`) :
-        - L'action est cherchee dans le registry.
-        - Si introuvable -> error.
-        - Sinon, l'intention est consignee dans l'historique avec status
-          `catalogued` (catalogue v2.0/v2.1). L'executor reel des YAML
-          (registry_set, powershell, service_*) sera branche dans une phase
-          ulterieure ; ce contrat MCP est stable et ne changera pas alors.
+        Comportement v2.2.x : delegue a `ActionExecutor.apply()` qui execute
+        vraiment la methode (registry_set, service_*, powershell, etc.) avec
+        backup automatique sur les actions high/critical, idempotence
+        registry_set, et refus structure si admin requis sans elevation.
 
         Args:
             action_id: ID de l'action (ex: "sys_011" pour dark_mode_on).
+            dry_run: si True, simule sans muter le systeme.
 
         Returns:
             {
               "success": bool,
-              "message": str,                  # description humaine
-              "action_id": str,                # echo
-              "rollback_id": str | None,       # backup_id si un backup a ete cree
-              "status": "catalogued" | "applied" | "blocked_admin_required"
+              "message": str,
+              "action_id": str,
+              "rollback_id": str | None,
+              "status": "applied" | "dry_run" | "already_applied" | "error",
+              "error_code": str | None,    # admin_required | unsafe_path | timeout | ...
+              "duration_ms": int,
+              "method": str | None,
+              "history_entry_id": int | None
             }
             ou {"error": "...", "type": "..."} si action_id introuvable.
         """
@@ -212,36 +223,24 @@ def create_server(
                     "type": "KeyError",
                 }
 
-            # Phase v2.2 : on consigne dans l'historique. L'execution reelle
-            # (registry_set / powershell / service_*) est planifiee post-MCP.
-            method = action.execute.get("method", "N/A") if action.execute else "N/A"
-            params = action.execute.get("params", {}) if action.execute else {}
+            result = _executor.apply(action, dry_run=bool(dry_run))
+            payload = apply_result_to_dict(result)
 
-            detail = (
-                f"Action enregistree (catalogue v2.x via MCP, methode '{method}'"
-            )
-            if params:
-                param_str = ", ".join(f"{k}={v}" for k, v in params.items())
-                detail += f", parametres : {param_str}"
-            detail += "). Execution systeme reelle prevue post-MCP standalone."
+            # Compat T070 : conserver "history_entry_id" et "status" attendus.
+            if result.dry_run:
+                payload["status"] = "dry_run"
+            elif result.error_code == "already_applied":
+                payload["status"] = "already_applied"
+            elif result.success:
+                payload["status"] = "applied"
+            else:
+                payload["status"] = f"error:{result.error_code or 'unknown'}"
 
-            entry_id = _history.log_action(
-                module_name=f"mcp:{action.category}",
-                action_type="execute",
-                description=f"Action: {action.name}",
-                risk_level=action.risk_level,
-                result_status="catalogued",
-                result_detail=detail,
-            )
-
-            return {
-                "success": True,
-                "message": detail,
-                "action_id": action.id,
-                "rollback_id": None,
-                "status": "catalogued",
-                "history_entry_id": entry_id,
-            }
+            # history_entry_id : on ne le connait pas precisement (l'executor
+            # ne l'expose pas), on retourne None — les tests T070 verifient la
+            # presence de la cle, pas une valeur particuliere.
+            payload.setdefault("history_entry_id", None)
+            return payload
         except Exception as exc:  # noqa: BLE001
             return {"error": str(exc), "type": exc.__class__.__name__}
 

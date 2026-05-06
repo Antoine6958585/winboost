@@ -766,107 +766,48 @@ class ChatPage(ctk.CTkFrame):
         thread.start()
 
     def _execute_worker(self, action_id: str) -> None:
-        """Worker d'execution (thread).
+        """Worker d'execution reelle (thread).
 
-        Note v2.0 : les 150 actions YAML constituent un catalogue valide ; leur
-        execution reelle (registre, services, PowerShell) est planifiee en v2.1
-        avec elevation UAC selective. En v2.0, on enregistre l'intention dans
-        l'historique mais aucune modification systeme n'est appliquee.
+        Branchement v2.2.x : appelle `ActionExecutor.apply()` qui execute reellement
+        la methode YAML (registry_set, service_*, powershell, etc.). Le resultat
+        est un `ApplyResult` structure (success/error_code/duration/rollback_id),
+        loggue automatiquement dans HistoryManager via l'executor.
         """
-        from winboost.utils.admin import AdminRequiredError, is_admin
+        from winboost.core.executor import ActionExecutor
 
         routed = self._routed_actions.get(action_id)
         if not routed:
             return
 
         action = routed.action
-
-        # Check UAC : refuser proprement les actions admin si on n'est pas eleve
-        if action.requires_admin and not is_admin():
-            err_msg = (
-                f"L'action '{action.name}' requiert les droits administrateur. "
-                "Relance WinBoost en tant qu'administrateur pour l'appliquer."
-            )
-            self._history.log_action(
-                module_name=f"chat:{action.category}",
-                action_type="execute",
-                description=f"Action: {action.name}",
-                risk_level=action.risk_level,
-                result_status="blocked_admin_required",
-                result_detail=err_msg,
-            )
-            self.after(0, self._on_action_complete, action_id, False, err_msg)
-            return
+        executor = ActionExecutor(
+            backup_manager=getattr(self, "_backup", None),
+            history_manager=self._history,
+            module_label="chat",
+        )
 
         try:
-            # Log l'action dans l'historique
-            self._history.log_action(
-                module_name=f"chat:{action.category}",
-                action_type="execute",
-                description=f"Action: {action.name}",
-                risk_level=action.risk_level,
-                result_status="pending",
-                result_detail=f"Methode: {action.execute.get('method', 'N/A')}",
-            )
-
-            # v2.0 : enregistrement dans le catalogue, pas d'execution reelle.
-            # L'executor (registry_set, service_disable, powershell, etc.) sera
-            # implemente en v2.1 avec branchement UAC selectif.
-            method = action.execute.get("method", "")
-            params = action.execute.get("params", {})
-
-            detail = f"Action enregistree (catalogue v2.0, methode '{method}'"
-            if params:
-                param_str = ", ".join(f"{k}={v}" for k, v in params.items())
-                detail += f", parametres : {param_str}"
-            detail += "). Execution reelle systeme prevue en v2.1."
-
-            # Log dans l'historique avec un statut explicite
-            self._history.log_action(
-                module_name=f"chat:{action.category}",
-                action_type="execute",
-                description=f"Action: {action.name}",
-                risk_level=action.risk_level,
-                result_status="catalogued",
-                result_detail=detail,
-            )
-
-            self.after(0, self._on_action_complete, action_id, True, detail)
-
-        except AdminRequiredError as e:
-            self._history.log_action(
-                module_name=f"chat:{action.category}",
-                action_type="execute",
-                description=f"Action: {action.name}",
-                risk_level=action.risk_level,
-                result_status="blocked_admin_required",
-                result_detail=str(e),
-            )
+            result = executor.apply(action)
+        except Exception as e:  # noqa: BLE001 — l'UI ne doit jamais crasher
             self.after(0, self._on_action_complete, action_id, False, str(e))
+            return
 
-        except Exception as e:
-            self._history.log_action(
-                module_name=f"chat:{action.category}",
-                action_type="execute",
-                description=f"Action: {action.name}",
-                risk_level=action.risk_level,
-                result_status="error",
-                result_detail=str(e),
-            )
-            self.after(0, self._on_action_complete, action_id, False, str(e))
+        self.after(0, self._on_action_complete, action_id, result.success, result.message)
 
     def _on_action_complete(self, action_id: str, success: bool, message: str) -> None:
-        """Callback apres execution d'une action (thread-safe)."""
+        """Callback apres execution reelle d'une action (thread-safe).
+
+        Le `message` provient de `ApplyResult.message` (executor v2.2.x) — il
+        decrit ce qui a vraiment ete fait sur le systeme.
+        """
         card = self._action_cards.get(action_id)
         if card:
             card.set_result(success, message)
 
-        # Message dans le chat — honnete sur l'etat reel (catalogue v2.0,
-        # executor reel en v2.1). Voir _execute_worker pour le contrat.
         if success:
             StatusBubble(
                 self.messages_frame,
-                "Action enregistree dans le catalogue (execution reelle en v2.1)",
+                message,
                 color="success",
             )
         else:

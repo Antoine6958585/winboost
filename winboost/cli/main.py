@@ -519,6 +519,155 @@ def mcp_token_cmd(reset: bool, json_output: bool) -> None:
     console.print(f"  Fichier : [dim]{payload['token_path']}[/dim]")
 
 
+# ---------------------------------------------------------------------------
+# Commande `diagnose` — diagnostic systemique rules-based (Option C)
+# ---------------------------------------------------------------------------
+
+
+@cli.command()
+@click.argument("query", nargs=-1, required=True)
+@click.option(
+    "--json",
+    "json_output",
+    is_flag=True,
+    help="Sortie JSON pour scripting et integration agents.",
+)
+def diagnose(query: tuple[str, ...], json_output: bool) -> None:
+    """Diagnostic systemique a partir d'une requete naturelle.
+
+    Themes : bluetooth, gaming, network, audio, display.
+    Multi-themes auto-detectes (ex: 'manette bluetooth dans rocket league' -> BT + gaming).
+
+    Exemples :
+        winboost diagnose "ma manette bluetooth bug"
+        winboost diagnose "internet lent" --json
+    """
+    from winboost.diagnose.runner import DiagnosticRunner
+
+    query_str = " ".join(query).strip()
+    if not query_str:
+        if json_output:
+            click.echo('{"error": "query is required"}')
+        else:
+            console.print("[red]Erreur : requete obligatoire[/red]")
+        raise click.exceptions.Exit(1)
+
+    runner = DiagnosticRunner()
+    report = runner.run_from_query(query_str)
+
+    if json_output:
+        click.echo(report.to_json())
+        return
+
+    console.print(f"\n  [bold]Diagnostic :[/bold] {query_str}")
+    console.print(f"  [bold]Theme(s) :[/bold] {report.theme}\n")
+    console.print(f"  {report.summary}\n")
+
+    severity_color = {
+        "ok": "green",
+        "warning": "yellow",
+        "error": "red",
+        "critical": "magenta",
+    }
+    for check in report.checks:
+        color = severity_color.get(check.severity, "white")
+        console.print(
+            f"    [{color}][{check.severity.upper()}][/{color}] "
+            f"{check.name} — {check.message}"
+        )
+
+    if report.recommended_fix_plan:
+        console.print("\n  [bold]Plan de fix recommande :[/bold]")
+        for step in report.recommended_fix_plan:
+            desc = step["description"]
+            if step.get("manual"):
+                console.print(f"    [yellow]({step['step']}) Manuel :[/yellow] {desc}")
+            else:
+                action_id = step.get("action_id", "?")
+                console.print(f"    [cyan]({step['step']}) {action_id} :[/cyan] {desc}")
+
+
+# ---------------------------------------------------------------------------
+# Commande `pilot` — Computer Use BYOK (Option B, profil Lab)
+# ---------------------------------------------------------------------------
+
+
+@cli.command()
+@click.argument("query", nargs=-1, required=True)
+@click.option(
+    "--api-key",
+    envvar="ANTHROPIC_API_KEY",
+    help="Cle API Anthropic (BYOK obligatoire). Defaut : variable env ANTHROPIC_API_KEY.",
+)
+@click.option(
+    "--budget-eur",
+    type=float,
+    default=None,
+    help="Plafond mensuel EUR (override config). Defaut : 5 EUR.",
+)
+def pilot(query: tuple[str, ...], api_key: str | None, budget_eur: float | None) -> None:
+    """Lancer le Pilot Mode Anthropic Computer Use (profil Lab uniquement, BYOK).
+
+    Le pilot pilote visuellement le PC via l'API Anthropic Computer Use.
+    Confirmation a chaque action, plafond mensuel, audit trail SQLite.
+
+    Pre-requis :
+        - profil = 'lab' dans la config
+        - opt-in RGPD accepte (winboost pilot --setup pour l'init)
+        - cle API Anthropic (BYOK) via --api-key ou ANTHROPIC_API_KEY
+
+    Exemple :
+        winboost pilot "ma manette bluetooth bug dans rocket league"
+    """
+    if not api_key:
+        console.print(
+            "[red]Erreur :[/red] cle API Anthropic obligatoire (BYOK).\n"
+            "  Definir ANTHROPIC_API_KEY ou utiliser --api-key.\n"
+            "  Le Pilot Mode envoie des screenshots a Anthropic US (RGPD).\n"
+            "  Plus d'info : voir winboost/pilot/README.md"
+        )
+        raise click.exceptions.Exit(1)
+
+    try:
+        import winboost.pilot  # noqa: F401  — verifie que l'extra `pilot` est installe
+    except ImportError as exc:
+        console.print(
+            f"[red]Erreur :[/red] module pilot indisponible. "
+            f"Installe l'extra : `pip install winboost[pilot]`. ({exc})"
+        )
+        raise click.exceptions.Exit(1) from exc
+
+    config = Config()
+    if config.get("profile") != "lab":
+        console.print(
+            "[red]Erreur :[/red] le Pilot Mode requiert le profil 'lab' (experimental).\n"
+            "  Configure via : winboost gui -> Settings -> Profil = Lab"
+        )
+        raise click.exceptions.Exit(1)
+
+    rgpd = config.get("pilot", {}).get("rgpd", {})
+    if not rgpd.get("accepted_at"):
+        console.print(
+            "[red]Erreur :[/red] notice RGPD non acceptee.\n"
+            "  Le Pilot envoie des screenshots a Anthropic US.\n"
+            "  Lance la GUI Settings pour valider l'opt-in granulaire."
+        )
+        raise click.exceptions.Exit(1)
+
+    query_str = " ".join(query).strip()
+    if not query_str:
+        console.print("[red]Erreur : requete obligatoire[/red]")
+        raise click.exceptions.Exit(1)
+
+    console.print(
+        "[yellow]Pilot Mode requiert une integration GUI pour le screenshot + clic + "
+        "confirmation visuelle (T081 — a brancher dans la GUI Settings).[/yellow]\n"
+        "  La couche backend est prete et testable en Python (cf. winboost/pilot/README.md "
+        "pour le pattern d'integration)."
+    )
+    raise click.exceptions.Exit(2)
+
+
 def _display_scan_result(result: ScanResult) -> None:
     """Affiche un ScanResult de maniere formatee."""
     if not result.has_issues:

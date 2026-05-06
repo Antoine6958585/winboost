@@ -11,11 +11,13 @@ last_updated: 2026-05-06
 
 progress: 100
 current_phase: 13
-current_milestone: v2.2
+current_milestone: v2.3
 phase_validated_by: antoine
 phase_validated_at: "2026-05-06"
 phase_11_status: "validated_by_antoine_2026-05-06"
 phase_12_status: "code_complete_pending_humans"
+phase_13_status: "code_complete_pending_humans"
+v2_3_dogfooding_decision: "Antoine 2026-05-06 : pre-implementation Computer Use sans attendre la traction (dogfooding, je suis le 1er user). 3 sous-agents en parallele : A executor reel YAML + B Anthropic Computer Use Pilot + C module diagnose rules-based."
 phase_human_actions_pending:
   - "Phase 11 GIF demo overlay (Antoine, marketing only, a faire avant post HN)"
   - "Phase 12 T074 (Enzo) : soumettre aux registres MCP (smithery.ai, anthropic.com/mcp) + post HN"
@@ -464,12 +466,13 @@ phases:
         prerequisites: "Decision business + Stripe access + base email Pro existants"
 
   - phase: 13
-    name: "Computer Use Pilot Mode (v2.3, CONDITIONNEL)"
+    name: "Computer Use Pilot Mode + Executor reel + Diagnose (v2.3)"
     milestone: v2.3
-    status: not_started
-    conditional: true
-    trigger: ">= 500 stars GitHub + >= 100 Pro signups + demande explicite users"
-    blocked_by: "phase 12 + traction confirmee"
+    status: in_progress
+    started_at: "2026-05-06"
+    code_complete: true
+    conditional: false
+    decision_2026_05_06: "Antoine accelere v2.3 (pas attendre traction) — dogfooding sur ses propres bugs (manette BT). 3 sous-agents Spine n2 en parallele."
     tasks:
       - id: T076
         name: "Module winboost/pilot/anthropic_pilot.py (Anthropic computer_use tool)"
@@ -495,6 +498,47 @@ phases:
         name: "Tier Lab + integration GUI Settings"
         status: not_started
         assignee: claude-code
+        note: "Backend pilot pret (T076-T079). Reste a brancher screenshot_provider + action_executor + RGPD opt-in UI dans GUI Settings."
+
+      # ============================================================
+      # Taches additionnelles 2026-05-06 (Antoine accelere dogfooding)
+      # ============================================================
+      - id: T082
+        name: "Executor REEL des actions YAML (Option A)"
+        status: done
+        assignee: claude-code
+        completed_at: "2026-05-06"
+        progress: "winboost/core/executor.py 1100L : ActionExecutor + ApplyResult, 10 methodes (registry/service/PS/cmd/FS/scheduled), whitelist FS + blacklist registry + scan command, backup auto registry high/critical, idempotence, dry_run, timeout 30s, UTF-8, history logging. 63 tests. gui/chat.py et mcp/server.py rebranche : plus de message 'catalogue', execution reelle avec ApplyResult."
+      - id: T083
+        name: "Module diagnose rules-based (Option C)"
+        status: done
+        assignee: claude-code
+        completed_at: "2026-05-06"
+        progress: "winboost/diagnose/ : DiagnosticRunner + 5 themes (bluetooth, gaming, network, audio, display), parallelisation ThreadPoolExecutor, multi-themes auto-detected. 110 tests. Cmd CLI `winboost diagnose <query>` ajoutee. Use case manette bluetooth bug rocket league : matche bluetooth+gaming, retourne CheckResult + plan de fix actionable."
+      - id: T076
+        name: "Module winboost/pilot/anthropic_pilot.py (Anthropic computer_use)"
+        status: done
+        assignee: claude-code
+        completed_at: "2026-05-06"
+        progress: "924L AnthropicPilot orchestrateur Computer Use loop, screenshot_provider + action_executor injectables (T081 GUI les fournira), tracking tokens/coût."
+      - id: T077
+        name: "Sandbox + zone d'ecran configurable"
+        status: done
+        assignee: claude-code
+        completed_at: "2026-05-06"
+        progress: "197L sandbox.py : modes window/application/region/full_screen, max_consecutive_actions=5, double-barriere fullscreen."
+      - id: T078
+        name: "Confirmation visuelle obligatoire"
+        status: done
+        assignee: claude-code
+        completed_at: "2026-05-06"
+        progress: "297L confirmation_ui.py : preview screenshot annote (rectangle rouge), confirmer abstrait (T081 fournira impl Tk)."
+      - id: T079
+        name: "BYOK Anthropic + plafond mensuel"
+        status: done
+        assignee: claude-code
+        completed_at: "2026-05-06"
+        progress: "315L budget.py : plafond default 5 EUR/mois, USD=EUR pessimiste, reset mensuel automatique. BYOK obligatoire (pas de fallback gratuit)."
 
 logs:
   - date: 2026-05-06

@@ -401,6 +401,34 @@ def _call_tool(server: Any, name: str, *args, **kwargs):
 # ---------------------------------------------------------------------------
 
 
+def _make_fake_executor() -> MagicMock:
+    """Cree un fake ActionExecutor qui simule un succes pour toute action.
+
+    Les stubs `_StubAction` ont des params vides pour rester legers ; un vrai
+    `ActionExecutor` rejetterait avec `invalid_params`. Ce fake retourne
+    toujours un `ApplyResult` success=True pour valider le contrat MCP `apply`
+    sans dependre des details d'execution Windows.
+    """
+    from winboost.core.executor import ApplyResult
+
+    fake = MagicMock()
+
+    def _apply(action: Any, *, dry_run: bool = False, timeout: float | None = None) -> ApplyResult:
+        return ApplyResult(
+            success=True,
+            message=f"[fake-executor] {action.name} executed",
+            action_id=action.id,
+            rollback_id=None,
+            error_code="dry_run" if dry_run else None,
+            method=(action.execute or {}).get("method"),
+            dry_run=dry_run,
+            duration_ms=1,
+        )
+
+    fake.apply.side_effect = _apply
+    return fake
+
+
 @pytest.fixture
 def mcp_components():
     """Cree un nouveau set de composants mocks pour chaque test (isolation)."""
@@ -410,6 +438,7 @@ def mcp_components():
         "registry": _make_registry(),
         "backup": _make_backup_manager(),
         "history": _make_history_manager(),
+        "executor": _make_fake_executor(),
     }
 
 
@@ -427,6 +456,7 @@ def mcp_test_server(mcp_components):
             registry=mcp_components["registry"],
             backup_manager=mcp_components["backup"],
             history_manager=mcp_components["history"],
+            executor=mcp_components["executor"],
         )
     except Exception as e:
         pytest.skip(f"create_server() a leve : {e!r} — signature differente de T070 ?")
@@ -611,17 +641,17 @@ class TestWorkflowApplyUndo:
         # Le registry mock retourne sys_011 par defaut (cf _make_registry)
         result = _call_tool(server, "apply", "sys_011")
 
-        # T070 contract : apply -> {"success": True, "status": "catalogued",
-        #                          "action_id": "sys_011", "rollback_id": None,
-        #                          "history_entry_id": int, "message": "..."}
+        # v2.2.x contract : apply -> {"success": True, "status": "applied"|...,
+        #                            "action_id": "sys_011", "rollback_id": None,
+        #                            "duration_ms": int, "method": str, ...}
         assert isinstance(result, dict)
-        assert result.get("success") is True
+        assert result.get("success") is True, result
         assert result.get("action_id") == "sys_011"
-        # rollback_id present (peut etre None en v2.2 catalogue mode)
+        # rollback_id present (peut etre None pour low-risk actions)
         assert "rollback_id" in result
-        # status est "catalogued" en v2.2
-        assert result.get("status") in ("catalogued", "applied"), (
-            f"status attendu 'catalogued' ou 'applied', recu : {result.get('status')}"
+        # status est "applied" (real executor) ou "catalogued" (legacy)
+        assert result.get("status") in ("catalogued", "applied", "already_applied", "dry_run"), (
+            f"status inattendu : {result.get('status')}"
         )
 
     def test_apply_unknown_action_returns_error(self, mcp_test_server):

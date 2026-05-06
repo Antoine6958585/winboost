@@ -375,3 +375,28 @@ class TestChatGUIImport:
         content = app_path.read_text(encoding="utf-8")
         assert "from winboost.gui.chat import ChatPage" in content
         assert "chat_placeholder" not in content
+
+
+# --- Tests Worker Executor Integration (v2.2.x) ---
+
+
+class TestChatWorkerUsesExecutor:
+    """Le worker GUI doit passer par ActionExecutor.apply (plus de catalogue)."""
+
+    def test_chat_module_references_action_executor(self):
+        """Le source de chat.py importe ActionExecutor (pas de catalogue v2.0/v2.1)."""
+        chat_path = Path(__file__).parent.parent.parent / "winboost" / "gui" / "chat.py"
+        content = chat_path.read_text(encoding="utf-8")
+        assert "from winboost.core.executor import ActionExecutor" in content
+        # Plus de message trompeur "execution reelle en v2.1"
+        assert "execution reelle en v2.1" not in content
+        assert "catalogue v2.0" not in content
+
+    def test_chat_module_no_more_catalogued_status(self):
+        """chat.py ne doit plus loguer status 'catalogued' (l'executor logue lui-meme)."""
+        chat_path = Path(__file__).parent.parent.parent / "winboost" / "gui" / "chat.py"
+        content = chat_path.read_text(encoding="utf-8")
+        # le seul "catalogued" toujours toleré serait dans un commentaire historique ;
+        # on verifie qu'il n'y a plus de result_status="catalogued"
+        assert 'result_status="catalogued"' not in content
+        assert "result_status='catalogued'" not in content

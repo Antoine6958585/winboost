@@ -41,6 +41,8 @@ __all__ = [
     "BYOKMissingError",
     "PilotAction",
     "PilotResult",
+    "make_screenshot_provider",
+    "make_action_executor",
 ]
 
 
@@ -68,4 +70,12 @@ def __getattr__(name: str):  # type: ignore[no-untyped-def]
         from winboost.pilot import sandbox
 
         return getattr(sandbox, name)
+    if name == "make_screenshot_provider":
+        from winboost.pilot import screenshot_provider
+
+        return screenshot_provider.make_screenshot_provider
+    if name == "make_action_executor":
+        from winboost.pilot import action_executor
+
+        return action_executor.make_action_executor
     raise AttributeError(f"module 'winboost.pilot' has no attribute {name!r}")

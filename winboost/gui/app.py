@@ -74,6 +74,7 @@ class WinBoostApp(ctk.CTk):
             ("Modules", "modules"),
             ("Chat IA", "chat"),
             ("Diagnose", "diagnose"),
+            ("Pilot", "pilot"),
             ("Historique", "history"),
             ("Parametres", "settings"),
         ]
@@ -173,6 +174,14 @@ class WinBoostApp(ctk.CTk):
             from winboost.gui.diagnose_page import DiagnosePage
             return DiagnosePage(self.content, config=self.config)
 
+        if page_id == "pilot":
+            from winboost.gui.pilot_page import PilotPage
+            return PilotPage(
+                self.content,
+                config=self.config,
+                on_open_settings=lambda: self._show_page("settings"),
+            )
+
         if page_id == "history":
             from winboost.gui.history_page import HistoryPage
             return HistoryPage(self.content, config=self.config)
@@ -200,6 +209,12 @@ class WinBoostApp(ctk.CTk):
         if "chat" in self._pages:
             self._pages["chat"].destroy()
             del self._pages["chat"]
+        # Invalide la page pilot : son rendu depend de profile == 'lab'
+        # + opt-in RGPD. Si l'user vient d'activer/desactiver Lab Mode,
+        # il faut reconstruire la page (placeholder vs UI complete).
+        if "pilot" in self._pages:
+            self._pages["pilot"].destroy()
+            del self._pages["pilot"]
 
 
 class SplashScreen(ctk.CTkToplevel):

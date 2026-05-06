@@ -1,13 +1,58 @@
-"""Settings Page — Configuration profil, API, langue, modules (Phase 9)."""
+"""Settings Page — Configuration profil, API, langue, modules (Phase 9).
+
+Phase 13 v2.3 ajoute une section "Lab Mode" pour le Pilot Computer Use
+Anthropic (T080 + T081) :
+- Toggle pour activer/desactiver le profil "lab"
+- 3 cases d'opt-in RGPD granulaires (CNIL compliant)
+- Configuration de la cle BYOK Anthropic (avec note env recommande)
+- Plafond mensuel parametrable
+- Choix du mode sandbox (window / application / region / full_screen)
+
+La section est ajoutee a la FIN de la page Settings existante. La logique
+ecrit dans Config (`profile`, `pilot.api_key`, `pilot.budget_eur`,
+`pilot.sandbox_mode`, `pilot.rgpd`) — l'onglet Pilot lit ces meme cles.
+"""
 
 from __future__ import annotations
 
+import contextlib
+from datetime import UTC, datetime
 from typing import Any
 
 import customtkinter as ctk
 
 from winboost.core.config import PROFILE_SETTINGS, Config
 from winboost.gui.theme import COLORS, FONTS, RISK_COLORS
+
+# Constantes Lab Mode (Phase 13 v2.3)
+PILOT_RGPD_KEYS: tuple[str, ...] = ("screenshots", "ocr_text", "system_info")
+
+PILOT_SANDBOX_MODES: tuple[tuple[str, str, str], ...] = (
+    (
+        "winboost_window",
+        "Fenetre courante (recommande)",
+        "Le Pilot ne peut interagir qu'avec la fenetre WinBoost active.",
+    ),
+    (
+        "application",
+        "Application nommee",
+        "Le Pilot ne peut interagir qu'avec une application designee.",
+    ),
+    (
+        "screen_region",
+        "Region personnalisee",
+        "Une zone rectangulaire choisie a l'avance.",
+    ),
+    (
+        "full_screen",
+        "Plein ecran (avance, NON recommande)",
+        "Le Pilot peut cliquer n'importe ou. Risque eleve.",
+    ),
+)
+
+DEFAULT_PILOT_BUDGET_EUR = 5.0
+MIN_PILOT_BUDGET_EUR = 1.0
+MAX_PILOT_BUDGET_EUR = 50.0
 
 # Descriptions des profils
 PROFILE_INFO = {
@@ -313,6 +358,9 @@ class SettingsPage(ctk.CTkFrame):
 
         ctk.CTkFrame(info_frame, fg_color="transparent", height=8).pack()
 
+        # === Section Lab Mode (Phase 13 v2.3 — T080 + T081) ===
+        self._build_lab_mode_section(scroll)
+
     # ------------------------------------------------------------------
     # Helpers
     # ------------------------------------------------------------------
@@ -414,3 +462,449 @@ class SettingsPage(ctk.CTkFrame):
         enabled = [name for name, var in self._module_vars.items() if var.get()]
         self._config.set("modules_enabled", enabled)
         self._config.save()
+
+    # ------------------------------------------------------------------
+    # Lab Mode (Phase 13 v2.3 — Pilot Anthropic Computer Use)
+    # ------------------------------------------------------------------
+
+    def _build_lab_mode_section(self, parent: ctk.CTkFrame) -> None:
+        """Construit la section "Lab Mode" complete (toggle + RGPD + config)."""
+        self._add_section_title(parent, "Lab Mode (Pilot Anthropic Computer Use)")
+
+        # --- Bandeau d'avertissement ---
+        warn_frame = ctk.CTkFrame(parent, fg_color=COLORS["bg_card"], corner_radius=10)
+        warn_frame.pack(fill="x", pady=(0, 8))
+
+        ctk.CTkLabel(
+            warn_frame,
+            text=(
+                "Mode experimental. BYOK Anthropic obligatoire. Opt-in RGPD "
+                "complet requis. Les screenshots sont envoyes a l'API "
+                "Anthropic (datacenter US, hors UE)."
+            ),
+            font=FONTS["small"],
+            text_color=COLORS["warning"],
+            wraplength=820,
+            justify="left",
+            anchor="w",
+        ).pack(fill="x", padx=12, pady=10)
+
+        # --- Sous-section : Activer Lab Mode ---
+        toggle_frame = ctk.CTkFrame(parent, fg_color=COLORS["bg_card"], corner_radius=10)
+        toggle_frame.pack(fill="x", pady=(0, 8))
+
+        toggle_inner = ctk.CTkFrame(toggle_frame, fg_color="transparent")
+        toggle_inner.pack(fill="x", padx=12, pady=10)
+
+        is_lab_active = self._config.get("profile", "safe") == "lab"
+        self._lab_mode_var = ctk.BooleanVar(value=is_lab_active)
+
+        ctk.CTkCheckBox(
+            toggle_inner,
+            text="Activer Lab Mode (debloque l'onglet 'Pilot')",
+            font=FONTS["body"],
+            text_color=COLORS["text"],
+            fg_color=COLORS["accent"],
+            hover_color=COLORS["accent_hover"],
+            variable=self._lab_mode_var,
+            command=self._on_lab_mode_toggle,
+        ).pack(side="left")
+
+        self._lab_mode_status = ctk.CTkLabel(
+            toggle_inner,
+            text="",
+            font=FONTS["small"],
+            text_color=COLORS["text_muted"],
+        )
+        self._lab_mode_status.pack(side="right")
+
+        ctk.CTkLabel(
+            toggle_frame,
+            text=(
+                "Active le profil 'lab' qui debloque l'onglet 'Pilot'. "
+                "Si tu desactives, l'onglet disparait au prochain lancement."
+            ),
+            font=FONTS["small"],
+            text_color=COLORS["text_secondary"],
+            wraplength=820,
+            anchor="w",
+            justify="left",
+        ).pack(fill="x", padx=12, pady=(0, 10))
+
+        # --- Sous-section : Notice RGPD + opt-in granulaire ---
+        rgpd_frame = ctk.CTkFrame(parent, fg_color=COLORS["bg_card"], corner_radius=10)
+        rgpd_frame.pack(fill="x", pady=(0, 8))
+
+        ctk.CTkLabel(
+            rgpd_frame,
+            text="Notice RGPD - opt-in granulaire",
+            font=FONTS["subheading"],
+            text_color=COLORS["accent"],
+            anchor="w",
+        ).pack(fill="x", padx=12, pady=(10, 4))
+
+        ctk.CTkLabel(
+            rgpd_frame,
+            text=(
+                "Le mode Pilot envoie des donnees a Anthropic (US). Coche "
+                "explicitement chaque type de donnees autorise. Les 3 cases "
+                "doivent etre cochees pour confirmer l'opt-in."
+            ),
+            font=FONTS["small"],
+            text_color=COLORS["text_secondary"],
+            wraplength=820,
+            anchor="w",
+            justify="left",
+        ).pack(fill="x", padx=12, pady=(0, 8))
+
+        pilot_cfg = self._config.get("pilot", {}) or {}
+        rgpd_cfg = pilot_cfg.get("rgpd", {}) or {}
+
+        self._rgpd_vars: dict[str, ctk.BooleanVar] = {}
+        rgpd_options = [
+            ("screenshots", "Screenshots de la zone autorisee"),
+            ("ocr_text", "Texte OCR extrait des screenshots"),
+            ("system_info", "Informations systeme (OS, version)"),
+        ]
+
+        for key, label in rgpd_options:
+            var = ctk.BooleanVar(value=bool(rgpd_cfg.get(key, False)))
+            self._rgpd_vars[key] = var
+
+            row = ctk.CTkFrame(rgpd_frame, fg_color="transparent")
+            row.pack(fill="x", padx=12, pady=3)
+            ctk.CTkCheckBox(
+                row,
+                text=label,
+                font=FONTS["body"],
+                text_color=COLORS["text_secondary"],
+                fg_color=COLORS["accent"],
+                hover_color=COLORS["accent_hover"],
+                variable=var,
+                command=self._refresh_rgpd_button_state,
+            ).pack(side="left")
+
+        # Bouton "Accepter et confirmer"
+        rgpd_already_ok = all(rgpd_cfg.get(k, False) for k in PILOT_RGPD_KEYS)
+        self._rgpd_confirm_btn = ctk.CTkButton(
+            rgpd_frame,
+            text=(
+                "Opt-in RGPD deja confirme"
+                if rgpd_already_ok
+                else "Accepter et confirmer le opt-in RGPD"
+            ),
+            font=FONTS["body"],
+            fg_color=COLORS["accent"],
+            hover_color=COLORS["accent_hover"],
+            text_color="#ffffff",
+            height=34,
+            corner_radius=8,
+            command=self._on_rgpd_confirm,
+        )
+        self._rgpd_confirm_btn.pack(padx=12, pady=(8, 4), anchor="w")
+
+        self._rgpd_status = ctk.CTkLabel(
+            rgpd_frame,
+            text="",
+            font=FONTS["small"],
+            text_color=COLORS["success"],
+        )
+        self._rgpd_status.pack(padx=12, pady=(0, 10), anchor="w")
+
+        # Etat initial du bouton
+        self._refresh_rgpd_button_state()
+
+        # --- Sous-section : Configuration BYOK + budget + sandbox ---
+        cfg_frame = ctk.CTkFrame(parent, fg_color=COLORS["bg_card"], corner_radius=10)
+        cfg_frame.pack(fill="x", pady=(0, 8))
+
+        ctk.CTkLabel(
+            cfg_frame,
+            text="Configuration",
+            font=FONTS["subheading"],
+            text_color=COLORS["accent"],
+            anchor="w",
+        ).pack(fill="x", padx=12, pady=(10, 4))
+
+        # API key (BYOK Anthropic)
+        api_row = ctk.CTkFrame(cfg_frame, fg_color="transparent")
+        api_row.pack(fill="x", padx=12, pady=4)
+        api_row.grid_columnconfigure(1, weight=1)
+
+        ctk.CTkLabel(
+            api_row,
+            text="Cle API Anthropic (BYOK) :",
+            font=FONTS["body"],
+            text_color=COLORS["text_secondary"],
+            anchor="w",
+        ).grid(row=0, column=0, sticky="w", padx=(0, 10))
+
+        self._pilot_api_entry = ctk.CTkEntry(
+            api_row,
+            placeholder_text="sk-ant-...",
+            font=FONTS["mono"],
+            fg_color=COLORS["bg_dark"],
+            text_color=COLORS["text"],
+            border_color=COLORS["border"],
+            height=32,
+            corner_radius=6,
+            show="*",
+        )
+        self._pilot_api_entry.grid(row=0, column=1, sticky="ew", padx=(0, 8))
+        existing_key = pilot_cfg.get("api_key", "")
+        if existing_key:
+            self._pilot_api_entry.insert(0, existing_key)
+
+        ctk.CTkButton(
+            api_row,
+            text="Coller",
+            font=FONTS["small"],
+            fg_color=COLORS["info"],
+            hover_color="#2980b9",
+            text_color="#ffffff",
+            height=32,
+            width=80,
+            corner_radius=6,
+            command=self._on_paste_api_key,
+        ).grid(row=0, column=2)
+
+        ctk.CTkLabel(
+            cfg_frame,
+            text=(
+                "Recommande : utilise plutot la variable d'environnement "
+                "ANTHROPIC_API_KEY (la cle ne sera pas persistee sur disque)."
+            ),
+            font=FONTS["small"],
+            text_color=COLORS["text_muted"],
+            wraplength=820,
+            anchor="w",
+            justify="left",
+        ).pack(fill="x", padx=12, pady=(0, 8))
+
+        # Budget mensuel
+        budget_row = ctk.CTkFrame(cfg_frame, fg_color="transparent")
+        budget_row.pack(fill="x", padx=12, pady=(4, 4))
+
+        ctk.CTkLabel(
+            budget_row,
+            text="Plafond mensuel (EUR) :",
+            font=FONTS["body"],
+            text_color=COLORS["text_secondary"],
+            anchor="w",
+        ).pack(side="left", padx=(0, 10))
+
+        current_budget = float(pilot_cfg.get("budget_eur", DEFAULT_PILOT_BUDGET_EUR))
+        self._pilot_budget_var = ctk.StringVar(value=f"{current_budget:.1f}")
+        self._pilot_budget_entry = ctk.CTkEntry(
+            budget_row,
+            textvariable=self._pilot_budget_var,
+            font=FONTS["mono"],
+            fg_color=COLORS["bg_dark"],
+            text_color=COLORS["text"],
+            border_color=COLORS["border"],
+            height=32,
+            width=80,
+            corner_radius=6,
+        )
+        self._pilot_budget_entry.pack(side="left")
+
+        ctk.CTkLabel(
+            budget_row,
+            text=f"(min {MIN_PILOT_BUDGET_EUR:.0f}, max {MAX_PILOT_BUDGET_EUR:.0f})",
+            font=FONTS["small"],
+            text_color=COLORS["text_muted"],
+        ).pack(side="left", padx=(8, 0))
+
+        # Sandbox mode (radio group)
+        ctk.CTkLabel(
+            cfg_frame,
+            text="Mode sandbox :",
+            font=FONTS["body"],
+            text_color=COLORS["text_secondary"],
+            anchor="w",
+        ).pack(fill="x", padx=12, pady=(8, 2))
+
+        current_sandbox = str(pilot_cfg.get("sandbox_mode", "winboost_window"))
+        self._pilot_sandbox_var = ctk.StringVar(value=current_sandbox)
+
+        for mode_key, mode_label, mode_help in PILOT_SANDBOX_MODES:
+            row = ctk.CTkFrame(cfg_frame, fg_color="transparent")
+            row.pack(fill="x", padx=20, pady=2)
+            ctk.CTkRadioButton(
+                row,
+                text=mode_label,
+                font=FONTS["body"],
+                text_color=COLORS["text"],
+                fg_color=COLORS["accent"],
+                hover_color=COLORS["accent_hover"],
+                variable=self._pilot_sandbox_var,
+                value=mode_key,
+                command=lambda m=mode_key: self._on_sandbox_change(m),
+            ).pack(side="left")
+            ctk.CTkLabel(
+                row,
+                text=mode_help,
+                font=FONTS["small"],
+                text_color=COLORS["text_muted"],
+                anchor="w",
+            ).pack(side="left", padx=(8, 0))
+
+        # Bouton sauvegarder Pilot config
+        ctk.CTkButton(
+            cfg_frame,
+            text="Sauvegarder la configuration Pilot",
+            font=FONTS["body"],
+            fg_color=COLORS["accent"],
+            hover_color=COLORS["accent_hover"],
+            text_color="#ffffff",
+            height=34,
+            corner_radius=8,
+            command=self._save_pilot_config,
+        ).pack(padx=12, pady=(10, 4), anchor="w")
+
+        self._pilot_status = ctk.CTkLabel(
+            cfg_frame,
+            text="",
+            font=FONTS["small"],
+            text_color=COLORS["success"],
+        )
+        self._pilot_status.pack(padx=12, pady=(0, 10), anchor="w")
+
+    # ------------------------------------------------------------------
+    # Lab Mode callbacks
+    # ------------------------------------------------------------------
+
+    def _on_lab_mode_toggle(self) -> None:
+        """Toggle profil 'lab' <-> 'safe' selon la checkbox."""
+        active = bool(self._lab_mode_var.get())
+        if active:
+            # On ecrit directement via Config.set pour bypasser la validation
+            # de l'attribut profile (qui n'accepte que safe/power_user/expert).
+            self._config.set("profile", "lab")
+            self._lab_mode_status.configure(
+                text="Profil 'lab' actif — onglet Pilot disponible.",
+                text_color=COLORS["success"],
+            )
+        else:
+            self._config.set("profile", "safe")
+            self._lab_mode_status.configure(
+                text="Lab desactive — re-ouvre l'app pour cacher l'onglet Pilot.",
+                text_color=COLORS["warning"],
+            )
+        self._config.save()
+
+        if self._on_profile_change:
+            # UI ne doit jamais crasher si le callback echoue
+            with contextlib.suppress(Exception):
+                self._on_profile_change(self._config.get("profile", "safe"))
+
+    def _refresh_rgpd_button_state(self) -> None:
+        """Active/desactive le bouton 'Accepter' selon les 3 cases RGPD."""
+        all_checked = all(var.get() for var in self._rgpd_vars.values())
+        if all_checked:
+            self._rgpd_confirm_btn.configure(state="normal")
+        else:
+            self._rgpd_confirm_btn.configure(state="disabled")
+
+    def _on_rgpd_confirm(self) -> None:
+        """Click sur 'Accepter et confirmer' : ecrit l'opt-in dans Config."""
+        all_checked = all(var.get() for var in self._rgpd_vars.values())
+        if not all_checked:
+            self._rgpd_status.configure(
+                text="Coche les 3 cases pour confirmer l'opt-in RGPD.",
+                text_color=COLORS["error"],
+            )
+            return
+
+        rgpd_payload: dict[str, Any] = {
+            key: True for key in PILOT_RGPD_KEYS
+        }
+        rgpd_payload["accepted_at"] = datetime.now(tz=UTC).isoformat()
+
+        pilot_cfg = self._config.get("pilot", {}) or {}
+        pilot_cfg["rgpd"] = rgpd_payload
+        self._config.set("pilot", pilot_cfg)
+        self._config.save()
+
+        self._rgpd_confirm_btn.configure(text="Opt-in RGPD confirme")
+        self._rgpd_status.configure(
+            text=f"Opt-in confirme le {rgpd_payload['accepted_at']}",
+            text_color=COLORS["success"],
+        )
+
+    def _on_paste_api_key(self) -> None:
+        """Coupe-papier -> entree API key (best-effort, ne crash pas)."""
+        try:
+            text = self.clipboard_get()
+        except Exception:  # noqa: BLE001 — clipboard peut etre vide
+            return
+        text = (text or "").strip()
+        if not text:
+            return
+        self._pilot_api_entry.delete(0, "end")
+        self._pilot_api_entry.insert(0, text)
+
+    def _on_sandbox_change(self, mode: str) -> None:
+        """Selection radio button sandbox.
+
+        Pour 'full_screen', exige une double confirmation popup avant
+        d'accepter le mode (risque eleve).
+        """
+        if mode != "full_screen":
+            return
+        # Confirmation popup pour full_screen
+        try:
+            from tkinter import messagebox
+            confirmed = messagebox.askyesno(
+                "Risque eleve",
+                "Le mode 'plein ecran' permet au Pilot de cliquer n'importe "
+                "ou sur ton ecran. Risque ELEVE en cas de mauvaise "
+                "interpretation de Claude.\n\n"
+                "Confirmer ce choix ?",
+            )
+        except Exception:  # noqa: BLE001 — tkinter messagebox peut faillir en headless
+            confirmed = False
+
+        if not confirmed:
+            # Revert au mode precedent (par defaut window)
+            self._pilot_sandbox_var.set("winboost_window")
+
+    def _save_pilot_config(self) -> None:
+        """Sauvegarde API key + budget + sandbox dans Config['pilot']."""
+        api_key = self._pilot_api_entry.get().strip()
+        sandbox_mode = self._pilot_sandbox_var.get()
+
+        # Validation budget
+        try:
+            budget_eur = float(self._pilot_budget_var.get().replace(",", "."))
+        except ValueError:
+            self._pilot_status.configure(
+                text="Plafond invalide : entre un nombre.",
+                text_color=COLORS["error"],
+            )
+            return
+
+        if budget_eur < MIN_PILOT_BUDGET_EUR or budget_eur > MAX_PILOT_BUDGET_EUR:
+            self._pilot_status.configure(
+                text=(
+                    f"Plafond doit etre entre {MIN_PILOT_BUDGET_EUR:.0f} "
+                    f"et {MAX_PILOT_BUDGET_EUR:.0f} EUR."
+                ),
+                text_color=COLORS["error"],
+            )
+            return
+
+        pilot_cfg = self._config.get("pilot", {}) or {}
+        if api_key:
+            pilot_cfg["api_key"] = api_key
+        pilot_cfg["budget_eur"] = round(budget_eur, 2)
+        pilot_cfg["sandbox_mode"] = sandbox_mode
+
+        self._config.set("pilot", pilot_cfg)
+        self._config.save()
+
+        self._pilot_status.configure(
+            text="Configuration Pilot sauvegardee.",
+            text_color=COLORS["success"],
+        )
+        self.after(3000, lambda: self._pilot_status.configure(text=""))

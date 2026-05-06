@@ -37,7 +37,7 @@ def _create_engine() -> Engine:
 
 
 @click.group()
-@click.version_option(version="2.3.0", prog_name="WinBoost")
+@click.version_option(version="2.3.1", prog_name="WinBoost")
 def cli() -> None:
     """WinBoost — Le premier assistant Windows qui ne te ment pas."""
 

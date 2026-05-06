@@ -366,6 +366,14 @@ phases:
         asset_sha256: "c4f4fb880ce65a5c5b832fad64c8290fe5478251a09ac2564c8e50489e420b50"
         asset_size_mb: 62.5
         testimonial: "1er bug user resolu via WinBoost : DualSense BT + Rocket League sur Epic Games. Diagnostic en 10s, fix en 2 min."
+      - id: T061d
+        name: "GitHub Release v2.3.1 (GUI Pilot Mode complete : T080 + T081)"
+        status: done
+        assignee: claude-code
+        completed_at: "2026-05-06"
+        url: "https://github.com/Antoine6958585/winboost/releases/tag/v2.3.1"
+        asset_sha256: "7bbcacf8d5b645f7b8a3d64b08c1dd06499a7f0e1afeddcd74163f270d9f6f03"
+        asset_size_mb: 63.7
       - id: T062
         name: "Product Hunt draft"
         status: deferred
@@ -503,11 +511,18 @@ phases:
         name: "Notice RGPD + opt-in granulaire (CNIL compliant)"
         status: not_started
         assignee: antoine
-      - id: T081
-        name: "Tier Lab + integration GUI Settings"
-        status: not_started
+      - id: T080
+        name: "Notice RGPD + opt-in granulaire (CNIL compliant) + screenshot_provider + action_executor"
+        status: done
         assignee: claude-code
-        note: "Backend pilot pret (T076-T079). Reste a brancher screenshot_provider + action_executor + RGPD opt-in UI dans GUI Settings."
+        completed_at: "2026-05-06"
+        progress: "winboost/pilot/screenshot_provider.py (200L Pillow ImageGrab + multi-screens + DPI + Sandbox bbox) + action_executor.py (288L pyautogui complet : click/double_click/right_click/type/key+hotkey/scroll/move/wait, sandbox enforcement, failsafe). 43 tests."
+      - id: T081
+        name: "Tier Lab + integration GUI Settings + onglet Pilot"
+        status: done
+        assignee: claude-code
+        completed_at: "2026-05-06"
+        progress: "winboost/gui/settings_page.py (+388L section Lab Mode + 3 cases RGPD + BYOK + plafond + sandbox mode) + pilot_page.py (743L onglet Pilot avec threading TkConfirmer queue.Queue + Esc binding global + budget tracker live + iterations affichees avec screenshot annote) + app.py onglet ajoute. 48 tests."
 
       # ============================================================
       # Taches additionnelles 2026-05-06 (Antoine accelere dogfooding)

@@ -374,6 +374,16 @@ phases:
         url: "https://github.com/Antoine6958585/winboost/releases/tag/v2.3.1"
         asset_sha256: "7bbcacf8d5b645f7b8a3d64b08c1dd06499a7f0e1afeddcd74163f270d9f6f03"
         asset_size_mb: 63.7
+      - id: T061e
+        name: "GitHub Release v2.4.0 (Polish A/B/C : audio precis + historique pilot + winboost-mcp.exe preview)"
+        status: done
+        assignee: claude-code
+        completed_at: "2026-05-06"
+        url: "https://github.com/Antoine6958585/winboost/releases/tag/v2.4.0"
+        asset_sha256: "1db7dd2c6426208f7a91d0246a8abc209365b5d0d59fff18aa9aae30d40d19e4"
+        asset_size_mb: 63.7
+        polish_delivered: "A (winboost-mcp.exe build script preview), B (audio_native pycaw + 5 actions), C (onglet GUI Historique Pilot)"
+        limitations_levees: "v2.1 'Mute = toggle' + v2.1 'Volume via SendKeys'"
       - id: T062
         name: "Product Hunt draft"
         status: deferred

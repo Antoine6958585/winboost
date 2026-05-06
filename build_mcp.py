@@ -95,6 +95,10 @@ HIDDEN_IMPORTS = [
 # n'a PAS sa place dans `winboost-mcp.exe`.
 # ---------------------------------------------------------------------------
 EXCLUDED_MODULES = [
+    # mcp.cli necessite typer (pas installe), pas necessaire pour le serveur
+    "mcp.cli",
+    "mcp.cli.cli",
+    "typer",
     # GUI stack — gain estime ~25-30 Mo
     "tkinter",
     "_tkinter",
@@ -228,6 +232,11 @@ def build() -> int:
     # Hidden imports
     for mod in HIDDEN_IMPORTS:
         cmd.extend(["--hidden-import", mod])
+
+    # Collect ALL pour fastmcp et mcp (sinon les sous-modules + data files
+    # manquent au runtime). `mcp.cli` necessite typer (pas installe) -> exclu.
+    cmd.extend(["--collect-all", "fastmcp"])
+    cmd.extend(["--collect-all", "mcp"])
 
     # Exclusions agressives
     for exc in EXCLUDED_MODULES:

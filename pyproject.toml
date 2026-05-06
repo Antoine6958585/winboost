@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "winboost"
-version = "2.3.1"
+version = "2.4.0"
 description = "Windows AI System Assistant — Le premier assistant Windows qui ne te ment pas."
 readme = "README.md"
 license = {text = "MIT"}

@@ -30,6 +30,7 @@ HIDDEN_IMPORTS = [
     "winboost.gui.diagnose_page",  # v2.3 nouvel onglet Diagnose
     "winboost.gui.hotkey_overlay",  # v2.1 overlay Ctrl+Alt+Espace
     "winboost.gui.pilot_page",  # v2.3.1 onglet Pilot Mode (placeholder si pas Lab)
+    "winboost.gui.pilot_history_page",  # v2.4 onglet Historique Pilot
     # Core
     "winboost.core.backup",
     "winboost.core.history",

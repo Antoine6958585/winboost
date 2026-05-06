@@ -861,11 +861,12 @@ class ChatPage(ctk.CTkFrame):
         if card:
             card.set_result(success, message)
 
-        # Message dans le chat
+        # Message dans le chat — honnete sur l'etat reel (catalogue v2.0,
+        # executor reel en v2.1). Voir _execute_worker pour le contrat.
         if success:
             StatusBubble(
                 self.messages_frame,
-                "Action executee avec succes",
+                "Action enregistree dans le catalogue (execution reelle en v2.1)",
                 color="success",
             )
         else:

@@ -10,12 +10,14 @@ created: 2026-03-25
 last_updated: 2026-05-06
 
 progress: 100
-current_phase: 12
+current_phase: 13
 current_milestone: v2.2
-phase_11_status: "all_tasks_done_pending_human_validation"
-phase_12_status: "all_code_tasks_done_pending_human_actions"
+phase_validated_by: antoine
+phase_validated_at: "2026-05-06"
+phase_11_status: "validated_by_antoine_2026-05-06"
+phase_12_status: "code_complete_pending_humans"
 phase_human_actions_pending:
-  - "Phase 11 : tester `winboost overlay` in vivo + capturer GIF + dire 'Phase 11 validee'"
+  - "Phase 11 GIF demo overlay (Antoine, marketing only, a faire avant post HN)"
   - "Phase 12 T074 (Enzo) : soumettre aux registres MCP (smithery.ai, anthropic.com/mcp) + post HN"
   - "Phase 12 T075 (Antoine) : pricing Pro 4.99 -> 9.99 EUR + Stripe + landing + email Pro existants"
 current_milestone: v2.1
@@ -359,8 +361,12 @@ phases:
   - phase: 11
     name: "Native Windows Actions + Hotkey overlay (v2.1)"
     milestone: v2.1
-    status: in_progress
+    status: done
+    validated_by: antoine
+    validated_at: "2026-05-06"
     started_at: "2026-05-06"
+    completed_at: "2026-05-06"
+    fix_in_validation: "Hotkey change Win+Espace -> Ctrl+Alt+Espace (decouverte test in vivo : Win+Space capture par Windows pour layout clavier). Marche en non-admin. Commit 9f68803."
     tasks:
       - id: T063
         name: "+30 actions YAML Windows-natives (brightness, dark_mode, volume, bluetooth, focus_assist, wifi, hdr, night_mode, sound_device, power_plan)"

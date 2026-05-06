@@ -12,7 +12,7 @@ verifie le contrat de la classe `HotkeyOverlay` :
 - Idempotence de show()
 - Fallback si `keyboard.add_hotkey` leve OSError
 
-Validation finale (manuelle, hors pytest) : `winboost overlay` puis Win+Espace.
+Validation finale (manuelle, hors pytest) : `winboost overlay` puis Ctrl+Alt+Espace.
 """
 
 from __future__ import annotations
@@ -596,4 +596,4 @@ def test_module_importable():
 
     assert hasattr(mod, "HotkeyOverlay")
     assert hasattr(mod, "run_overlay_foreground")
-    assert mod.HOTKEY_COMBO == "windows+space"
+    assert mod.HOTKEY_COMBO == "ctrl+alt+space"

@@ -271,10 +271,10 @@ def gui() -> None:
 
 @cli.command()
 def overlay() -> None:
-    """Lancer l'overlay hotkey global (Win+Espace -> requete texte rapide).
+    """Lancer l'overlay hotkey global (Ctrl+Alt+Espace -> requete texte rapide).
 
     L'overlay s'enregistre comme listener clavier global et reste en
-    foreground. Presse Win+Espace dans n'importe quelle application pour
+    foreground. Presse Ctrl+Alt+Espace dans n'importe quelle application pour
     invoquer la mini-fenetre de requete. Ctrl+C dans la console pour arreter.
 
     Si le hotkey global ne peut pas s'enregistrer (admin requis ou package

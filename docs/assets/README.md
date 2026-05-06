@@ -18,7 +18,7 @@ Le `README.md` reference `docs/assets/winboost-overlay-demo.gif`. Pour le recapt
 
 1. Terminal ouvert, lancer `winboost overlay` (admin si necessaire)
 2. Basculer sur une application quelconque (Chrome, VS Code, Slack)
-3. Presser **Win+Espace** : l'overlay apparait centre
+3. Presser **Ctrl+Alt+Espace** : l'overlay apparait centre
 4. Taper `active le mode focus`
 5. Presser Enter : l'action proposee s'affiche inline
 6. Presser **Esc** : l'overlay se ferme

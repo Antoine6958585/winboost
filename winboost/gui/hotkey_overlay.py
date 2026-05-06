@@ -1,6 +1,6 @@
-"""Hotkey Overlay — overlay global Win+Espace pour requete texte rapide (T065).
+"""Hotkey Overlay — overlay global Ctrl+Alt+Espace pour requete texte rapide (T065).
 
-Composant invocable n'importe ou sur Windows via Win+Espace :
+Composant invocable n'importe ou sur Windows via Ctrl+Alt+Espace :
 - Mini-fenetre semi-transparente centree sur l'ecran principal
 - Champ de saisie focus auto, placeholder explicite
 - Soumission Enter -> ActionRouter.route() -> affichage des actions inline
@@ -18,7 +18,7 @@ Choix techniques :
 
 Validation manuelle obligatoire : le hotkey global ne peut pas etre teste en CI
 (pas d'evenement clavier reel). Tests unitaires : tous mockes (keyboard, Tk,
-ActionRouter). Test in-vivo : `winboost overlay` puis Win+Espace.
+ActionRouter). Test in-vivo : `winboost overlay` puis Ctrl+Alt+Espace.
 """
 
 from __future__ import annotations
@@ -58,7 +58,7 @@ RISK_COLORS = {
 }
 
 # Hotkey reconnu par le package `keyboard`
-HOTKEY_COMBO = "windows+space"
+HOTKEY_COMBO = "ctrl+alt+space"
 
 # Nombre maximum d'actions affichees dans l'overlay (UI minimale)
 MAX_ACTIONS_DISPLAYED = 3
@@ -67,7 +67,7 @@ PLACEHOLDER_TEXT = "Comment puis-je t'aider ?"
 
 
 class HotkeyOverlay:
-    """Overlay Tk minimal active par Win+Espace.
+    """Overlay Tk minimal active par Ctrl+Alt+Espace.
 
     Cycle de vie :
     1. `start_listener()` enregistre le hotkey global via `keyboard.add_hotkey`.
@@ -99,7 +99,7 @@ class HotkeyOverlay:
     # ------------------------------------------------------------------
 
     def start_listener(self) -> bool:
-        """Enregistre le hotkey global Win+Espace.
+        """Enregistre le hotkey global Ctrl+Alt+Espace.
 
         Returns:
             True si l'enregistrement a reussi, False sinon (fallback GUI).

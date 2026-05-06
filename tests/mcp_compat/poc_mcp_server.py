@@ -66,32 +66,52 @@ def handle(request: dict) -> dict:
     return {"id": request.get("id"), "error": f"unknown method: {method}"}
 
 
+def _safe_stderr_write(msg: str) -> None:
+    """Ecrit sur stderr en tolerant les handles invalides (lance standalone IDE/double-clic)."""
+    try:
+        sys.stderr.write(msg)
+        sys.stderr.flush()
+    except (OSError, ValueError):
+        # Standalone sans terminal attache (double-clic Windows, certains IDE) :
+        # stderr n'a pas de handle valide. Pas grave, on silence.
+        pass
+
+
 def main() -> int:
     _force_utf8()
-    sys.stderr.write("[server] ready\n")
-    sys.stderr.flush()
+    _safe_stderr_write("[server] ready\n")
 
-    for line in sys.stdin:
-        line = line.strip()
-        if not line:
-            continue
-        try:
-            request = json.loads(line)
-        except json.JSONDecodeError as e:
-            response = {"error": f"invalid json: {e}"}
-        else:
+    if sys.stdin is None or not hasattr(sys.stdin, "readline"):
+        # Lance sans stdin (double-clic Windows). Pas le mode prevu, exit propre.
+        _safe_stderr_write("[server] no stdin attached — POC must be invoked via subprocess\n")
+        return 0
+
+    try:
+        for line in sys.stdin:
+            line = line.strip()
+            if not line:
+                continue
             try:
-                response = handle(request)
-            except Exception as e:  # noqa: BLE001
-                response = {"id": request.get("id"), "error": str(e)}
+                request = json.loads(line)
+            except json.JSONDecodeError as e:
+                response = {"error": f"invalid json: {e}"}
+            else:
+                try:
+                    response = handle(request)
+                except Exception as e:  # noqa: BLE001
+                    response = {"id": request.get("id"), "error": str(e)}
 
-        # Ecriture + flush explicite. Sans flush, le bootloader PyInstaller
-        # peut bufferiser indefiniment et le client timeout.
-        sys.stdout.write(json.dumps(response, ensure_ascii=False) + "\n")
-        sys.stdout.flush()
+            try:
+                sys.stdout.write(json.dumps(response, ensure_ascii=False) + "\n")
+                sys.stdout.flush()
+            except (OSError, ValueError):
+                # Stdout casse (pipe ferme cote client). On silence et on sort.
+                return 1
+    except (OSError, ValueError):
+        # Stdin casse en cours de lecture. Pas grave, on sort proprement.
+        pass
 
-    sys.stderr.write("[server] stdin closed, exit\n")
-    sys.stderr.flush()
+    _safe_stderr_write("[server] stdin closed, exit\n")
     return 0
 
 

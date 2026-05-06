@@ -25,7 +25,7 @@ WinBoost est un assistant systeme Windows conversationnel. Il scanne, analyse et
 ### v2.1 — Native Windows + Hotkey
 
 - **+30 actions Windows-natives** (180 actions au total) : luminosite, dark mode, volume, bluetooth, focus assist, DNS, IPv6, animations, transparence, power plans
-- **Hotkey global Win+Espace** : invoque WinBoost depuis n'importe quelle app, mini-overlay transparent (<50 ms), Esc pour fermer
+- **Hotkey global Ctrl+Alt+Espace** : invoque WinBoost depuis n'importe quelle app, mini-overlay transparent (<50 ms), Esc pour fermer
 - **Mode JSON CLI** (`--json`) : sortie parseable pour scripts et integrations
 - **Helper Python `windows_native`** : API de bas niveau (brightness, dark mode, power plan) pour les developpeurs qui integrent WinBoost en lib
 
@@ -100,7 +100,7 @@ winboost gui
 ### Nouveautes v2.1
 
 ```bash
-# Hotkey global (presser Win+Espace pour invoquer)
+# Hotkey global (presser Ctrl+Alt+Espace pour invoquer)
 winboost overlay
 
 # Sortie JSON pour scripting
@@ -153,7 +153,7 @@ Chaque action affiche :
 
 ![WinBoost overlay demo](docs/assets/winboost-overlay-demo.gif)
 
-> GIF a capturer : `winboost overlay` lance, presser Win+Espace, taper "active le mode focus", voir l'overlay s'ouvrir centre, afficher l'action proposee, et se fermer apres execution.
+> GIF a capturer : `winboost overlay` lance, presser Ctrl+Alt+Espace, taper "active le mode focus", voir l'overlay s'ouvrir centre, afficher l'action proposee, et se fermer apres execution.
 
 **Comment tester l'overlay** :
 
@@ -163,7 +163,7 @@ pip install -e .
 winboost overlay
 ```
 
-Puis presser **Win+Espace** depuis n'importe quelle app. Si rien ne se passe, relancer dans un terminal admin (le package `keyboard` requiert parfois admin sur Windows 10/11).
+Puis presser **Ctrl+Alt+Espace** depuis n'importe quelle app. Le hotkey fonctionne sans privilèges administrateur (combo libre, sans collision avec un raccourci système Windows).
 
 ## Securite
 
@@ -199,7 +199,7 @@ WinBoost est concu pour ne jamais endommager votre systeme :
 - CustomTkinter (GUI principale) + Tk pur (overlay hotkey)
 - Click (CLI)
 - psutil + wmi + ctypes + winreg (Windows APIs)
-- `keyboard >= 0.13.5` (hotkey global Win+Espace)
+- `keyboard >= 0.13.5` (hotkey global Ctrl+Alt+Espace)
 - Anthropic API / OpenAI / Ollama (providers LLM)
 - PyInstaller (.exe standalone)
 - pytest + pytest-mock (TDD, 565+ tests)
@@ -246,7 +246,7 @@ tests/          -> pytest, 565+ tests (1 skip Linux)
 
 ## Limitations connues v2.1
 
-- **Hotkey global** : peut necessiter de lancer `winboost overlay` en admin sur certaines configs Windows (limitation du package `keyboard`)
+- **Hotkey global** : sur certaines configs verrouillées (entreprise, antivirus agressif), le hook bas-niveau du package `keyboard` peut être bloqué. Fallback : utiliser le bouton Chat de la GUI (`winboost gui`) ou relancer en admin.
 - **Volume via SendKeys** : approche par envoi de touches virtuelles (VolumeDown/VolumeUp). Pas ideal si l'utilisateur a un controle audio externe (SoundVolumeView, AutoHotkey)
 - **Mute = toggle** : `winboost chat "mute"` agit comme un toggle (re-pressing remet le son). Distinguer mute/unmute strict necessiterait `pycaw` (out of scope v2.1)
 - **Brightness WMI** : peut echouer sur ecrans externes ou docks qui ne supportent pas `WmiMonitorBrightnessMethods`. Fallback documente dans `winboost.utils.windows_native.WindowsNativeError`

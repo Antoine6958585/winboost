@@ -13,10 +13,13 @@ L'historique git conserve les commits de phase 1-5 (`dc7357b` → `38e0de4`) —
 
 ---
 
-## B. Antoine — GitHub Release v2.0.0 + repo public (T061)
+## B. Antoine — GitHub Release v2.0.0 + repo public (T061) — ✅ DONE 2026-05-06
 
-**Statut** : `not_started`
-**Bloque** : visibilité publique, prérequis Product Hunt (T062)
+**Statut** : `done`
+**URL** : https://github.com/Antoine6958585/winboost/releases/tag/v2.0.0
+**Asset** : WinBoost.exe (54,7 Mo, SHA256 `70d94d070902cc7bdf6bba05ed05e0fd9042e7c847994a6d25b6b22888d6b644`)
+**Tag** : v2.0.0 sur commit `ba8a9a6` (main)
+**Latest release** : ✅
 
 ### Verdict smoke test (Reality Checker RUN2 — 2026-05-06) : **GO CLEAN**
 

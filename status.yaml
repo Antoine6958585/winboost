@@ -9,7 +9,7 @@ repo: Antoine6958585/winboost
 created: 2026-03-25
 last_updated: 2026-05-06
 
-progress: 98
+progress: 99
 current_phase: 10
 current_milestone: v2.0
 
@@ -329,8 +329,11 @@ phases:
         assignee: claude-code
       - id: T061
         name: "GitHub Release v2.0.0"
-        status: not_started
+        status: done
         assignee: antoine
+        completed_at: "2026-05-06"
+        url: "https://github.com/Antoine6958585/winboost/releases/tag/v2.0.0"
+        asset_sha256: "70d94d070902cc7bdf6bba05ed05e0fd9042e7c847994a6d25b6b22888d6b644"
       - id: T062
         name: "Product Hunt draft"
         status: not_started
@@ -441,6 +444,9 @@ phases:
         assignee: claude-code
 
 logs:
+  - date: 2026-05-06
+    action: "Release v2.0.0 publiee — repo Antoine6958585/winboost passe public + tag v2.0.0 cree sur main (ba8a9a6) + asset WinBoost.exe (54.7 Mo, sha256 70d94d07...) uploade + marque latest release. URL : https://github.com/Antoine6958585/winboost/releases/tag/v2.0.0. T061 -> done. Progress 98 -> 99 (T062 Product Hunt encore non bloquant). Phase 10 prete pour validation humaine."
+    by: claude-code
   - date: 2026-05-06
     action: "Decision Antoine : skip Release v1.0.0 (T029 -> skipped). Une seule Release sera tiree : v2.0.0. Justification : binaire dit 2.0.0, aucun user v1, eviter la confusion sur repo public, gain de temps pour debloquer la sortie. TODO-HUMAN.md mis a jour avec etapes ordonnees (smoke test -> public -> tag) + template Release v2.0 avec mention honnete catalogue/v2.1. Progress 97 -> 98."
     by: claude-code

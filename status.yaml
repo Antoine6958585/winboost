@@ -9,7 +9,7 @@ repo: Antoine6958585/winboost
 created: 2026-03-25
 last_updated: 2026-05-06
 
-progress: 96
+progress: 97
 current_phase: 10
 current_milestone: v2.0
 
@@ -440,6 +440,12 @@ phases:
         assignee: claude-code
 
 logs:
+  - date: 2026-05-06
+    action: "Remediation bloquants smoke test — verdict NO-GO -> code pret pour GO. Fixes : LICENSE MIT + version 0.1.0 -> 2.0.0 + UAC helper (utils/admin.py) + integration gui/chat (refus action requires_admin si pas admin) + __main__.py + ruff clean (57 -> 0 erreurs) + tests providers (0% -> 100%). Bonus honnetete produit : refonte du message worker GUI qui mentait sur l'execution (catalogue v2.0, executor reel en v2.1). 320 -> 382 tests passent, coverage 91% hors GUI. 6 commits structures. Re-run smoke test recommande avant release."
+    by: claude-code
+  - date: 2026-05-06
+    action: "Smoke test Reality Checker — verdict NO-GO sur T029 et T061. 3 bloquants (LICENSE manquante, version 0.1.0, aucune elevation UAC) + 5 points a corriger. Plan minimal pour GO : ~2h de travail."
+    by: reality-checker
   - date: 2026-05-06
     action: "Plan validé — Évolution v2.1 -> v2.3 (Claude pilote le PC). Phase 11 = +30 actions Windows-natives + hotkey overlay texte. Phase 12 = MCP standalone (monorepo 3 packages). Phase 13 = Computer Use BYOK conditionnel. Voice coupé (gimmick desktop). Pricing Pro 4.99 -> 9.99 EUR. Plan: ~/.claude/plans/proud-weaving-walrus.md. 19 nouvelles tâches T063->T081 ajoutées. Implementation suspendue jusqu'au ship v2.0."
     by: claude-code

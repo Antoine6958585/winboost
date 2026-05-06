@@ -73,6 +73,7 @@ class WinBoostApp(ctk.CTk):
             ("Dashboard", "dashboard"),
             ("Modules", "modules"),
             ("Chat IA", "chat"),
+            ("Diagnose", "diagnose"),
             ("Historique", "history"),
             ("Parametres", "settings"),
         ]
@@ -167,6 +168,10 @@ class WinBoostApp(ctk.CTk):
         if page_id == "chat":
             from winboost.gui.chat import ChatPage
             return ChatPage(self.content, config=self.config)
+
+        if page_id == "diagnose":
+            from winboost.gui.diagnose_page import DiagnosePage
+            return DiagnosePage(self.content, config=self.config)
 
         if page_id == "history":
             from winboost.gui.history_page import HistoryPage

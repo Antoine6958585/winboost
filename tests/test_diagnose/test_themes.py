@@ -44,9 +44,10 @@ def _run(check: Check) -> CheckResult:
 
 
 class TestThemeGetChecks:
-    def test_bluetooth_get_checks_returns_5(self):
+    def test_bluetooth_get_checks_returns_6(self):
+        # 5 checks initiaux + BluetoothGamepadMappingCheck (T084)
         checks = bt_theme.get_checks()
-        assert len(checks) == 5
+        assert len(checks) == 6
         for c in checks:
             assert isinstance(c, Check)
 
@@ -203,6 +204,114 @@ class TestBluetoothPairedDevices:
             mock_ps.return_value = _ps_ok(csv)
             r = _run(bt_theme.BluetoothPairedDevicesCheck())
         assert r.severity == Severity.OK.value
+
+
+class TestBluetoothGamepadMapping:
+    """Tests du nouveau check BluetoothGamepadMappingCheck (T084).
+
+    Use case Antoine : detecter une manette BT mal-mappee (vue par Windows
+    comme "Generic Bluetooth Peripheral" au lieu de "Xbox Wireless Controller").
+    """
+
+    def test_no_gamepad_returns_ok_with_explicit_message(self):
+        # Sortie : header seul (aucun device matche)
+        csv = '"FriendlyName","Status","Class","InstanceId"'
+        with patch("winboost.diagnose.checks.run_powershell") as mock_ps:
+            mock_ps.return_value = _ps_ok(csv)
+            r = _run(bt_theme.BluetoothGamepadMappingCheck())
+        assert r.severity == Severity.OK.value
+        assert "Aucune manette" in r.message
+        assert r.details["gamepads"] == []
+
+    def test_xbox_well_mapped_via_xnacomposite(self):
+        # Cas ideal : Windows reconnait la manette via le driver Xbox dedie
+        csv = (
+            '"FriendlyName","Status","Class","InstanceId"\n'
+            '"Xbox Wireless Controller","OK","XnaComposite","BTHENUM\\\\1"'
+        )
+        with patch("winboost.diagnose.checks.run_powershell") as mock_ps:
+            mock_ps.return_value = _ps_ok(csv)
+            r = _run(bt_theme.BluetoothGamepadMappingCheck())
+        assert r.severity == Severity.OK.value
+        assert "correctement" in r.message.lower()
+        names = [g["name"] for g in r.details["gamepads"]]
+        classes = [g["class"] for g in r.details["gamepads"]]
+        statuses = [g["status"] for g in r.details["gamepads"]]
+        assert "Xbox Wireless Controller" in names
+        assert "XnaComposite" in classes
+        assert statuses == ["well_mapped"]
+
+    def test_xbox_mismapped_as_generic_bluetooth(self):
+        # Cas Antoine : la manette est appairee mais Windows la voit
+        # comme un peripherique BT generique. Driver XINPUT pas installe.
+        csv = (
+            '"FriendlyName","Status","Class","InstanceId"\n'
+            '"Xbox Wireless Controller","OK","Bluetooth","BTHENUM\\\\1"'
+        )
+        with patch("winboost.diagnose.checks.run_powershell") as mock_ps:
+            mock_ps.return_value = _ps_ok(csv)
+            r = _run(bt_theme.BluetoothGamepadMappingCheck())
+        assert r.severity == Severity.WARNING.value
+        assert "mal mappee" in r.message.lower()
+        assert "Xbox Wireless Controller" in r.message
+        assert "bt_unpair_repair" in r.suggested_actions
+        assert r.details["mismapped_count"] == 1
+
+    def test_dualsense_well_mapped(self):
+        # Manette PS5 reconnue specifiquement en HIDClass
+        csv = (
+            '"FriendlyName","Status","Class","InstanceId"\n'
+            '"DualSense Wireless Controller","OK","HIDClass","BTHENUM\\\\3"'
+        )
+        with patch("winboost.diagnose.checks.run_powershell") as mock_ps:
+            mock_ps.return_value = _ps_ok(csv)
+            r = _run(bt_theme.BluetoothGamepadMappingCheck())
+        assert r.severity == Severity.OK.value
+        assert any(
+            g["name"] == "DualSense Wireless Controller"
+            for g in r.details["gamepads"]
+        )
+        assert all(g["status"] == "well_mapped" for g in r.details["gamepads"])
+
+    def test_generic_bluetooth_peripheral_with_gamepad_hint_is_mismapped(self):
+        # FriendlyName = "Bluetooth Peripheral Device" SANS hint gamepad ->
+        # le check ne le considere pas comme une manette (pas de faux positif).
+        # Mais "Xbox Bluetooth Peripheral Device" -> hint Xbox + nom generique
+        # -> mismapped detecte.
+        csv = (
+            '"FriendlyName","Status","Class","InstanceId"\n'
+            '"Xbox Bluetooth Peripheral Device","OK","HIDClass","BTHENUM\\\\7"'
+        )
+        with patch("winboost.diagnose.checks.run_powershell") as mock_ps:
+            mock_ps.return_value = _ps_ok(csv)
+            r = _run(bt_theme.BluetoothGamepadMappingCheck())
+        assert r.severity == Severity.WARNING.value
+        assert "bt_unpair_repair" in r.suggested_actions
+
+    def test_empty_or_malformed_powershell_output_is_robust(self):
+        # Sortie PS vide -> ok (aucune manette), pas de crash
+        with patch("winboost.diagnose.checks.run_powershell") as mock_ps:
+            mock_ps.return_value = _ps_ok("")
+            r = _run(bt_theme.BluetoothGamepadMappingCheck())
+        assert r.severity == Severity.OK.value
+
+        # Sortie PS malformee (juste une virgule) -> pas de crash
+        with patch("winboost.diagnose.checks.run_powershell") as mock_ps:
+            mock_ps.return_value = _ps_ok(",,,\nfoo,bar")
+            r = _run(bt_theme.BluetoothGamepadMappingCheck())
+        assert r.severity in {Severity.OK.value, Severity.WARNING.value}
+
+        # PowerShell echoue -> warning sans crash
+        with patch("winboost.diagnose.checks.run_powershell") as mock_ps:
+            mock_ps.return_value = _ps_fail("ps boom")
+            r = _run(bt_theme.BluetoothGamepadMappingCheck())
+        assert r.severity == Severity.WARNING.value
+
+    def test_native_error_becomes_warning(self):
+        with patch("winboost.diagnose.checks.run_powershell") as mock_ps:
+            mock_ps.side_effect = WindowsNativeError("PS introuvable")
+            r = _run(bt_theme.BluetoothGamepadMappingCheck())
+        assert r.severity == Severity.WARNING.value
 
 
 class TestBluetoothXInputConflict:

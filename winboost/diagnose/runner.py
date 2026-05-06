@@ -370,19 +370,31 @@ class DiagnosticRunner:
 
     @staticmethod
     def _build_fix_plan(results: list[CheckResult]) -> list[dict[str, Any]]:
-        """Construit un plan de fix ordonne et dedoublonne.
+        """Construit un plan de fix ordonne, dedoublonne et FILTRE.
 
         Strategie :
-        1. On collecte tous les `suggested_actions` des checks problematiques
-        2. On dedoublonne en preservant l'ordre d'apparition
-        3. On ordonne par severite : critical -> error -> warning
-        4. Si un check problematique n'a pas d'action_id : etape manuelle
+        1. Tri par severite : critical -> error -> warning.
+        2. Pour chaque check problematique :
+           a. On filtre les actions "symboliques" (declaratives, non
+              automatisables — voir `_SYMBOLIC_ACTIONS`). Les autres
+              `suggested_actions` produisent un step actionnable.
+           b. Si le check est dans MANUAL_FIX_DESCRIPTIONS et n'a pas
+              produit d'action automatisable, on ajoute un step manuel
+              riche (description + alternative).
+           c. Sinon : warning sans action et sans manual fix preconfigure
+              -> exclu (filtre anti-bruit), SAUF si message contient
+              "manuel:" ou "action:" (signal explicite de l'auteur du check).
+              Errors/criticals sans action -> step manuel base sur le message.
+        3. Filtre supplementaire : warnings issus d'un timeout / "lecture KO" /
+           "impossible" sont exclus (pas d'info utile pour l'utilisateur).
+        4. Dedoublonnage : un meme `action_id` ou un meme message ne sortent
+           qu'une seule fois.
         """
         # Groupes ordonnes par severite
         order = [Severity.CRITICAL.value, Severity.ERROR.value, Severity.WARNING.value]
         plan: list[dict[str, Any]] = []
         seen_actions: set[str] = set()
-        seen_manual: set[str] = set()
+        seen_manual_keys: set[str] = set()
         step = 1
 
         for severity in order:
@@ -390,8 +402,14 @@ class DiagnosticRunner:
                 if r.severity != severity:
                     continue
 
-                if r.suggested_actions:
-                    for action_id in r.suggested_actions:
+                # Actions automatisables : tout suggested_action sauf les
+                # symboliques (qui declenchent un manual fix riche).
+                automated_actions = tuple(
+                    a for a in (r.suggested_actions or ()) if a not in _SYMBOLIC_ACTIONS
+                )
+
+                if automated_actions:
+                    for action_id in automated_actions:
                         if action_id in seen_actions:
                             continue
                         seen_actions.add(action_id)
@@ -405,22 +423,57 @@ class DiagnosticRunner:
                             }
                         )
                         step += 1
-                else:
-                    # Pas d'action YAML => etape manuelle dedoublonnee par message
-                    key = r.message
-                    if key in seen_manual:
+                    continue
+
+                # Filtre anti-bruit : un WARNING dont le message est purement
+                # diagnostique (timeout, lecture KO, "impossible de lire")
+                # signale que le check n'a pas pu juger de l'etat du systeme.
+                # Dans ce cas on ne genere AUCUN step (meme si check est dans
+                # MANUAL_FIX_DESCRIPTIONS), parce que rien ne prouve qu'il y
+                # a un probleme reel a corriger.
+                if severity == Severity.WARNING.value and _warning_is_noise(r):
+                    continue
+
+                # Pas d'action automatisable. Tente un manual fix riche.
+                manual_desc = MANUAL_FIX_DESCRIPTIONS.get(r.name)
+                if manual_desc is not None:
+                    key = f"manual:{r.name}"
+                    if key in seen_manual_keys:
                         continue
-                    seen_manual.add(key)
+                    seen_manual_keys.add(key)
                     plan.append(
                         {
                             "step": step,
                             "manual": True,
-                            "description": r.message,
+                            "description": _format_manual_description(manual_desc, r),
+                            "alternative": manual_desc.get("alternative"),
                             "severity": r.severity,
                             "from_check": r.name,
                         }
                     )
                     step += 1
+                    continue
+
+                # Filtre anti-bruit : warning sans action ni manual fix.
+                if severity == Severity.WARNING.value and not _warning_is_actionable(r):
+                    continue
+
+                # Erreur/critique (ou warning explicitement actionable) sans
+                # action ni manual fix : fallback step manuel sur le message.
+                key = f"msg:{r.message}"
+                if key in seen_manual_keys:
+                    continue
+                seen_manual_keys.add(key)
+                plan.append(
+                    {
+                        "step": step,
+                        "manual": True,
+                        "description": r.message,
+                        "severity": r.severity,
+                        "from_check": r.name,
+                    }
+                )
+                step += 1
 
         return plan
 
@@ -470,3 +523,127 @@ def _describe_action(action_id: str, check_result: CheckResult) -> str:
     """
     base = _ACTION_DESCRIPTIONS.get(action_id, f"Action {action_id}")
     return f"{base} (cause : {check_result.message})"
+
+
+# ---------------------------------------------------------------------------
+# Manual fix descriptions — pour les checks dont le fix n'est pas automatable
+#
+# Beaucoup de problemes Windows (drivers BT mal mappes, services optionnels,
+# updates Windows manquantes) n'ont pas d'action YAML safe : la correction
+# passe par une manipulation utilisateur (Settings, Device Manager, Update).
+# Ce mapping permet d'enrichir le plan de fix avec des instructions concretes
+# au lieu d'un message brut "warning".
+#
+# Convention : la cle est le `name` du Check ; la valeur est un dict avec
+# `step_description` (instructions principales) et `alternative` (plan B
+# si la premiere methode echoue, ou None si aucune).
+# ---------------------------------------------------------------------------
+
+MANUAL_FIX_DESCRIPTIONS: dict[str, dict[str, str | None]] = {
+    "bluetooth_gamepad_mapping": {
+        "step_description": (
+            "Desappairer + reappairer la manette Bluetooth (force la reinstall du "
+            "driver). Settings -> Bluetooth -> ta manette -> Remove -> maintenir "
+            "bouton sync sur la manette -> Re-pair."
+        ),
+        "alternative": (
+            "Si reappairage ne fixe pas : Device Manager -> Bluetooth -> la manette "
+            "-> Uninstall device + 'Delete driver' -> reboot -> reappairer."
+        ),
+    },
+    "gaming_xbox_driver_freshness": {
+        "step_description": (
+            "Driver Xbox manquant ou obsolete. Settings -> Windows Update -> "
+            "Optional updates -> Driver updates -> installer 'Xbox Wireless "
+            "Adapter' ou 'XINPUT Compatible'. Si absent, telecharger depuis le "
+            "site Microsoft."
+        ),
+        "alternative": None,
+    },
+    "gaming_xbl_gamesave_status": {
+        "step_description": (
+            "Service XblGameSave arrete = pas de saves cloud Xbox. Pour redemarrer : "
+            "`winboost chat 'redemarrer service xbl'` ou Services.msc -> "
+            "XblGameSave -> Start."
+        ),
+        "alternative": None,
+    },
+    "bluetooth_driver_freshness": {
+        "step_description": (
+            "Drivers Bluetooth obsoletes. Device Manager -> Bluetooth -> "
+            "adaptateur principal (Intel/Realtek/Qualcomm) -> Update driver -> "
+            "Search automatically."
+        ),
+        "alternative": None,
+    },
+}
+
+
+# Actions "symboliques" : declaratives, non automatisables. Elles signalent
+# au plan de fix qu'un manual fix riche doit etre genere via
+# MANUAL_FIX_DESCRIPTIONS, plutot que produire un step actionnable.
+_SYMBOLIC_ACTIONS: frozenset[str] = frozenset(
+    {
+        "bt_unpair_repair",
+    }
+)
+
+
+# Mots-cles qui signalent qu'un message de warning, meme sans suggested_actions,
+# doit apparaitre dans le plan (l'auteur du check le veut explicitement).
+_ACTIONABLE_KEYWORDS: tuple[str, ...] = ("manuel:", "action:")
+
+
+# Mots-cles qui signalent un warning purement diagnostique (pas d'info
+# utile pour l'utilisateur) : a exclure du plan.
+_NOISE_KEYWORDS: tuple[str, ...] = (
+    "timeout",
+    "lecture ko",
+    "lecture echouee",
+    "impossible de lire",
+    "impossible",
+    "non executable",
+    "subprocess/encoding",
+)
+
+
+def _warning_is_noise(check_result: CheckResult) -> bool:
+    """True si le message de warning est purement diagnostique (timeout,
+    lecture KO, "impossible de lire") — donc sans valeur pour l'utilisateur.
+
+    Quand un check ne peut pas determiner l'etat du systeme (PowerShell timeout,
+    parsing KO), on ne sait pas s'il y a un probleme. On exclut ce warning
+    du plan, plutot que de generer une action qui pourrait etre inutile.
+    """
+    msg = (check_result.message or "").lower()
+    return any(kw in msg for kw in _NOISE_KEYWORDS)
+
+
+def _warning_is_actionable(check_result: CheckResult) -> bool:
+    """True si un warning sans suggested_actions merite d'apparaitre dans le plan.
+
+    Regles :
+    - Si le message contient "manuel:" ou "action:" -> oui (signal explicite).
+    - Si le message est du bruit diagnostique -> non.
+    - Sinon -> non (filtre anti-bruit par defaut).
+    """
+    msg = (check_result.message or "").lower()
+    if any(kw in msg for kw in _ACTIONABLE_KEYWORDS):
+        return True
+    if _warning_is_noise(check_result):
+        return False
+    return False
+
+
+def _format_manual_description(
+    manual_desc: dict[str, str | None], check_result: CheckResult
+) -> str:
+    """Concatene la description manuelle avec la cause (message du check).
+
+    Le but : que l'utilisateur voie d'abord *quoi faire*, puis *pourquoi*.
+    """
+    base = manual_desc.get("step_description") or check_result.message
+    cause = check_result.message
+    if cause and cause not in (base or ""):
+        return f"{base} (cause : {cause})"
+    return base or ""

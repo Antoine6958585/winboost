@@ -228,9 +228,17 @@ class TestFixPlan:
         assert action_ids == ["a_crit", "a_err", "a_warn"]
 
     def test_plan_uses_manual_step_when_no_action_id(self):
+        # Le filtre anti-bruit exclut les warnings sans action et sans
+        # signal explicite. Pour qu'un warning "no-action" reste dans le
+        # plan, son message doit contenir "manuel:" ou "action:" (convention).
         runner = _stub_runner({
             "bluetooth": [
-                _FakeCheck("oh", Severity.WARNING.value, "Verifier le BIOS", actions=()),
+                _FakeCheck(
+                    "oh",
+                    Severity.WARNING.value,
+                    "manuel: Verifier le BIOS",
+                    actions=(),
+                ),
             ]
         })
         runner.theme_keywords = {"bluetooth": ("manette",)}
@@ -249,6 +257,101 @@ class TestFixPlan:
         })
         runner.theme_keywords = {"bluetooth": ("manette",)}
         report = runner.run_from_query("manette")
+        assert report.recommended_fix_plan == ()
+
+    def test_plan_excludes_warning_without_actions_or_manual_fix(self):
+        """Filtre anti-bruit (T084) : un warning sans suggested_actions ET
+        sans entree MANUAL_FIX_DESCRIPTIONS ne doit pas polluer le plan."""
+        runner = _stub_runner({
+            "bluetooth": [
+                _FakeCheck(
+                    "noisy_warn",
+                    Severity.WARNING.value,
+                    "Detail technique sans valeur user",
+                    actions=(),
+                ),
+            ]
+        })
+        runner.theme_keywords = {"bluetooth": ("manette",)}
+        report = runner.run_from_query("manette")
+        assert report.recommended_fix_plan == ()
+
+    def test_plan_includes_manual_fix_for_known_check(self):
+        """Si check.name est dans MANUAL_FIX_DESCRIPTIONS, un step manuel
+        riche est genere (description precise + alternative)."""
+        runner = _stub_runner({
+            "bluetooth": [
+                _FakeCheck(
+                    "bluetooth_gamepad_mapping",
+                    Severity.WARNING.value,
+                    "Manette mal mappee : Xbox Wireless Controller",
+                    actions=("bt_unpair_repair",),
+                ),
+            ]
+        })
+        runner.theme_keywords = {"bluetooth": ("manette",)}
+        report = runner.run_from_query("manette")
+        assert len(report.recommended_fix_plan) == 1
+        step = report.recommended_fix_plan[0]
+        assert step.get("manual") is True
+        # Pas de action_id : c'est un manual fix, pas une action automatisable
+        assert "action_id" not in step
+        # Description doit contenir les instructions concretes du mapping
+        assert "Desappairer" in step["description"]
+        assert "Bluetooth" in step["description"]
+        # Cause incluse pour contexte
+        assert "Xbox Wireless Controller" in step["description"]
+        # Alternative present (Device Manager fallback)
+        assert step.get("alternative") is not None
+        assert "Device Manager" in step["alternative"]
+
+    def test_plan_excludes_timeout_and_lecture_ko_warnings(self):
+        """Regression test : un warning issu d'un timeout / lecture KO ne
+        doit jamais polluer le plan (filtre anti-bruit T084)."""
+        runner = _stub_runner({
+            "bluetooth": [
+                _FakeCheck(
+                    "ps_check_a",
+                    Severity.WARNING.value,
+                    "Timeout PowerShell apres 10s",
+                    actions=(),
+                ),
+                _FakeCheck(
+                    "ps_check_b",
+                    Severity.WARNING.value,
+                    "Lecture des drivers BT echouee (PowerShell KO)",
+                    actions=(),
+                ),
+                _FakeCheck(
+                    "ps_check_c",
+                    Severity.WARNING.value,
+                    "Impossible de lire les dates de drivers BT : exc",
+                    actions=(),
+                ),
+            ]
+        })
+        runner.theme_keywords = {"bluetooth": ("manette",)}
+        report = runner.run_from_query("manette")
+        # Aucun de ces 3 warnings ne doit apparaitre dans le plan
+        assert report.recommended_fix_plan == ()
+
+    def test_plan_excludes_noise_warning_even_for_known_check(self):
+        """Un check dans MANUAL_FIX_DESCRIPTIONS dont le message est du bruit
+        (timeout, lecture KO) doit AUSSI etre exclu : on ne genere pas un
+        manual fix si le check n'a pas pu diagnostiquer le probleme."""
+        runner = _stub_runner({
+            "bluetooth": [
+                _FakeCheck(
+                    "bluetooth_driver_freshness",  # est dans MANUAL_FIX_DESCRIPTIONS
+                    Severity.WARNING.value,
+                    "Impossible de lire les dates de drivers BT : Timeout PowerShell",
+                    actions=(),
+                ),
+            ]
+        })
+        runner.theme_keywords = {"bluetooth": ("manette",)}
+        report = runner.run_from_query("manette")
+        # Meme si le check est connu, le bruit le filtre (pas d'info utile).
         assert report.recommended_fix_plan == ()
 
     def test_plan_steps_are_numbered_starting_at_1(self):

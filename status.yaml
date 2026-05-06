@@ -347,6 +347,14 @@ phases:
         completed_at: "2026-05-06"
         url: "https://github.com/Antoine6958585/winboost/releases/tag/v2.0.0"
         asset_sha256: "70d94d070902cc7bdf6bba05ed05e0fd9042e7c847994a6d25b6b22888d6b644"
+      - id: T061b
+        name: "GitHub Release v2.2.0 (rolls up v2.1 + v2.2)"
+        status: done
+        assignee: claude-code
+        completed_at: "2026-05-06"
+        url: "https://github.com/Antoine6958585/winboost/releases/tag/v2.2.0"
+        asset_sha256: "f7b99064c6afff022b75ea5e0bac4198aeb7d29808e9848343eed5c5eaaece60"
+        asset_size_mb: 62.4
       - id: T062
         name: "Product Hunt draft"
         status: deferred

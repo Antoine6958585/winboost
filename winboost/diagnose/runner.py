@@ -542,13 +542,20 @@ def _describe_action(action_id: str, check_result: CheckResult) -> str:
 MANUAL_FIX_DESCRIPTIONS: dict[str, dict[str, str | None]] = {
     "bluetooth_gamepad_mapping": {
         "step_description": (
-            "Desappairer + reappairer la manette Bluetooth (force la reinstall du "
-            "driver). Settings -> Bluetooth -> ta manette -> Remove -> maintenir "
-            "bouton sync sur la manette -> Re-pair."
+            "Manette BT mal mappee. Selon le type :\n"
+            "  - Xbox Wireless : desappairer + reappairer (Settings -> Bluetooth -> "
+            "Remove -> maintenir bouton sync -> Re-pair). Force la reinstall du driver.\n"
+            "  - DualSense / DualShock 4 : Sony n'expose PAS XInput sur le profil BT. "
+            "Solution = installer DS4Windows (https://github.com/Ryochan7/DS4Windows) "
+            "qui emule une manette Xbox virtuelle. Cocher 'Hide DS4 Controller' dans "
+            "les Settings DS4Windows pour eviter le double-input.\n"
+            "  - Pro Controller Switch / Stadia : memes types de wrappers (BetterJoy, "
+            "Stadiacontroller-rs). Le BT pur ne fait pas XInput non plus."
         ),
         "alternative": (
-            "Si reappairage ne fixe pas : Device Manager -> Bluetooth -> la manette "
-            "-> Uninstall device + 'Delete driver' -> reboot -> reappairer."
+            "Si reappairage Xbox ne fixe pas : Device Manager -> Bluetooth -> la manette "
+            "-> Uninstall device + 'Delete driver' -> reboot -> reappairer. Si DualSense, "
+            "rester sur USB filaire si tu ne veux pas installer DS4Windows."
         ),
     },
     "gaming_xbox_driver_freshness": {

@@ -297,7 +297,7 @@ class TestFixPlan:
         # Pas de action_id : c'est un manual fix, pas une action automatisable
         assert "action_id" not in step
         # Description doit contenir les instructions concretes du mapping
-        assert "Desappairer" in step["description"]
+        assert "desappairer" in step["description"].lower()
         assert "Bluetooth" in step["description"]
         # Cause incluse pour contexte
         assert "Xbox Wireless Controller" in step["description"]
